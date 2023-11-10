@@ -1,40 +1,44 @@
 // imports
-import {
-  Cluster,
-  clusterApiUrl,
-  Connection,
-  PublicKey,
-  Keypair,
-} from "@solana/web3.js";
+import { Connection, PublicKey, Keypair } from "@solana/web3.js";
 import { encodeURL, createQR, findReference, FindReferenceError, validateTransfer } from "@solana/pay";
 import BigNumber from "bignumber.js";
 import { useState, useEffect } from "react";
 import QRCode from "react-qr-code";
-
+import { useRouter } from "next/router";
 // Connecting to devnet for this example
 console.log('Connecting to the Solana network\n');
 const RPC = `https://mainnet.helius-rpc.com/?api-key=85b1b62b-6788-41cd-8979-13152d8ebf4c`
 const connection = new Connection(RPC, 'confirmed');
 
 export default function Home() {
+
+  const router = useRouter();
+
+  const { test } = router.query
   // URL Variables
-  const [address, setAddress] = useState("TEY8ZJF3KtrCYyb5BhSymXoNq2F1d7A2ds49bYHKh5b");
-  const [recipient, setRecipient] = useState(new PublicKey("TEY8ZJF3KtrCYyb5BhSymXoNq2F1d7A2ds49bYHKh5b"));
+  const [recipient, setRecipient] = useState(new PublicKey("mi1ytDfgNFYgm54y4f3xzRQbfbyCz6TBmQcAL3brozA"));
   const [memo, setMemo] = useState("")
   const [label, setLabel] = useState("")
   const [amount, setAmount] = useState(new BigNumber(1));
   const [message, setMessage] = useState("");
-  const reference = new Keypair().publicKey;
-
-  // for the QR code
+  const [splToken, setSplToken] = useState("")
+  const [reference, setReference] = useState("");
   const [qrCodeValue, setQrCodeValue] = useState('');
   const [paymentStatus, setPaymentStatus] = useState('');
+  const [url, setUrl] = useState("");
+  const [activeToken, setActiveToken] = useState("");
 
-  async function createPayment() {
+
+  useEffect(() => {
+    setReference(new Keypair().publicKey)
+  }, [])
+
+  const createPayment = async () => {
     console.log("Creating a payment URL \n");
-    setRecipient(new PublicKey(address));
+    setRecipient(new PublicKey(recipient));
     const url = encodeURL({
       recipient,
+      splToken,
       amount,
       reference,
       label,
@@ -42,11 +46,20 @@ export default function Home() {
       memo,
     });
 
+    setUrl(url)
     setQrCodeValue(url.toString()); // convert URL object to string
     checkPayment();
   }
 
-  async function checkPayment() {
+  const handleTokenClick = (tokenPublicKey) => {
+    setSplToken(new PublicKey(tokenPublicKey));
+    setActiveToken(tokenPublicKey); // Set the active token
+  };
+
+  const buttonStyle = (tokenPublicKey) =>
+    `px-4 py-2 font-bold text-white rounded ${activeToken === tokenPublicKey ? 'bg-purple-700' : 'bg-orange-600 hover:bg-purple-700'}`;
+
+  const checkPayment = async () => {
     // update payment status
     setPaymentStatus('pending');
 
@@ -69,7 +82,7 @@ export default function Home() {
             reject(error);
           }
         }
-      }, 250);
+      }, 1000);
     });
 
     // Update payment status
@@ -94,9 +107,9 @@ export default function Home() {
 
   return (
 
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <h1 className="mb-6 text-3xl font-bold text-orange-700">
-        MilyPay Demo
+    <div className="flex flex-col items-center justify-center min-h-screen">
+      <h1 className="mb-6 text-3xl font-bold">
+        MilyPay {test ? "Demo" : ""}
       </h1>
       <div className="w-full max-w-md p-6 mx-auto bg-white rounded-xl shadow-md">
         <div className="mb-4">
@@ -126,13 +139,15 @@ export default function Home() {
             onChange={(e) => setMessage(e.target.value)}
             className="w-full px-3 py-2 text-sm leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
           />
-        </div><div className="mb-4">
+        </div>
+        <div className="mb-4">
           <label className="block mb-2 text-sm font-medium text-gray-700">
             Pay To / Address:
           </label>
           <input
             type="text"
-            onChange={(e) => setAddress(e.target.value)}
+            value={"mi1ytDfgNFYgm54y4f3xzRQbfbyCz6TBmQcAL3brozA"}
+            onChange={(e) => setRecipient(e.target.value)}
             className="w-full px-3 py-2 text-sm leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
           />
         </div>
@@ -146,15 +161,48 @@ export default function Home() {
             className="w-full px-3 py-2 text-sm leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
           />
         </div>
+        <div className="flex justify-center items-center space-x-2">
+          <button
+            className={buttonStyle('So11111111111111111111111111111111111111112')}
+            onClick={() => handleTokenClick('So11111111111111111111111111111111111111112')}
+          >
+            SOL
+          </button>
+
+          <button
+            className={buttonStyle('EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v')}
+            onClick={() => handleTokenClick('EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v')}
+          >
+            USDC
+          </button>
+
+          <button
+            className={buttonStyle('kinXdEcpDQeHPEuQnqmUgtYykqKGVFq6CeVX5iAHJq6')}
+            onClick={() => handleTokenClick('kinXdEcpDQeHPEuQnqmUgtYykqKGVFq6CeVX5iAHJq6')}
+          >
+            KIN
+          </button>
+          <button
+            className={buttonStyle('7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU')}
+            onClick={() => handleTokenClick('7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU')}
+          >
+            SAMO
+          </button>
+          <button
+            className={buttonStyle('DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263')}
+            onClick={() => handleTokenClick('DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263')}
+          >
+            BONK
+          </button>
+        </div>
         <div className="flex justify-center items-center">
           <button
-            className="px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700"
+            className="my-4 px-8 py-4 font-bold text-white bg-purple-700 rounded hover:bg-orange-700"
             onClick={createPayment}
           >
             Create QR Code
           </button>
         </div>
-
         <div>
           {paymentStatus === 'validated' ?
             <p className="mt-4 text-green-500 text-center">Payment Received. Thank you!</p>
@@ -162,8 +210,20 @@ export default function Home() {
               {qrCodeValue && <QRCode value={qrCodeValue} />}
             </div>}
         </div>
+        <footer className="text-xs text-center">Made by <a className="animate-ping text-lg">:</a><a href={"https://milysec.com"} target="_blank">Milysec</a> | Powered by Solana</footer>
       </div>
-
+      {test &&
+        <>
+          <small>{url.toString()}</small>
+          <small>Name: {label}</small>
+          <small>Memo: {memo}</small>
+          <small>Message: {message}</small>
+          <small>Address: {recipient.toString()} </small>
+          <small>Token: {splToken.toString()}</small>
+          <small>Amount: {amount.toString()}</small>
+          <small>Reference: {reference.toString()}</small>
+        </>
+      }
     </div>
 
   );
