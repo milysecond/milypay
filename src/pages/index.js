@@ -16,7 +16,7 @@ export default function Home() {
 
   const { test } = router.query
   // URL Variables
-  const [recipient, setRecipient] = useState(new PublicKey("mi1ytDfgNFYgm54y4f3xzRQbfbyCz6TBmQcAL3brozA"));
+  const [recipient, setRecipient] = useState();
   const [memo, setMemo] = useState("")
   const [label, setLabel] = useState("")
   const [amount, setAmount] = useState(new BigNumber(1));
@@ -25,6 +25,7 @@ export default function Home() {
   const [reference, setReference] = useState("");
   const [qrCodeValue, setQrCodeValue] = useState('');
   const [paymentStatus, setPaymentStatus] = useState('');
+  const [isValidKey, setIsValidKey] = useState(false)
   const [url, setUrl] = useState("");
   const [activeToken, setActiveToken] = useState("");
 
@@ -33,6 +34,16 @@ export default function Home() {
     setReference(new Keypair().publicKey)
   }, [])
 
+  const handleAddressChange = (e) => {
+
+    try {
+      const wallet = new PublicKey(e.target.value)
+      setIsValidKey(PublicKey.isOnCurve(wallet.toBytes()))
+      setRecipient(wallet)
+    } catch {
+      setIsValidKey(false)
+    }
+  }
   const createPayment = async () => {
     console.log("Creating a payment URL \n");
     setRecipient(new PublicKey(recipient));
@@ -146,10 +157,12 @@ export default function Home() {
           </label>
           <input
             type="text"
-            value={"mi1ytDfgNFYgm54y4f3xzRQbfbyCz6TBmQcAL3brozA"}
-            onChange={(e) => setRecipient(e.target.value)}
+            onChange={handleAddressChange}
             className="w-full px-3 py-2 text-sm leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
           />
+          <div className="center border-1 text-xs text-red-500">
+            {isValidKey ? '' : 'Wallet not valid. Please double check'}
+          </div>
         </div>
         <div className="mb-4">
           <label className="block mb-2 text-sm font-medium text-gray-700">
@@ -197,8 +210,9 @@ export default function Home() {
         </div>
         <div className="flex justify-center items-center">
           <button
-            className="my-4 px-8 py-4 font-bold text-white bg-purple-700 rounded hover:bg-orange-700"
+            className={`my-4 px-8 py-4 font-bold text-white ${isValidKey ? 'bg-purple-700 hover:bg-orange-700' : 'bg-gray-700 cursor-not-allowed '} rounded `}
             onClick={createPayment}
+            disabled={!isValidKey}
           >
             Create QR Code
           </button>
