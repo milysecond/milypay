@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Cloudflare / OpenNext
+.open-next/
+.wrangler/
+
+# G-NAF raw data (large)
+.gnaf/

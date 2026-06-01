@@ -1,0 +1,37 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "milypay",
+  "main": ".open-next/worker.js",
+  "workers_dev": true,
+  "compatibility_date": "2025-04-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "binding": "ASSETS",
+    "directory": ".open-next/assets"
+  },
+  "routes": [
+    { "pattern": "milypay.xyz", "custom_domain": true },
+    { "pattern": "www.milypay.xyz", "custom_domain": true },
+    { "pattern": "api.milypay.xyz", "custom_domain": true }
+  ],
+  "observability": {
+    "enabled": true
+  },
+  "unsafe": {
+    "bindings": [
+      {
+        "name": "API_RATE_LIMITER",
+        "type": "ratelimit",
+        "namespace_id": "1001",
+        "simple": { "limit": 20, "period": 60 }
+      }
+    ]
+  },
+  "vars": {
+    "CONTACT_TO": "1milysec@gmail.com",
+    "CONTACT_FROM": "Milysec <noreply@milysec.com>",
+    "PAY_TO_WALLET": "mi1ytDfgNFYgm54y4f3xzRQbfbyCz6TBmQcAL3brozA",
+    "X402_NETWORK": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
+    "TURSO_DATABASE_URL": "libsql://milypay-gnaf-metasal1.aws-ap-northeast-1.turso.io"
+  }
+}

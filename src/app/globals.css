@@ -1,26 +1,82 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "MoonWalk";
+  src: url("/fonts/MoonWalk.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* MilyPay brand tokens - inherited from Milysec (Solana-native palette) */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --brand-green: #14f195;
+  --brand-purple: #9945ff;
+  --bg: #0a0f0a;
+  --bg-card: #0f1410;
+  --fg: #ffffff;
+  --muted: #8aa394;
+  --border: rgba(20, 241, 149, 0.12);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--bg);
+  --color-card: var(--bg-card);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-brand-green: var(--brand-green);
+  --color-brand-purple: var(--brand-purple);
+  --color-border-brand: var(--border);
+
+  --font-display: "MoonWalk", ui-sans-serif, system-ui;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+.brand-gradient-text {
+  background: linear-gradient(100deg, var(--brand-green), var(--brand-purple));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.brand-gradient-bg {
+  background: linear-gradient(100deg, var(--brand-green), var(--brand-purple));
+}
+
+/* soft radial glow used behind the hero */
+.hero-glow {
+  background:
+    radial-gradient(60% 50% at 50% 0%, rgba(20, 241, 149, 0.16), transparent 70%),
+    radial-gradient(40% 40% at 80% 10%, rgba(153, 69, 255, 0.14), transparent 70%);
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+.grid-lines {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(70% 60% at 50% 0%, #000 30%, transparent 100%);
 }
