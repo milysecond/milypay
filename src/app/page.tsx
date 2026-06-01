@@ -1,65 +1,488 @@
-import Image from "next/image";
+import Link from "next/link";
+import { SiteHeader, SiteFooter } from "@/components/site";
+
+const SERVICES: {
+  tag: string;
+  title: string;
+  desc: string;
+  price: string;
+  soon?: boolean;
+}[] = [
+  {
+    tag: "au-business",
+    title: "Business identity",
+    desc: "ABN / ACN lookup, ASIC company data, director and entity verification - agent-grade KYB for Australian businesses.",
+    price: "from $0.002 / call",
+  },
+  {
+    tag: "au-address",
+    title: "Property & address",
+    desc: "GNAF address validation, geocoding, and property data. Clean Australian addresses, resolved on demand.",
+    price: "from $0.004 / call",
+  },
+  {
+    tag: "au-super",
+    title: "Super Fund Lookup",
+    desc: "Verify any Australian super fund by ABN or USI - fund name, status, type, and electronic-rollover details, from the ATO register.",
+    price: "Coming soon",
+    soon: true,
+  },
+  {
+    tag: "au-weather",
+    title: "Weather & environment",
+    desc: "BOM-sourced forecasts, bushfire and flood signals, air quality. Public Australian environment data, metered.",
+    price: "from $0.001 / call",
+  },
+  {
+    tag: "au-money",
+    title: "Money & FX",
+    desc: "AUD reference rates, RBA data, and AUD-denominated settlement - the currency layer agents need locally.",
+    price: "from $0.001 / call",
+  },
+  {
+    tag: "au-civic",
+    title: "Civic & gov",
+    desc: "data.gov.au, electoral and transport feeds (GTFS realtime). Australia's open data, agent-ready.",
+    price: "from $0.002 / call",
+  },
+  {
+    tag: "au-settle",
+    title: "AUD settlement",
+    desc: "x402 facilitation settled in AUD stablecoin. Every call authorised, metered, and paid per request.",
+    price: "0.5% of settled volume",
+  },
+];
+
+const WHY_AUDD = [
+  {
+    title: "1:1 AUD-backed & AFSL-regulated",
+    desc: "Agents need stable, compliant settlement - not volatile crypto. AUDD is fully backed and issued under an AFSL framework.",
+  },
+  {
+    title: "Programmable money",
+    desc: "Smart contracts handle quoting, escrow, splits, and refunds autonomously - no human in the loop.",
+  },
+  {
+    title: "Multi-chain, Solana-first",
+    desc: "AUDD meets agents where they already operate. MilyPay settles on Solana for ~1-second finality.",
+  },
+  {
+    title: "On-chain AUD, zero FX friction",
+    desc: "x402 is dominated by USDC. AUDD is the first AUD-native option - Australian builders stop bridging through USD.",
+  },
+];
+
+const ECOSYSTEM = [
+  { stat: "72+", label: "services on Pay.sh, backed by the Solana Foundation" },
+  { stat: "1,000+", label: "companies in the PayAI facilitator ecosystem" },
+  { stat: "~1s", label: "settlement, 99.9% success rate" },
+  { stat: "10 min", label: "for any AU API to start accepting AUDD" },
+];
+
+const ACCESS = [
+  {
+    tag: "CLI",
+    title: "Command line",
+    desc: "Hit any endpoint from your terminal. The pay.sh CLI handles the 402 challenge and wallet approval for you.",
+    code: "npx pay.sh call milysec/au-business/abn 51824753556",
+  },
+  {
+    tag: "SDK",
+    title: "TypeScript & Python",
+    desc: "Drop-in x402 client. Wrap fetch, get auto-paid responses - no manual payment plumbing.",
+    code: "import { MilyPay } from \"@milypay/sdk\";\nconst au = new MilyPay({ wallet });\nawait au.business.abn(\"51824753556\");",
+  },
+  {
+    tag: "MCP",
+    title: "Model Context Protocol",
+    desc: "Expose MilyPay to any agent via the pay.sh MCP server. Agents discover, price, and pay for Australian data as tools.",
+    code: "// claude / cursor mcp config\n{ \"pay\": { \"command\": \"npx\", \"args\": [\"pay.sh\", \"mcp\"] } }",
+  },
+  {
+    tag: "API",
+    title: "Raw HTTP 402",
+    desc: "No SDK required. Any x402-aware client speaks directly to the endpoint and settles in AUD.",
+    code: "curl https://api.milypay.xyz/au-business/abn/51824753556",
+  },
+];
+
+const STEPS = [
+  {
+    n: "01",
+    title: "Agent requests data",
+    desc: "An AI agent hits a MilyPay endpoint for Australian data - no API key, no signup.",
+  },
+  {
+    n: "02",
+    title: "402 Payment Required",
+    desc: "MilyPay answers with an x402 challenge: price, asset (AUDD), and pay-to address.",
+  },
+  {
+    n: "03",
+    title: "Pay & receive",
+    desc: "Via the PayAI facilitator, the agent's wallet approves the micropayment, settles in AUDD, and the data returns in the same round-trip.",
+  },
+];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <main className="flex-1">
+      <SiteHeader />
+
+      {/* Hero */}
+      <section className="relative overflow-hidden">
+        <div className="hero-glow absolute inset-0 -z-10" />
+        <div className="grid-lines absolute inset-0 -z-10" />
+        <div className="mx-auto max-w-6xl px-6 pb-24 pt-20 md:pt-28">
+          <a
+            href="https://x402.org"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-full border border-border-brand bg-card px-3.5 py-1.5 text-xs text-muted transition hover:text-fg"
+          >
+            <span className="h-1.5 w-1.5 rounded-full bg-brand-green" />
+            AUD-native settlement on x402 · AUDD × PayAI × pay.sh
+          </a>
+
+          <h1 className="font-display mt-7 max-w-4xl text-5xl leading-[1.05] tracking-tight md:text-7xl">
+            Agent payments &amp;{" "}
+            <span className="brand-gradient-text">Australian data</span>, on x402.
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+
+          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted md:text-xl">
+            MilyPay is the x402 service provider built for Australia. AI agents get
+            pay-per-call access to Australian data - business identity, property,
+            weather, civic - settled in <span className="text-fg">AUDD</span>, the
+            regulated AUD-native stablecoin. No keys. No signup. Just 402.
+          </p>
+
+          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+            <Link
+              href="/demo"
+              className="rounded-full bg-brand-green px-6 py-3 text-center text-sm font-semibold text-bg transition hover:opacity-90"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
+              Try it live
+            </Link>
             <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              href="#developers"
+              className="rounded-full border border-border-brand bg-card px-6 py-3 text-center text-sm font-semibold text-fg transition hover:border-brand-green/40"
             >
-              Learning
-            </a>{" "}
-            center.
+              Start building
+            </a>
+          </div>
+
+          <div className="mt-14 flex flex-wrap items-center gap-x-8 gap-y-3 text-xs text-muted">
+            <span className="uppercase tracking-widest">Built on</span>
+            <span>x402 protocol</span>
+            <span className="text-border-brand">·</span>
+            <span>PayAI facilitator</span>
+            <span className="text-border-brand">·</span>
+            <span>pay.sh catalog</span>
+            <span className="text-border-brand">·</span>
+            <span>AUDD on Solana</span>
+          </div>
+        </div>
+      </section>
+
+      {/* The gap */}
+      <section className="border-y border-border-brand bg-card/40">
+        <div className="mx-auto grid max-w-6xl gap-10 px-6 py-16 md:grid-cols-[1.1fr_1fr] md:items-center">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-widest text-brand-green">
+              The gap
+            </p>
+            <h2 className="font-display mt-3 text-3xl tracking-tight md:text-4xl">
+              Every x402 provider is global. <br className="hidden md:block" />
+              None of them own Australia.
+            </h2>
+            <p className="mt-5 max-w-xl leading-relaxed text-muted">
+              The pay.sh catalog is full of horizontal providers - crypto data, email,
+              OCR, search. Useful, but none speak Australian. No ABN lookup, no GNAF
+              addresses, no BOM weather, no AUD rail. MilyPay is the one provider that
+              does - the local layer for agents operating in Australia.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            {[
+              ["74", "providers on pay.sh"],
+              ["0", "serving Australia - until now"],
+              ["1", "namespace: milysec/*"],
+              ["AUD", "native settlement"],
+            ].map(([stat, label]) => (
+              <div key={label} className="card p-5">
+                <div className="font-display text-3xl brand-gradient-text">{stat}</div>
+                <div className="mt-1 text-sm text-muted">{label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Services */}
+      <section id="services" className="mx-auto max-w-6xl px-6 py-20">
+        <div className="max-w-2xl">
+          <p className="text-sm font-semibold uppercase tracking-widest text-brand-green">
+            Services
+          </p>
+          <h2 className="font-display mt-3 text-3xl tracking-tight md:text-4xl">
+            Australian data, priced per call - in AUDD.
+          </h2>
+          <p className="mt-4 leading-relaxed text-muted">
+            Endpoints under the <code className="text-fg">milysec/*</code> namespace, listed
+            on Pay.sh. Metered, pay-as-you-go, settled in AUDD. No commitment.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {SERVICES.map((s) => (
+            <div
+              key={s.tag}
+              className="card group p-6 transition hover:border-brand-green/40"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <code className="text-xs text-brand-purple">milysec/{s.tag}</code>
+                {s.soon && (
+                  <span className="rounded-full border border-border-brand px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted">
+                    Soon
+                  </span>
+                )}
+              </div>
+              <h3 className="font-display mt-3 text-xl tracking-tight">{s.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted">{s.desc}</p>
+              <div
+                className={`mt-5 border-t border-border-brand pt-4 text-sm font-medium ${
+                  s.soon ? "text-muted" : "text-brand-green"
+                }`}
+              >
+                {s.price}
+              </div>
+            </div>
+          ))}
         </div>
-      </main>
-    </div>
+      </section>
+
+      {/* How it works */}
+      <section id="how" className="border-y border-border-brand bg-card/40">
+        <div className="mx-auto max-w-6xl px-6 py-20">
+          <div className="max-w-2xl">
+            <p className="text-sm font-semibold uppercase tracking-widest text-brand-green">
+              How it works
+            </p>
+            <h2 className="font-display mt-3 text-3xl tracking-tight md:text-4xl">
+              One round-trip. No accounts.
+            </h2>
+            <p className="mt-4 leading-relaxed text-muted">
+              x402 turns HTTP 402 - &ldquo;Payment Required&rdquo; - into a real payment
+              rail. The agent pays, the data returns, in the same request.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-4 md:grid-cols-3">
+            {STEPS.map((step) => (
+              <div key={step.n} className="card p-6">
+                <div className="font-display text-2xl brand-gradient-text">{step.n}</div>
+                <h3 className="font-display mt-4 text-lg tracking-tight">{step.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted">{step.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Why AUDD */}
+      <section id="audd" className="mx-auto max-w-6xl px-6 py-20">
+        <div className="max-w-2xl">
+          <p className="text-sm font-semibold uppercase tracking-widest text-brand-green">
+            Why AUDD
+          </p>
+          <h2 className="font-display mt-3 text-3xl tracking-tight md:text-4xl">
+            The first AUD-native currency for agentic payments.
+          </h2>
+          <p className="mt-4 leading-relaxed text-muted">
+            x402 today runs on USDC - Australian builders bridge through USD and eat the FX.
+            MilyPay settles in <span className="text-fg">AUDD</span>: 1:1 AUD-backed,
+            regulated, and programmable. Australia&rsquo;s on-chain dollar for the agent economy.
+          </p>
+        </div>
+
+        <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {WHY_AUDD.map((w) => (
+            <div key={w.title} className="card p-6">
+              <h3 className="font-display text-lg leading-snug tracking-tight">{w.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted">{w.desc}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Ecosystem proof */}
+        <div className="mt-6 grid gap-4 rounded-2xl border border-border-brand bg-card/40 p-8 sm:grid-cols-2 lg:grid-cols-4">
+          {ECOSYSTEM.map((e) => (
+            <div key={e.label}>
+              <div className="font-display text-3xl brand-gradient-text">{e.stat}</div>
+              <div className="mt-1 text-sm leading-relaxed text-muted">{e.label}</div>
+            </div>
+          ))}
+        </div>
+
+        <p className="mt-6 text-xs leading-relaxed text-muted">
+          Ecosystem figures via Pay.sh (Solana Foundation; partners Crossmint, MoonPay,
+          Merit Systems, Corbits) and the PayAI x402 facilitator. AUDD is issued 1:1 and
+          AUD-backed under an AFSL framework. MilyPay provides settlement and data services
+          only - nothing here is an investment offer.
+        </p>
+      </section>
+
+      {/* Provider onboarding */}
+      <section className="border-y border-border-brand bg-card/40">
+        <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-8 px-6 py-16 md:flex-row md:items-center">
+          <div className="max-w-xl">
+            <p className="text-sm font-semibold uppercase tracking-widest text-brand-green">
+              For API providers
+            </p>
+            <h2 className="font-display mt-3 text-3xl tracking-tight md:text-4xl">
+              List your Australian API. Accept AUDD from agents in under 10 minutes.
+            </h2>
+            <p className="mt-4 leading-relaxed text-muted">
+              Wrap any existing API with the MilyPay reference implementation, set a price in
+              AUDD, and it&rsquo;s discoverable and payable by every agent on Pay.sh - no
+              merchant account, no card rails, no FX.
+            </p>
+          </div>
+          <Link
+            href="/contact?topic=provider"
+            className="shrink-0 rounded-full bg-brand-green px-6 py-3 text-sm font-semibold text-bg transition hover:opacity-90"
+          >
+            List your API
+          </Link>
+        </div>
+      </section>
+
+      {/* Developers / code */}
+      <section id="developers" className="mx-auto max-w-6xl px-6 py-20">
+        <div className="grid gap-12 md:grid-cols-[1fr_1.1fr] md:items-center">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-widest text-brand-green">
+              For developers
+            </p>
+            <h2 className="font-display mt-3 text-3xl tracking-tight md:text-4xl">
+              If your agent can make an HTTP request, it can pay.
+            </h2>
+            <p className="mt-5 leading-relaxed text-muted">
+              No API keys, no onboarding forms, no invoices. Point any x402-aware client
+              - or the pay.sh MCP - at a MilyPay endpoint. The first response is a 402
+              with the price; your wallet approves it; the data comes back. Settlement is
+              in AUDD on Solana via the PayAI facilitator.
+            </p>
+            <div className="mt-7 flex flex-wrap gap-3 text-sm">
+              <a
+                href="https://pay.sh"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-full bg-brand-green px-5 py-2.5 font-semibold text-bg transition hover:opacity-90"
+              >
+                Find us on pay.sh ↗
+              </a>
+              <a
+                href="https://x402.org"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-full border border-border-brand bg-card px-5 py-2.5 font-semibold text-fg transition hover:border-brand-green/40"
+              >
+                Read the x402 spec ↗
+              </a>
+            </div>
+          </div>
+
+          <div className="card overflow-hidden">
+            <div className="flex items-center gap-2 border-b border-border-brand px-4 py-3">
+              <span className="h-3 w-3 rounded-full bg-brand-purple/60" />
+              <span className="h-3 w-3 rounded-full bg-brand-green/60" />
+              <span className="h-3 w-3 rounded-full bg-muted/30" />
+              <span className="ml-2 text-xs text-muted">agent ↔ milypay</span>
+            </div>
+            <pre className="overflow-x-auto p-5 text-[13px] leading-relaxed">
+              <code>
+{`$ curl https://api.milypay.xyz/au-business/abn/51824753556
+
+`}<span className="text-brand-purple">HTTP/1.1 402 Payment Required</span>{`
+x-402-price:    0.002
+x-402-asset:    AUDD
+x-402-network:  solana
+x-402-pay-to:   milypay.sol
+
+`}<span className="text-muted"># agent wallet approves, retries with payment…</span>{`
+
+`}<span className="text-brand-green">HTTP/1.1 200 OK</span>{`
+{
+  "abn": "51824753556",
+  "entityName": "MILYSEC PTY LTD",
+  "status": "Active",
+  "state": "NSW",
+  "gstRegistered": true
+}`}
+              </code>
+            </pre>
+          </div>
+        </div>
+
+        {/* Access methods: CLI / SDK / MCP / API */}
+        <div className="mt-16">
+          <h3 className="font-display text-2xl tracking-tight">
+            Four ways to integrate
+          </h3>
+          <p className="mt-2 text-sm text-muted">
+            CLI, SDK, MCP, or raw API - every path settles in AUD on x402.
+          </p>
+          <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {ACCESS.map((a) => (
+              <div
+                key={a.tag}
+                className="card flex flex-col p-6 transition hover:border-brand-green/40"
+              >
+                <span className="inline-flex w-fit items-center rounded-full border border-border-brand px-2.5 py-1 text-xs font-semibold text-brand-green">
+                  {a.tag}
+                </span>
+                <h4 className="font-display mt-4 text-lg tracking-tight">{a.title}</h4>
+                <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">{a.desc}</p>
+                <pre className="mt-4 overflow-x-auto rounded-lg border border-border-brand bg-bg p-3 text-[11px] leading-relaxed text-muted">
+                  <code>{a.code}</code>
+                </pre>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="mx-auto max-w-6xl px-6 pb-24">
+        <div className="card relative overflow-hidden p-10 text-center md:p-16">
+          <div className="hero-glow absolute inset-0 -z-10" />
+          <h2 className="font-display mx-auto max-w-2xl text-3xl tracking-tight md:text-5xl">
+            The Australian layer for agent payments.
+          </h2>
+          <p className="mx-auto mt-5 max-w-xl leading-relaxed text-muted">
+            Ship agents that understand Australia - and pay for what they use, in AUD.
+          </p>
+          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+            <a
+              href="https://pay.sh"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-full bg-brand-green px-6 py-3 text-sm font-semibold text-bg transition hover:opacity-90"
+            >
+              Start building
+            </a>
+            <Link
+              href="/contact?topic=general"
+              className="rounded-full border border-border-brand bg-bg px-6 py-3 text-sm font-semibold text-fg transition hover:border-brand-green/40"
+            >
+              Talk to us
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <SiteFooter />
+    </main>
   );
 }

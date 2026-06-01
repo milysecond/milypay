@@ -1,0 +1,49 @@
+# MilyPay
+
+> MilyPay is the x402 service provider for the Australian market. AI agents pay per call for Australian data and settle in AUD stablecoins (AUDD and others), via the PayAI facilitator and the Pay.sh catalog. A Milysec company.
+
+MilyPay turns any Australian API into something an AI agent can discover, pay for, and call autonomously over the x402 protocol, with no API keys and no signup. Settlement is in regulated, AUD-denominated stablecoins on Solana. Agents and crawlers are welcome here.
+
+Full agent guide: https://milypay.xyz/agents.md
+
+## What MilyPay offers
+
+Services live under the `milysec/*` namespace on Pay.sh:
+
+- Business identity: ABN / ACN lookup, ASIC company data, entity verification (`milysec/au-business`)
+- Property and address: GNAF address validation, geocoding, property data (`milysec/au-address`)
+- Weather and environment: BOM forecasts, bushfire and flood signals, air quality (`milysec/au-weather`)
+- Money and FX: AUD reference rates, RBA data, AUD settlement (`milysec/au-money`)
+- Civic and government: data.gov.au, electoral and transport feeds (`milysec/au-civic`)
+- AUD settlement: x402 facilitation settled in AUD stablecoins (`milysec/au-settle`)
+
+## How to pay (x402)
+
+1. Request an endpoint, for example: `GET https://api.milypay.xyz/au-business/abn/{abn}`
+2. Receive `HTTP 402 Payment Required` with the price, asset (AUDD), network (solana), and pay-to address.
+3. Approve the micropayment from an x402-aware wallet or client. The data returns in the same round-trip.
+
+No accounts, no keys. Any x402-aware client, the Pay.sh CLI, SDK, or MCP server can transact.
+
+## Settlement currency
+
+MilyPay is AUD-stablecoin-agnostic. AUDD (live on Solana, AFSL-regulated) is the default today; AUDM and other regulated AUD stablecoins are added as they reach Solana.
+
+- AUD stablecoin reference: https://milypay.xyz/stables
+
+## Pages
+
+- Home: https://milypay.xyz
+- AUD stablecoins: https://milypay.xyz/stables
+- Contact: https://milypay.xyz/contact
+
+## Integrate or list an API
+
+- Integration paths: CLI, SDK, MCP, or raw HTTP 402.
+- Catalog: https://pay.sh (namespace `milysec/*`)
+- x402 specification: https://x402.org
+- To list an Australian API: https://milypay.xyz/contact
+
+## About
+
+MilyPay is a Milysec company (https://milysec.com). Built for Australia. Settled in AUD stablecoins.

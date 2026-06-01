@@ -1,0 +1,103 @@
+# MilyPay for Agents
+
+The complete way for AI agents to pay for Australian data. MilyPay exposes Australian APIs over the x402 protocol, settled in AUD stablecoins on Solana, and discoverable through Pay.sh, a CLI, an MCP server, SDKs, and raw HTTP 402. No accounts, no API keys.
+
+Agents and crawlers are welcome here. This document describes how to use MilyPay programmatically. A Milysec company.
+
+## Quickstart
+
+Request any endpoint. If it returns `HTTP 402 Payment Required`, pay the quoted price in AUDD from an x402-aware wallet and the data returns in the same round-trip.
+
+```
+curl https://api.milypay.xyz/au-business/abn/51824753556
+```
+
+## Ways to integrate
+
+### CLI
+
+Call any endpoint from your terminal. The Pay.sh CLI handles the 402 challenge and wallet approval for you.
+
+- Zero setup beyond a funded wallet
+- Works with every `milysec/*` service
+- `npx pay.sh call milysec/au-business/abn 51824753556`
+
+### MCP (Model Context Protocol)
+
+Expose MilyPay to any agent through the Pay.sh MCP server. Agents discover, price, and pay for Australian data as tools.
+
+- Drop-in for Claude, Cursor, and other MCP clients
+- Tools are auto-priced in AUD
+- Discovery and payment handled by the gateway
+
+### SDK
+
+A drop-in x402 client for TypeScript and Python. Wrap fetch and get auto-paid responses.
+
+- No manual payment plumbing
+- Typed Australian data responses
+- Handles the 402 retry and AUD settlement
+
+### API (raw HTTP 402)
+
+No SDK required. Any x402-aware client speaks directly to the endpoint.
+
+- Standard HTTP, standard 402
+- Asset AUDD, network Solana
+- Same round-trip settlement
+
+## Services
+
+All services live under the `milysec/*` namespace on Pay.sh.
+
+| Endpoint | What it returns | From |
+| --- | --- | --- |
+| `milysec/au-business` | ABN / ACN lookup, ASIC company data, entity verification | $0.002 / call |
+| `milysec/au-address` | GNAF address validation, geocoding, property data | $0.004 / call |
+| `milysec/au-weather` | BOM forecasts, bushfire and flood signals, air quality | $0.001 / call |
+| `milysec/au-money` | AUD reference rates, RBA data, AUD settlement | $0.001 / call |
+| `milysec/au-civic` | data.gov.au, electoral and transport feeds (GTFS realtime) | $0.002 / call |
+| `milysec/au-settle` | x402 facilitation settled in AUD stablecoins | 0.5% of volume |
+
+## How payment works
+
+1. Your agent requests a MilyPay endpoint, for example `GET https://api.milypay.xyz/au-business/abn/{abn}`.
+2. MilyPay answers with an x402 challenge: price, asset (AUDD), network (solana), and pay-to address.
+3. Your wallet approves the micropayment via the PayAI facilitator. Settlement is in AUDD on Solana, and the data returns in the same request.
+
+## Settlement currency
+
+MilyPay is AUD-stablecoin-agnostic. AUDD (live on Solana, AFSL-regulated) is the default today. AUDM and other regulated AUD stablecoins are added as they reach Solana. See https://milypay.xyz/stables for the full reference.
+
+## List your API
+
+Wrap any existing Australian API with the MilyPay reference implementation, set a price in AUD, and it becomes discoverable and payable by every agent on Pay.sh. Start at https://milypay.xyz/contact.
+
+## FAQ
+
+**What can an agent do with MilyPay?**
+Discover Australian data services, get a price in AUD, pay per call, and receive data, all autonomously over x402.
+
+**Do I need an account or API key?**
+No. Payment is the authentication. Any x402-aware client can transact.
+
+**How do agents pay?**
+With an x402-aware wallet. The first response is an HTTP 402 with the price; the wallet approves it and the request is retried with payment.
+
+**What does it cost?**
+Per call, priced in AUD. See the services table. No subscriptions or minimums.
+
+**Which currency is settlement in?**
+AUD stablecoins. AUDD is the default; others are added as they reach Solana.
+
+**Which network?**
+Solana, via the PayAI x402 facilitator.
+
+## Links
+
+- Home: https://milypay.xyz
+- AUD stablecoins: https://milypay.xyz/stables
+- Contact and list an API: https://milypay.xyz/contact
+- Catalog: https://pay.sh (namespace `milysec/*`)
+- x402 specification: https://x402.org
+- Parent company: https://milysec.com

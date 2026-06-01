@@ -1,36 +1,89 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MilyPay
 
-## Getting Started
+Agent-native payments and Australian data on the [x402](https://x402.org) protocol, settled in AUD stablecoins. A [Milysec](https://milysec.com) company.
 
-First, run the development server:
+MilyPay is the x402 service provider built for Australia. AI agents get pay-per-call access to Australian government data, settled in AUDD on Solana via the [PayAI](https://docs.payai.network/x402) facilitator and listed on [Pay.sh](https://pay.sh). No API keys, no signup.
+
+- Site: https://milypay.xyz
+- API: https://api.milypay.xyz
+- Live demo: https://milypay.xyz/demo
+- For agents: https://milypay.xyz/agents.md
+
+## Services
+
+| Endpoint | Source | Status |
+| --- | --- | --- |
+| `au-business` | ABR ABN Lookup (ATO) | Live |
+| `au-address` | G-NAF (Geoscape, 16.9M addresses) | Live |
+| `au-super` | Super Fund Lookup (ATO) | Coming soon |
+
+### Examples
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Business identity by ABN
+curl https://api.milypay.xyz/au-business/abn/33051775556
+
+# Business by ACN, or name search
+curl https://api.milypay.xyz/au-business/acn/051775556
+curl "https://api.milypay.xyz/au-business/search?name=woolworths"
+
+# Address validation / search / geocoding
+curl "https://api.milypay.xyz/au-address/validate?q=1 bligh st sydney"
+curl "https://api.milypay.xyz/au-address/search?q=120 collins st melbourne"
+curl "https://api.milypay.xyz/au-address/geocode?q=200 adelaide st brisbane"
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Endpoints are currently open (free) and per-IP rate limited. When x402 is enabled, an unpaid request returns `HTTP 402` with a `PAYMENT-REQUIRED` challenge; the agent pays in AUDD and retries.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Next.js 16 (App Router) on Cloudflare Workers via [OpenNext](https://opennext.js.org/cloudflare)
+- Turso (libSQL) for the G-NAF address index, queried over the HTTP pipeline API
+- PayAI x402 facilitator for AUDD settlement on Solana
+- Resend for transactional email
+- Tailwind CSS v4
 
-## Learn More
+## Project layout
 
-To learn more about Next.js, take a look at the following resources:
+```
+src/app/                  pages (home, /demo, /stables, /contact) + metadata
+src/app/api/au-business/  ABN / ACN / name-search routes (ABR)
+src/app/api/au-address/   validate / search / geocode routes (G-NAF via Turso)
+src/lib/abr.ts            ABR ABN Lookup client
+src/lib/gnaf.ts           Turso/libSQL address client (FTS5)
+src/lib/x402.ts           PayAI x402 payment gate (+ per-IP throttle)
+public/agents.md          agent-facing API guide
+public/llms.txt           llmstxt.org discovery file
+keepwarm/                 cron Worker that keeps the Turso DB hydrated
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Local development
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+pnpm install
+pnpm dev                  # Next dev server
+pnpm cf:build             # OpenNext build for Cloudflare
+pnpm cf:deploy            # build + deploy the Worker
+```
 
-## Deploy on Vercel
+## Configuration
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Non-secret config lives in `wrangler.jsonc` (`vars`). Secrets are set with `wrangler secret put` and are never committed:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Secret | Purpose |
+| --- | --- |
+| `ABR_GUID` | ABN Lookup web-services authentication GUID |
+| `SFL_GUID` | Super Fund Lookup GUID (pending) |
+| `TURSO_AUTH_TOKEN` | Turso database token |
+| `RESEND_API_KEY` | Contact-form email |
+
+x402 settlement (when enabled): `X402_ENABLED=true`, `PAY_TO_WALLET`, `AUDD_MINT`.
+
+## Data sources and attribution
+
+- Business data: Australian Business Register (ABR), Australian Taxation Office.
+- Address data: Incorporates or developed using G-NAF (c) Geoscape Australia, licensed under the open G-NAF licence. Per-call lookups only; no bulk redistribution.
+
+## License
+
+Proprietary. (c) Milysec Pty Ltd.
