@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SiteHeader, SiteFooter } from "@/components/site";
+import CodeBlock from "@/components/CodeBlock";
 
 const SERVICES: {
   tag: string;
@@ -417,7 +418,7 @@ x-402-pay-to:   milypay.sol
   "abn": "51824753556",
   "entityName": "MILYSEC PTY LTD",
   "status": "Active",
-  "state": "NSW",
+  "state": "VIC",
   "gstRegistered": true
 }`}
               </code>
@@ -444,9 +445,9 @@ x-402-pay-to:   milypay.sol
                 </span>
                 <h4 className="font-display mt-4 text-lg tracking-tight">{a.title}</h4>
                 <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">{a.desc}</p>
-                <pre className="mt-4 overflow-x-auto rounded-lg border border-border-brand bg-bg p-3 text-[11px] leading-relaxed text-muted">
-                  <code>{a.code}</code>
-                </pre>
+                <div className="mt-4">
+                  <CodeBlock code={a.code} />
+                </div>
               </div>
             ))}
           </div>
