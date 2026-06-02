@@ -29,8 +29,8 @@ const SERVICES: {
   },
   {
     tag: "au-weather",
-    title: "Weather & environment",
-    desc: "BOM-sourced forecasts, bushfire and flood signals, air quality. Public Australian environment data, metered.",
+    title: "Weather",
+    desc: "Current conditions and multi-day forecast for any Australian address or coordinate. BOM ACCESS-G model via Open-Meteo.",
     price: "from $0.001 / call",
   },
   {
