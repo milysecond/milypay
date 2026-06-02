@@ -4,8 +4,9 @@ import { useState } from "react";
 import DemoClient from "./DemoClient";
 import AddressDemo from "./AddressDemo";
 import SuperDemo from "./SuperDemo";
+import WeatherDemo from "./WeatherDemo";
 
-type Service = "business" | "address" | "super";
+type Service = "business" | "address" | "super" | "weather";
 
 export default function DemoTabs() {
   const [service, setService] = useState<Service>("business");
@@ -34,17 +35,20 @@ export default function DemoTabs() {
           {tab("business", "Business (ABN)")}
           {tab("address", "Address (G-NAF)")}
           {tab("super", "Super Fund")}
+          {tab("weather", "Weather")}
         </div>
         <p className="mt-3 text-sm text-muted">
           {service === "business" && "Live milysec/au-business - real ATO data."}
           {service === "address" && "Live milysec/au-address - 16.9M addresses from G-NAF."}
           {service === "super" && "Live milysec/au-super - ATO Super Fund Lookup register."}
+          {service === "weather" && "Live milysec/au-weather - forecast for any Australian address."}
         </p>
       </div>
       <div className="mt-6">
         {service === "business" && <DemoClient />}
         {service === "address" && <AddressDemo />}
         {service === "super" && <SuperDemo />}
+        {service === "weather" && <WeatherDemo />}
       </div>
     </div>
   );

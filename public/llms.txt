@@ -13,6 +13,7 @@ Services live under the `milysec/*` namespace on Pay.sh:
 - Business identity (`milysec/au-business`): ABN/ACN lookup and name search, from the ABR. Live.
 - Address (`milysec/au-address`): validate, search, and geocode any Australian address from G-NAF (16.9M). Live.
 - Super funds (`milysec/au-super`): verify any super fund by ABN - name, status, type, USIs. Live.
+- Weather (`milysec/au-weather`): current conditions and forecast for any Australian address or coordinate (BOM ACCESS-G via Open-Meteo). Live.
 
 Base URL: https://api.milypay.xyz . More Australian services are on the roadmap.
 

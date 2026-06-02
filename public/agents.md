@@ -59,6 +59,8 @@ All services live under the `milysec/*` namespace on Pay.sh.
 | `GET /au-address/search?q=` | Ranked address matches (autocomplete) | $0.004 / call |
 | `GET /au-address/geocode?q=` | Latitude / longitude for an address | $0.004 / call |
 | `GET /au-super/abn/{abn}` | Super fund name, status, type, complying status, USIs | $0.002 / call |
+| `GET /au-weather?q={address}` | Current conditions + multi-day forecast for an Australian address | $0.001 / call |
+| `GET /au-weather?lat={lat}&lng={lng}` | Same, by coordinate | $0.001 / call |
 
 Base URL: `https://api.milypay.xyz`. More Australian services are on the roadmap.
 
