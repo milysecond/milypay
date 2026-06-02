@@ -32,7 +32,7 @@ export function SiteHeader() {
           <Link href="/#services" className="transition hover:text-fg">Services</Link>
           <Link href="/demo" className="transition hover:text-fg">Demo</Link>
           <Link href="/stables" className="transition hover:text-fg">AUD Stables</Link>
-          <Link href="/#how" className="transition hover:text-fg">How it works</Link>
+          <Link href="/#for-agents" className="transition hover:text-fg">For agents</Link>
           <Link href="/#developers" className="transition hover:text-fg">Developers</Link>
           <a
             href="https://pay.sh"

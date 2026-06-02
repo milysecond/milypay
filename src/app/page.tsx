@@ -124,6 +124,17 @@ const STEPS = [
   },
 ];
 
+const AGENT_SYSTEM_PROMPT = `You can use MilyPay, free Australian data APIs at https://api.milypay.xyz (no API key needed). Make a GET request and read the JSON:
+- Australian business by ABN: /au-business/abn/{abn}
+- Business by ACN: /au-business/acn/{acn}
+- Business name search: /au-business/search?name={name}
+- Super fund by ABN: /au-super/abn/{abn}
+- Validate or geocode an address: /au-address/validate?q={address}
+- Weather for an address: /au-weather?q={address}
+Full reference: https://milypay.xyz/agents.md`;
+
+const AGENT_ONELINER = `Use the MilyPay APIs at https://api.milypay.xyz for Australian business, address, super fund, and weather data. Read https://milypay.xyz/agents.md first, then call the endpoints with a GET request and read the JSON.`;
+
 export default function Home() {
   return (
     <main className="flex-1">
@@ -449,6 +460,41 @@ x-402-pay-to:   milypay.sol
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Hand it to your agent */}
+      <section id="for-agents" className="border-y border-border-brand bg-card/40">
+        <div className="mx-auto max-w-6xl px-6 py-20">
+          <div className="max-w-2xl">
+            <p className="text-sm font-semibold uppercase tracking-widest text-brand-green">
+              For your agent
+            </p>
+            <h2 className="font-display mt-3 text-3xl tracking-tight md:text-4xl">
+              Hand it to your agent.
+            </h2>
+            <p className="mt-4 leading-relaxed text-muted">
+              Not a developer? Copy one of these into your AI agent - Claude, ChatGPT, Cursor,
+              or any assistant that can browse or call URLs - and it can use every MilyPay
+              service. No keys, no setup.
+            </p>
+          </div>
+          <div className="mt-10 grid gap-6 md:grid-cols-2">
+            <div>
+              <h3 className="font-display text-lg tracking-tight">
+                Paste into your agent&rsquo;s instructions
+              </h3>
+              <p className="mb-3 mt-1 text-sm text-muted">Gives it the full capability list.</p>
+              <CodeBlock code={AGENT_SYSTEM_PROMPT} plain />
+            </div>
+            <div>
+              <h3 className="font-display text-lg tracking-tight">Or just say this</h3>
+              <p className="mb-3 mt-1 text-sm text-muted">
+                For agents that can browse the web.
+              </p>
+              <CodeBlock code={AGENT_ONELINER} plain />
+            </div>
           </div>
         </div>
       </section>

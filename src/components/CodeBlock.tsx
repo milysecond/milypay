@@ -31,7 +31,7 @@ function renderLine(line: string, key: number): ReactNode {
   );
 }
 
-export default function CodeBlock({ code }: { code: string }) {
+export default function CodeBlock({ code, plain = false }: { code: string; plain?: boolean }) {
   const [copied, setCopied] = useState(false);
 
   async function copy() {
@@ -69,8 +69,16 @@ export default function CodeBlock({ code }: { code: string }) {
           </>
         )}
       </button>
-      <pre className="overflow-x-auto rounded-lg border border-border-brand bg-bg p-3 pr-14 text-[11px] leading-relaxed">
-        <code>{code.split("\n").map((line, idx) => renderLine(line, idx))}</code>
+      <pre
+        className={`rounded-lg border border-border-brand bg-bg p-3 pr-14 text-[11px] leading-relaxed ${
+          plain ? "whitespace-pre-wrap break-words" : "overflow-x-auto"
+        }`}
+      >
+        <code>
+          {plain
+            ? code
+            : code.split("\n").map((line, idx) => renderLine(line, idx))}
+        </code>
       </pre>
     </div>
   );
