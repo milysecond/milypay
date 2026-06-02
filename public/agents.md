@@ -50,14 +50,17 @@ No SDK required. Any x402-aware client speaks directly to the endpoint.
 
 All services live under the `milysec/*` namespace on Pay.sh.
 
-| Endpoint | What it returns | From |
+| Endpoint | What it returns | Price |
 | --- | --- | --- |
-| `milysec/au-business` | ABN / ACN lookup, ASIC company data, entity verification | $0.002 / call |
-| `milysec/au-address` | GNAF address validation, geocoding, property data | $0.004 / call |
-| `milysec/au-weather` | BOM forecasts, bushfire and flood signals, air quality | $0.001 / call |
-| `milysec/au-money` | AUD reference rates, RBA data, AUD settlement | $0.001 / call |
-| `milysec/au-civic` | data.gov.au, electoral and transport feeds (GTFS realtime) | $0.002 / call |
-| `milysec/au-settle` | x402 facilitation settled in AUD stablecoins | 0.5% of volume |
+| `GET /au-business/abn/{abn}` | Entity name, status, type, ACN, GST, business names, location | $0.002 / call |
+| `GET /au-business/acn/{acn}` | Same, resolved from an ACN | $0.002 / call |
+| `GET /au-business/search?name=` | Matching ABNs by business or entity name | $0.004 / call |
+| `GET /au-address/validate?q=` | Canonical address, GNAF PID, geocode | $0.004 / call |
+| `GET /au-address/search?q=` | Ranked address matches (autocomplete) | $0.004 / call |
+| `GET /au-address/geocode?q=` | Latitude / longitude for an address | $0.004 / call |
+| `GET /au-super/abn/{abn}` | Super fund name, status, type, complying status, USIs | $0.002 / call |
+
+Base URL: `https://api.milypay.xyz`. More Australian services are on the roadmap.
 
 ## How payment works
 

@@ -24,9 +24,8 @@ const SERVICES: {
   {
     tag: "au-super",
     title: "Super Fund Lookup",
-    desc: "Verify any Australian super fund by ABN or USI - fund name, status, type, and electronic-rollover details, from the ATO register.",
-    price: "Coming soon",
-    soon: true,
+    desc: "Verify any Australian super fund by ABN - fund name, status, type, complying status, and USIs, from the ATO register.",
+    price: "from $0.002 / call",
   },
   {
     tag: "au-weather",
