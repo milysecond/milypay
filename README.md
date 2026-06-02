@@ -15,7 +15,7 @@ MilyPay is the x402 service provider built for Australia. AI agents get pay-per-
 | --- | --- | --- |
 | `au-business` | ABR ABN Lookup (ATO) | Live |
 | `au-address` | G-NAF (Geoscape, 16.9M addresses) | Live |
-| `au-super` | Super Fund Lookup (ATO) | Coming soon |
+| `au-super` | Super Fund Lookup (ATO) | Live |
 
 ### Examples
 
@@ -31,6 +31,9 @@ curl "https://api.milypay.xyz/au-business/search?name=woolworths"
 curl "https://api.milypay.xyz/au-address/validate?q=1 bligh st sydney"
 curl "https://api.milypay.xyz/au-address/search?q=120 collins st melbourne"
 curl "https://api.milypay.xyz/au-address/geocode?q=200 adelaide st brisbane"
+
+# Super fund by ABN (fund name, status, type, USIs)
+curl https://api.milypay.xyz/au-super/abn/65714394898
 ```
 
 Endpoints are currently open (free) and per-IP rate limited. When x402 is enabled, an unpaid request returns `HTTP 402` with a `PAYMENT-REQUIRED` challenge; the agent pays in AUDD and retries.

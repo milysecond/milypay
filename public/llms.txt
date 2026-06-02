@@ -10,12 +10,11 @@ Full agent guide: https://milypay.xyz/agents.md
 
 Services live under the `milysec/*` namespace on Pay.sh:
 
-- Business identity: ABN / ACN lookup, ASIC company data, entity verification (`milysec/au-business`)
-- Property and address: GNAF address validation, geocoding, property data (`milysec/au-address`)
-- Weather and environment: BOM forecasts, bushfire and flood signals, air quality (`milysec/au-weather`)
-- Money and FX: AUD reference rates, RBA data, AUD settlement (`milysec/au-money`)
-- Civic and government: data.gov.au, electoral and transport feeds (`milysec/au-civic`)
-- AUD settlement: x402 facilitation settled in AUD stablecoins (`milysec/au-settle`)
+- Business identity (`milysec/au-business`): ABN/ACN lookup and name search, from the ABR. Live.
+- Address (`milysec/au-address`): validate, search, and geocode any Australian address from G-NAF (16.9M). Live.
+- Super funds (`milysec/au-super`): verify any super fund by ABN - name, status, type, USIs. Live.
+
+Base URL: https://api.milypay.xyz . More Australian services are on the roadmap.
 
 ## How to pay (x402)
 
