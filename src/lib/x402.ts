@@ -56,6 +56,9 @@ function requirements(price: string): PaymentRequirements {
     asset: process.env.AUDD_MINT || "",
     payTo: process.env.PAY_TO_WALLET || "",
     maxTimeoutSeconds: 60,
+    extra: {
+      feePayer: process.env.PAYAI_FEE_PAYER || "2wKupLR9q6wXYppw8Gr2NvWxKBUqm4PPJKkQfoxHDBg4",
+    },
   };
 }
 
@@ -96,11 +99,14 @@ export async function withX402(
   opts: GateOptions,
   handler: () => Promise<NextResponse>,
 ): Promise<NextResponse> {
-  // While payments are off, the API is open - throttle per IP to protect the GUID quota.
-  if (!enabled()) {
+  // Payments are enforced only on the API host (api.milypay.xyz). The website and demo
+  // (milypay.xyz/api/*) stay free - just per-IP throttled - as does the off state.
+  const host = (req.headers.get("host") || "").toLowerCase();
+  const paidHost = host.startsWith("api.");
+  if (!enabled() || !paidHost) {
     if (await isThrottled(req)) {
       return NextResponse.json(
-        { error: "Rate limit exceeded. Slow down, or contact us for paid x402 access." },
+        { error: "Rate limit exceeded. Slow down, or use api.milypay.xyz with x402 payment." },
         { status: 429, headers: { "retry-after": "60" } },
       );
     }
