@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import DemoClient from "./DemoClient";
+import CompanyDemo from "./CompanyDemo";
 import AddressDemo from "./AddressDemo";
 import SuperDemo from "./SuperDemo";
 import WeatherDemo from "./WeatherDemo";
 
-type Service = "business" | "address" | "super" | "weather";
+type Service = "business" | "company" | "address" | "super" | "weather";
 
 export default function DemoTabs() {
   const [service, setService] = useState<Service>("business");
@@ -33,12 +34,14 @@ export default function DemoTabs() {
       <div className="mx-auto max-w-3xl px-6">
         <div className="inline-flex flex-wrap rounded-full border border-border-brand bg-card p-1">
           {tab("business", "Business (ABN)")}
+          {tab("company", "Company (ASIC)")}
           {tab("address", "Address (G-NAF)")}
           {tab("super", "Super Fund")}
           {tab("weather", "Weather")}
         </div>
         <p className="mt-3 text-sm text-muted">
           {service === "business" && "Live milysec/au-business - real ATO data."}
+          {service === "company" && "Live milysec/au-company - ASIC company register (3.9M companies)."}
           {service === "address" && "Live milysec/au-address - 16.9M addresses from G-NAF."}
           {service === "super" && "Live milysec/au-super - ATO Super Fund Lookup register."}
           {service === "weather" && "Live milysec/au-weather - forecast for any Australian address."}
@@ -46,6 +49,7 @@ export default function DemoTabs() {
       </div>
       <div className="mt-6">
         {service === "business" && <DemoClient />}
+        {service === "company" && <CompanyDemo />}
         {service === "address" && <AddressDemo />}
         {service === "super" && <SuperDemo />}
         {service === "weather" && <WeatherDemo />}

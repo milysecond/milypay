@@ -32,6 +32,7 @@
     "CONTACT_FROM": "Milysec <noreply@milysec.com>",
     "PAY_TO_WALLET": "mi1ytDfgNFYgm54y4f3xzRQbfbyCz6TBmQcAL3brozA",
     "X402_NETWORK": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
-    "TURSO_DATABASE_URL": "libsql://milypay-gnaf-metasal1.aws-ap-northeast-1.turso.io"
+    "TURSO_DATABASE_URL": "libsql://milypay-gnaf-metasal1.aws-ap-northeast-1.turso.io",
+    "TURSO_ASIC_URL": "libsql://milypay-asic-metasal1.aws-ap-northeast-1.turso.io"
   }
 }

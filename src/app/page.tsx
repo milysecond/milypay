@@ -16,6 +16,12 @@ const SERVICES: {
     price: "from $0.002 / call",
   },
   {
+    tag: "au-company",
+    title: "Company register",
+    desc: "ASIC company lookup by ACN or name - status, type, class, registration dates, and former names. 3.9M companies.",
+    price: "from $0.002 / call",
+  },
+  {
     tag: "au-address",
     title: "Property & address",
     desc: "GNAF address validation, geocoding, and property data. Clean Australian addresses, resolved on demand.",
@@ -128,6 +134,8 @@ const AGENT_SYSTEM_PROMPT = `You can use MilyPay, free Australian data APIs at h
 - Australian business by ABN: /au-business/abn/{abn}
 - Business by ACN: /au-business/acn/{acn}
 - Business name search: /au-business/search?name={name}
+- Company (ASIC) by ACN: /au-company/acn/{acn}
+- Company name search: /au-company/search?name={name}
 - Super fund by ABN: /au-super/abn/{abn}
 - Validate or geocode an address: /au-address/validate?q={address}
 - Weather for an address: /au-weather?q={address}

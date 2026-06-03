@@ -1,0 +1,206 @@
+"use client";
+
+import { useState } from "react";
+
+type Mode = "acn" | "name";
+
+interface Company {
+  acn: string;
+  abn: string | null;
+  name: string;
+  status: string;
+  type: string | null;
+  class: string | null;
+  registrationDate: string | null;
+  deregistrationDate: string | null;
+  previousState: string | null;
+  formerNames: string[];
+}
+interface Match {
+  acn: string;
+  name: string;
+  status: string;
+  formerName: boolean;
+}
+
+function StatusBadge({ status }: { status: string }) {
+  const ok = status.toLowerCase() === "registered";
+  return (
+    <span
+      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
+        ok ? "border-brand-green/40 text-brand-green" : "border-border-brand text-muted"
+      }`}
+    >
+      {status}
+    </span>
+  );
+}
+
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex justify-between gap-6 border-t border-border-brand py-2.5 text-sm">
+      <span className="text-muted">{label}</span>
+      <span className="text-right text-fg">{value}</span>
+    </div>
+  );
+}
+
+export default function CompanyDemo() {
+  const [mode, setMode] = useState<Mode>("name");
+  const [query, setQuery] = useState("woolworths group");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [company, setCompany] = useState<Company | null>(null);
+  const [matches, setMatches] = useState<Match[] | null>(null);
+  const [lastPath, setLastPath] = useState<string | null>(null);
+
+  async function run(m: Mode, q: string) {
+    if (!q.trim()) return;
+    setLoading(true);
+    setError(null);
+    setCompany(null);
+    setMatches(null);
+    const path =
+      m === "acn"
+        ? `/api/au-company/acn/${encodeURIComponent(q.trim())}`
+        : `/api/au-company/search?name=${encodeURIComponent(q.trim())}&limit=8`;
+    setLastPath(path);
+    try {
+      const res = await fetch(path);
+      const data = await res.json();
+      if (!res.ok) setError(data.error || `Request failed (${res.status})`);
+      else if (m === "acn") setCompany(data);
+      else setMatches(data.matches || []);
+    } catch {
+      setError("Network error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="mx-auto max-w-3xl px-6 pb-24">
+      <div className="inline-flex rounded-full border border-border-brand bg-card p-1">
+        {(["acn", "name"] as Mode[]).map((m) => (
+          <button
+            key={m}
+            type="button"
+            onClick={() => setMode(m)}
+            className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
+              mode === m ? "bg-brand-green text-bg" : "text-muted hover:text-fg"
+            }`}
+          >
+            {m === "acn" ? "ACN" : "Company name"}
+          </button>
+        ))}
+      </div>
+
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          void run(mode, query);
+        }}
+        className="mt-4 flex flex-col gap-3 sm:flex-row"
+      >
+        <div className="relative flex-1">
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={mode === "acn" ? "e.g. 000014675" : "e.g. Woolworths Group"}
+            className="w-full rounded-full border border-border-brand bg-card px-5 py-3 pr-11 text-fg outline-none placeholder:text-muted/50 focus:border-brand-green"
+          />
+          {query && (
+            <button
+              type="button"
+              onClick={() => setQuery("")}
+              aria-label="Clear"
+              className="absolute right-3 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-full text-muted transition hover:bg-border-brand hover:text-fg"
+            >
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
+                <path d="M6 6l12 12M18 6L6 18" />
+              </svg>
+            </button>
+          )}
+        </div>
+        <button
+          type="submit"
+          disabled={loading || !query.trim()}
+          className="rounded-full bg-brand-green px-6 py-3 text-sm font-semibold text-bg transition hover:opacity-90 disabled:opacity-40"
+        >
+          {loading ? "Looking up..." : "Look up"}
+        </button>
+      </form>
+
+      {lastPath && (
+        <div className="mt-6 overflow-x-auto rounded-lg border border-border-brand bg-bg p-3 font-mono text-xs text-muted">
+          <span className="text-brand-green">GET</span> https://milypay.xyz{lastPath}
+        </div>
+      )}
+
+      <div className="mt-4">
+        {error && <div className="card p-6 text-sm text-brand-purple">{error}</div>}
+
+        {company && (
+          <div className="card p-6 md:p-8">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h3 className="font-display text-2xl tracking-tight">{company.name}</h3>
+              <StatusBadge status={company.status} />
+            </div>
+            <div className="mt-5">
+              <Row label="ACN" value={company.acn} />
+              {company.abn && <Row label="ABN" value={company.abn} />}
+              {company.type && <Row label="Type" value={company.type} />}
+              {company.class && <Row label="Class" value={company.class} />}
+              {company.registrationDate && <Row label="Registered" value={company.registrationDate} />}
+              {company.deregistrationDate && (
+                <Row label="Deregistered" value={company.deregistrationDate} />
+              )}
+            </div>
+            {company.formerNames.length > 0 && (
+              <div className="mt-5 border-t border-border-brand pt-4">
+                <p className="text-xs uppercase tracking-widest text-muted">Former names</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {company.formerNames.map((n) => (
+                    <span key={n} className="rounded-full border border-border-brand px-2.5 py-1 text-xs text-fg">
+                      {n}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {matches && (
+          <div className="flex flex-col gap-3">
+            {matches.length === 0 && <div className="card p-6 text-sm text-muted">No matches found.</div>}
+            {matches.map((m, i) => (
+              <button
+                key={`${m.acn}-${i}`}
+                type="button"
+                onClick={() => {
+                  setMode("acn");
+                  setQuery(m.acn);
+                  void run("acn", m.acn);
+                }}
+                className="card group flex items-center justify-between gap-4 p-4 text-left transition hover:border-brand-green/40"
+              >
+                <div className="min-w-0">
+                  <p className="truncate font-medium text-fg">{m.name}</p>
+                  <p className="mt-0.5 text-xs text-muted">
+                    ACN {m.acn}
+                    {m.formerName ? " · former name" : ""}
+                  </p>
+                </div>
+                <div className="flex shrink-0 items-center gap-3">
+                  <StatusBadge status={m.status} />
+                  <span className="text-muted transition group-hover:text-brand-green">-&gt;</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

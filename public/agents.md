@@ -55,6 +55,8 @@ All services live under the `milysec/*` namespace on Pay.sh.
 | `GET /au-business/abn/{abn}` | Entity name, status, type, ACN, GST, business names, location | $0.002 / call |
 | `GET /au-business/acn/{acn}` | Same, resolved from an ACN | $0.002 / call |
 | `GET /au-business/search?name=` | Matching ABNs by business or entity name | $0.004 / call |
+| `GET /au-company/acn/{acn}` | ASIC company: status, type, class, registration dates, former names | $0.002 / call |
+| `GET /au-company/search?name=` | Companies matching a name (current + former names) | $0.004 / call |
 | `GET /au-address/validate?q=` | Canonical address, GNAF PID, geocode | $0.004 / call |
 | `GET /au-address/search?q=` | Ranked address matches (autocomplete) | $0.004 / call |
 | `GET /au-address/geocode?q=` | Latitude / longitude for an address | $0.004 / call |
