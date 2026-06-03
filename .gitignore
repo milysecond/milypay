@@ -46,3 +46,6 @@ next-env.d.ts
 
 # G-NAF raw data (large)
 .gnaf/
+
+# ASIC raw data (large)
+.asic/

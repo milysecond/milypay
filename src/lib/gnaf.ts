@@ -3,49 +3,10 @@
 // Talks to Turso over the libSQL HTTP pipeline API (fetch only - Workers-native, no SDK).
 // Config (Worker env): TURSO_DATABASE_URL, TURSO_AUTH_TOKEN.
 
-type Cell = { type: "text" | "integer" | "float" | "null" | "blob"; value?: string | number };
+import { tursoQuery } from "./turso";
 
-function arg(v: string | number): Cell {
-  if (typeof v === "number") return Number.isInteger(v) ? { type: "integer", value: String(v) } : { type: "float", value: v };
-  return { type: "text", value: v };
-}
-
-function cellValue(c: Cell): string | number | null {
-  if (c.type === "null") return null;
-  if (c.type === "float") return typeof c.value === "number" ? c.value : Number(c.value);
-  if (c.type === "integer") return c.value === undefined ? null : Number(c.value);
-  return c.value === undefined ? null : (c.value as string);
-}
-
-async function query<T = Record<string, unknown>>(sql: string, args: (string | number)[]): Promise<T[]> {
-  const base = process.env.TURSO_DATABASE_URL;
-  if (!base) throw new Error("TURSO_DATABASE_URL is not configured");
-  const url = base.replace(/^libsql:\/\//, "https://").replace(/\/$/, "") + "/v2/pipeline";
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${process.env.TURSO_AUTH_TOKEN || ""}`,
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({
-      requests: [
-        { type: "execute", stmt: { sql, args: args.map(arg) } },
-        { type: "close" },
-      ],
-    }),
-  });
-  if (!res.ok) throw new Error(`TURSO http ${res.status}`);
-  const data = (await res.json()) as {
-    results: { type: string; response?: { result?: { cols: { name: string }[]; rows: Cell[][] } }; error?: { message: string } }[];
-  };
-  const r = data.results?.[0];
-  if (!r || r.type !== "ok" || !r.response?.result) {
-    throw new Error(`TURSO query failed: ${r?.error?.message || "unknown"}`);
-  }
-  const cols = r.response.result.cols.map((c) => c.name);
-  return r.response.result.rows.map(
-    (row) => Object.fromEntries(row.map((cell, i) => [cols[i], cellValue(cell)])) as T,
-  );
+function query<T = Record<string, unknown>>(sql: string, args: (string | number)[]): Promise<T[]> {
+  return tursoQuery<T>(process.env.TURSO_DATABASE_URL, process.env.TURSO_AUTH_TOKEN, sql, args);
 }
 
 function titleCase(s: string): string {
