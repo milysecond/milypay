@@ -38,7 +38,7 @@ curl "https://api.milypay.xyz/au-address/geocode?q=200 adelaide st brisbane"
 curl https://api.milypay.xyz/au-super/abn/65714394898
 ```
 
-Endpoints are currently open (free) and per-IP rate limited. When x402 is enabled, an unpaid request returns `HTTP 402` with a `PAYMENT-REQUIRED` challenge; the agent pays in AUDD and retries.
+**Payments are live on the API host.** A request to `https://api.milypay.xyz/...` without payment returns `HTTP 402` with a `PAYMENT-REQUIRED` challenge (settled in AUDD on Solana via the PayAI facilitator); the agent pays and retries. The same endpoints on the website host (`https://milypay.xyz/api/...`) and the live demo remain free and per-IP rate limited.
 
 ## Stack
 
