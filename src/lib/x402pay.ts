@@ -19,6 +19,30 @@ function getPayer(): Keypair {
   return payer;
 }
 
+function paymentId(): string {
+  const b = crypto.getRandomValues(new Uint8Array(16));
+  return "pay_" + Array.from(b, (x) => x.toString(16).padStart(2, "0")).join("");
+}
+
+// Some x402 providers (e.g. Birdeye) require a payment-identifier extension that
+// x402-solana does not yet set. Inject it into the PAYMENT-SIGNATURE before sending.
+const customFetch: typeof fetch = async (input, init) => {
+  const headers = new Headers(init?.headers);
+  const sig = headers.get("PAYMENT-SIGNATURE");
+  if (sig) {
+    try {
+      const payload = JSON.parse(atob(sig)) as Record<string, unknown>;
+      const ext = (payload.extensions as Record<string, unknown>) || {};
+      ext["payment-identifier"] = { info: { id: paymentId() } };
+      payload.extensions = ext;
+      headers.set("PAYMENT-SIGNATURE", btoa(JSON.stringify(payload)));
+    } catch {
+      /* leave header as-is */
+    }
+  }
+  return fetch(input, { ...init, headers });
+};
+
 // Pay an upstream x402 resource and return its Response. maxAtomicUsdc caps spend per call.
 export async function payAndFetch(
   url: string,
@@ -37,6 +61,7 @@ export async function payAndFetch(
     network: "solana",
     rpcUrl: process.env.SOLANA_RPC_URL || "https://solana-rpc.publicnode.com",
     amount: BigInt(maxAtomicUsdc),
+    customFetch,
   });
   return client.fetch(url, init);
 }
