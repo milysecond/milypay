@@ -255,7 +255,9 @@ export default function DocsPage() {
               The same endpoints on the website host{" "}
               <code className="text-fg">https://milypay.xyz/api/...</code> and the{" "}
               <Link href="/demo" className="text-brand-green hover:underline">live demo</Link> are
-              free and per-IP rate limited, so you can try every service without paying.
+              free and per-IP rate limited, so you can try every service without paying. To run
+              the real paid round-trip with a Solana wallet, see{" "}
+              <Link href="/pay" className="text-brand-green hover:underline">/pay</Link>.
             </p>
             <CodeBlock
               code={`# Paid (agents): returns 402, then pay + retry
