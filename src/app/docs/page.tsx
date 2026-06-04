@@ -18,6 +18,7 @@ const NAV = [
   { id: "address", label: "Address" },
   { id: "super", label: "Super funds" },
   { id: "weather", label: "Weather" },
+  { id: "markets", label: "Market data" },
   { id: "data", label: "Data & attribution" },
 ];
 
@@ -179,6 +180,36 @@ const SECTIONS: Section[] = [
     "windSpeed": 15, "weather": "Mainly clear" },
   "daily": [ { "date": "2026-06-02", "tempMax": 16, "tempMin": 11, "weather": "Drizzle" } ]
 }`,
+      },
+    ],
+  },
+  {
+    id: "markets",
+    title: "Market data (third-party)",
+    namespace: "milysec/markets",
+    source: "Birdeye (birdeye/data on pay.sh), resold by MilyPay",
+    blurb:
+      "Solana and multi-chain DeFi data - token prices, overviews, security, holders, trending. You pay MilyPay in AUDD; MilyPay pays Birdeye in USDC. Paid-only (no free tier, since each call costs us upstream). Path maps to Birdeye's /x402/* endpoints (47 available).",
+    endpoints: [
+      {
+        path: "GET /markets/defi/price?address={mint}&chain=solana",
+        desc: "Real-time token price.",
+        example:
+          'curl "https://api.milypay.xyz/markets/defi/price?address=So11111111111111111111111111111111111111112&chain=solana"',
+        response: `{ "success": true, "data": { "value": 67.94, "priceChange24h": -5.98, "updateUnixTime": 1780611789 } }`,
+      },
+      {
+        path: "GET /markets/defi/token_overview?address={mint}&chain=solana",
+        desc: "Full token snapshot: price, volume, liquidity, market cap, metadata.",
+        example:
+          'curl "https://api.milypay.xyz/markets/defi/token_overview?address=DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263&chain=solana"',
+        response: `{ "data": { "name": "Bonk", "price": 0.0000047, "liquidity": 2397911, "marketCap": 391882289 } }`,
+      },
+      {
+        path: "GET /markets/defi/token_security?address={mint}&chain=solana",
+        desc: "Security and rug-risk indicators for a token.",
+        example: 'curl "https://api.milypay.xyz/markets/defi/token_security?address={mint}&chain=solana"',
+        response: `{ "data": { "...": "security analysis" } }`,
       },
     ],
   },
