@@ -7,21 +7,54 @@ if (typeof globalThis !== "undefined") {
 }
 
 import "@solana/wallet-adapter-react-ui/styles.css";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ConnectionProvider,
   WalletProvider,
+  useConnection,
   useWallet,
 } from "@solana/wallet-adapter-react";
 import { WalletModalProvider, WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { PublicKey } from "@solana/web3.js";
 import { createX402Client } from "x402-solana/client";
+
+const AUDD_MINT = new PublicKey("AUDDttiEpCydTm7joUMbYddm72jAWXZnCpPZtDoxqBSw");
 
 // Public Solana mainnet RPC for wallet operations. Swap for a dedicated RPC for production.
 const RPC = "https://api.mainnet-beta.solana.com";
 
 function PayInner() {
   const wallet = useWallet();
+  const { connection } = useConnection();
+  const [bal, setBal] = useState<{ sol: number; audd: number } | null>(null);
   const [abn, setAbn] = useState("33051775556");
+
+  useEffect(() => {
+    const pk = wallet.publicKey;
+    if (!pk) {
+      setBal(null);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const [lamports, tokens] = await Promise.all([
+          connection.getBalance(pk),
+          connection.getParsedTokenAccountsByOwner(pk, { mint: AUDD_MINT }),
+        ]);
+        const audd = tokens.value.reduce(
+          (s, a) => s + (a.account.data.parsed.info.tokenAmount.uiAmount || 0),
+          0,
+        );
+        if (!cancelled) setBal({ sol: lamports / 1e9, audd });
+      } catch {
+        if (!cancelled) setBal(null);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [wallet.publicKey, connection]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<Record<string, unknown> | null>(null);
@@ -72,9 +105,17 @@ function PayInner() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <WalletMultiButton />
         {wallet.publicKey && (
-          <span className="text-xs text-muted">
-            {wallet.publicKey.toString().slice(0, 4)}…{wallet.publicKey.toString().slice(-4)}
-          </span>
+          <div className="text-right text-xs text-muted">
+            <div>
+              {wallet.publicKey.toString().slice(0, 4)}…{wallet.publicKey.toString().slice(-4)}
+            </div>
+            {bal && (
+              <div className="mt-0.5">
+                <span className="text-brand-green">{bal.audd.toFixed(2)} AUDD</span>
+                <span> · {bal.sol.toFixed(3)} SOL</span>
+              </div>
+            )}
+          </div>
         )}
       </div>
 
