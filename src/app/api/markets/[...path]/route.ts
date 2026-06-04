@@ -17,7 +17,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ path: st
 
   return withX402(
     req,
-    { price: "0.05", description: `Market data: ${path.join("/")}` },
+    { price: "0.05", description: `Market data: ${path.join("/")}`, alwaysPaid: true },
     async () => {
       try {
         const res = await payAndFetch(upstream);

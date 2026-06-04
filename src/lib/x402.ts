@@ -88,6 +88,9 @@ function paymentRequired(req: Request, price: string, description: string): Next
 export interface GateOptions {
   price: string; // human AUD amount, e.g. "0.02"
   description: string;
+  // Always require payment (even on the website host). Use for services that cost us
+  // money upstream (e.g. resold third-party APIs) so the free host can't drain funds.
+  alwaysPaid?: boolean;
 }
 
 /**
@@ -102,7 +105,7 @@ export async function withX402(
   // Payments are enforced only on the API host (api.milypay.xyz). The website and demo
   // (milypay.xyz/api/*) stay free - just per-IP throttled - as does the off state.
   const host = (req.headers.get("host") || "").toLowerCase();
-  const paidHost = host.startsWith("api.");
+  const paidHost = host.startsWith("api.") || opts.alwaysPaid === true;
   if (!enabled() || !paidHost) {
     if (await isThrottled(req)) {
       return NextResponse.json(
