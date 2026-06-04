@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { SiteHeader, SiteFooter } from "@/components/site";
 import DemoTabs from "./DemoTabs";
 
@@ -29,6 +30,12 @@ export default function DemoPage() {
             Agents pay per call in AUDD over x402; here it is open for you to try. No keys,
             no signup.
           </p>
+          <Link
+            href="/pay"
+            className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-brand-green hover:underline"
+          >
+            Or pay the real x402 fee with your Solana wallet -&gt;
+          </Link>
         </div>
       </section>
 
