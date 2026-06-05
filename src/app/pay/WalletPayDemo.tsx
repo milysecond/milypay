@@ -21,7 +21,7 @@ import { createX402Client } from "x402-solana/client";
 const AUDD_MINT = new PublicKey("AUDDttiEpCydTm7joUMbYddm72jAWXZnCpPZtDoxqBSw");
 
 // Public Solana mainnet RPC for wallet operations. Swap for a dedicated RPC for production.
-const RPC = "https://api.mainnet-beta.solana.com";
+const RPC = "https://solana-rpc.publicnode.com";
 
 function PayInner() {
   const wallet = useWallet();
@@ -85,6 +85,7 @@ function PayInner() {
           signTransaction: async (t: any) => await wallet.signTransaction!(t),
         },
         network: "solana",
+        rpcUrl: RPC,
         amount: BigInt(1_000_000), // max 1 AUDD safety limit (calls cost ~0.002)
       });
       const res = await client.fetch(
