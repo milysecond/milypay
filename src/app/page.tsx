@@ -40,6 +40,19 @@ const SERVICES: {
     price: "from $0.001 / call",
   },
   {
+    tag: "au-postage",
+    title: "Postage",
+    desc: "Australia Post parcel rates and service options between any two postcodes, domestic or international. Powered by the AusPost PAC.",
+    price: "from $0.002 / call",
+  },
+  {
+    tag: "au-tracking",
+    title: "Parcel tracking",
+    desc: "Track an Australia Post parcel by tracking number - status and full event history.",
+    price: "Coming soon",
+    soon: true,
+  },
+  {
     tag: "au-money",
     title: "Money & FX",
     desc: "AUD reference rates, RBA data, and AUD-denominated settlement - the currency layer agents need locally.",
@@ -139,6 +152,7 @@ const AGENT_SYSTEM_PROMPT = `You can use MilyPay, free Australian data APIs at h
 - Super fund by ABN: /au-super/abn/{abn}
 - Validate or geocode an address: /au-address/validate?q={address}
 - Weather for an address: /au-weather?q={address}
+- Postage between postcodes: /au-postage?from={from}&to={to}&weight={kg}
 Full reference: https://milypay.xyz/agents.md`;
 
 const AGENT_ONELINER = `Use the MilyPay APIs at https://api.milypay.xyz for Australian business, address, super fund, and weather data. Read https://milypay.xyz/agents.md first, then call the endpoints with a GET request and read the JSON.`;

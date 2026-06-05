@@ -18,6 +18,8 @@ MilyPay is the x402 service provider built for Australia. AI agents get pay-per-
 | `au-address` | G-NAF (Geoscape, 16.9M addresses) | Live |
 | `au-super` | Super Fund Lookup (ATO) | Live |
 | `au-weather` | Open-Meteo (BOM ACCESS-G), by address or coordinate | Live |
+| `au-postage` | Australia Post (PAC), parcel rates between postcodes | Live |
+| `au-tracking` | Australia Post Shipping & Tracking | Pending merchant key |
 
 ### Examples
 
