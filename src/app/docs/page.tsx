@@ -18,6 +18,7 @@ const NAV = [
   { id: "address", label: "Address" },
   { id: "super", label: "Super funds" },
   { id: "weather", label: "Weather" },
+  { id: "postage", label: "Postage" },
   { id: "markets", label: "Market data" },
   { id: "data", label: "Data & attribution" },
 ];
@@ -180,6 +181,33 @@ const SECTIONS: Section[] = [
     "windSpeed": 15, "weather": "Mainly clear" },
   "daily": [ { "date": "2026-06-02", "tempMax": 16, "tempMin": 11, "weather": "Drizzle" } ]
 }`,
+      },
+    ],
+  },
+  {
+    id: "postage",
+    title: "Postage",
+    namespace: "milysec/au-postage",
+    source: "Australia Post (Postage Assessment Calculator)",
+    blurb: "Australia Post parcel rates and service options between postcodes, domestic or international.",
+    endpoints: [
+      {
+        path: "GET /au-postage?from={pc}&to={pc}&weight={kg}",
+        desc: "Domestic parcel services and prices. Optional length/width/height in cm.",
+        example: 'curl "https://api.milypay.xyz/au-postage?from=3000&to=2000&weight=2"',
+        response: `{
+  "from": "3000", "to": "2000",
+  "services": [
+    { "code": "AUS_PARCEL_REGULAR", "name": "Parcel Post", "price": 19.30 },
+    { "code": "AUS_PARCEL_EXPRESS", "name": "Express Post", "price": 23.80 }
+  ]
+}`,
+      },
+      {
+        path: "GET /au-postage?country={cc}&weight={kg}",
+        desc: "International parcel services for a 2-letter country code.",
+        example: 'curl "https://api.milypay.xyz/au-postage?country=US&weight=1"',
+        response: `{ "country": "US", "services": [ { "code": "...", "name": "...", "price": 0 } ] }`,
       },
     ],
   },

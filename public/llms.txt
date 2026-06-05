@@ -15,6 +15,7 @@ Services live under the `milysec/*` namespace on Pay.sh:
 - Address (`milysec/au-address`): validate, search, and geocode any Australian address from G-NAF (16.9M). Live.
 - Super funds (`milysec/au-super`): verify any super fund by ABN - name, status, type, USIs. Live.
 - Weather (`milysec/au-weather`): current conditions and forecast for any Australian address or coordinate (BOM ACCESS-G via Open-Meteo). Live.
+- Postage (`milysec/au-postage`): Australia Post parcel rates and service options between postcodes, domestic or international. Live.
 
 Base URL: https://api.milypay.xyz . More Australian services are on the roadmap.
 
