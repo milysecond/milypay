@@ -27,7 +27,15 @@ function PayInner() {
   const wallet = useWallet();
   const { connection } = useConnection();
   const [bal, setBal] = useState<{ sol: number; audd: number } | null>(null);
+  const [status, setStatus] = useState<{ float: { usdc: number }; receiving: { audd: number } } | null>(null);
   const [abn, setAbn] = useState("33051775556");
+
+  useEffect(() => {
+    fetch("/api/status")
+      .then((r) => r.json())
+      .then(setStatus)
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     const pk = wallet.publicKey;
@@ -161,6 +169,14 @@ function PayInner() {
           </pre>
         )}
       </div>
+
+      {status && (
+        <p className="mt-10 border-t border-border-brand pt-5 text-center text-xs text-muted">
+          Service float{" "}
+          <span className="text-fg">{status.float.usdc.toFixed(2)} USDC</span>
+          {" · "}received <span className="text-fg">{status.receiving.audd.toFixed(2)} AUDD</span>
+        </p>
+      )}
     </div>
   );
 }
