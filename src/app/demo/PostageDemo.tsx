@@ -10,8 +10,10 @@ interface Service {
 }
 
 export default function PostageDemo() {
+  const [mode, setMode] = useState<"domestic" | "international">("domestic");
   const [from, setFrom] = useState("3000");
   const [to, setTo] = useState("2000");
+  const [country, setCountry] = useState("US");
   const [weight, setWeight] = useState("1");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -22,7 +24,10 @@ export default function PostageDemo() {
     setLoading(true);
     setError(null);
     setServices(null);
-    const path = `/api/au-postage?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&weight=${encodeURIComponent(weight)}`;
+    const path =
+      mode === "international"
+        ? `/api/au-postage?country=${encodeURIComponent(country)}&weight=${encodeURIComponent(weight)}`
+        : `/api/au-postage?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&weight=${encodeURIComponent(weight)}`;
     setLastPath(path);
     try {
       const res = await fetch(path);
@@ -56,9 +61,29 @@ export default function PostageDemo() {
           void run();
         }}
       >
+        <div className="mb-4 inline-flex rounded-full border border-border-brand bg-card p-1">
+          {(["domestic", "international"] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => setMode(m)}
+              className={`rounded-full px-4 py-1.5 text-sm font-medium capitalize transition ${
+                mode === m ? "bg-brand-green text-bg" : "text-muted hover:text-fg"
+              }`}
+            >
+              {m}
+            </button>
+          ))}
+        </div>
         <div className="flex flex-col gap-3 sm:flex-row">
-          {field("From postcode", from, setFrom, "3000")}
-          {field("To postcode", to, setTo, "2000")}
+          {mode === "domestic" ? (
+            <>
+              {field("From postcode", from, setFrom, "3000")}
+              {field("To postcode", to, setTo, "2000")}
+            </>
+          ) : (
+            field("Country code", country, setCountry, "US")
+          )}
           {field("Weight (kg)", weight, setWeight, "1")}
         </div>
         <button
