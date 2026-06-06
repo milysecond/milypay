@@ -22,6 +22,13 @@ const SERVICES: {
     price: "from $0.002 / call",
   },
   {
+    tag: "au-company-report",
+    title: "ASIC company report",
+    desc: "Official ASIC company extract - directors, secretaries, shareholders, charges, and registered office - resold in AUDD via an approved broker.",
+    price: "Coming soon",
+    soon: true,
+  },
+  {
     tag: "au-address",
     title: "Property & address",
     desc: "GNAF address validation, geocoding, and property data. Clean Australian addresses, resolved on demand.",
