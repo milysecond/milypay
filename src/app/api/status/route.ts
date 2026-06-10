@@ -39,8 +39,8 @@ export async function GET() {
       {
         services: ["au-business", "au-company", "au-address", "au-super", "au-weather", "markets"],
         x402: process.env.X402_ENABLED === "true",
-        float: { wallet: PAYER, usdc: floatUsdc },
-        receiving: { wallet: payTo, audd: receivedAudd },
+        float: { usdc: floatUsdc },
+        receiving: { audd: receivedAudd },
       },
       { headers: { "Cache-Control": "public, max-age=30" } },
     );
