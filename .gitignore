@@ -49,3 +49,6 @@ next-env.d.ts
 
 # ASIC raw data (large)
 .asic/
+
+# demo wallet (local only)
+.demo/

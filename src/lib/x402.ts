@@ -106,6 +106,11 @@ export async function withX402(
   // (milypay.xyz/api/*) stay free - just per-IP throttled - as does the off state.
   const host = (req.headers.get("host") || "").toLowerCase();
   const paidHost = host.startsWith("api.") || opts.alwaysPaid === true;
+  // A service that costs us money upstream (alwaysPaid) must NEVER be served free.
+  // If payments are off, refuse rather than fall through to the free path.
+  if (opts.alwaysPaid && !enabled()) {
+    return NextResponse.json({ error: "This service is temporarily unavailable." }, { status: 503 });
+  }
   if (!enabled() || !paidHost) {
     if (await isThrottled(req)) {
       return NextResponse.json(
