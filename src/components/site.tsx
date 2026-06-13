@@ -34,6 +34,7 @@ export function SiteHeader() {
           <Link href="/stables" className="transition hover:text-fg">AUD Stables</Link>
           <Link href="/#for-agents" className="transition hover:text-fg">For agents</Link>
           <Link href="/docs" className="transition hover:text-fg">Docs</Link>
+          <Link href="/#faq" className="transition hover:text-fg">FAQ</Link>
           <a
             href="https://pay.sh"
             target="_blank"

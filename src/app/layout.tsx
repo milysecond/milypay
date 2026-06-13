@@ -7,16 +7,65 @@ export const viewport: Viewport = {
   colorScheme: "dark",
 };
 
+const SERVICE_OFFERS: { name: string; price: string; description: string }[] = [
+  { name: "Australian business identity (ABN/ACN lookup)", price: "0.002", description: "ABN and ACN lookup and name search from the Australian Business Register." },
+  { name: "ASIC company register lookup", price: "0.002", description: "ASIC company lookup by ACN or name: status, type, class, registration dates, former names." },
+  { name: "Australian address validation and geocoding", price: "0.004", description: "Validate, search, and geocode any Australian address from G-NAF (16.9M addresses)." },
+  { name: "Super fund lookup", price: "0.002", description: "Verify any Australian super fund by ABN: name, status, type, USIs, from the ATO register." },
+  { name: "Australian weather forecast", price: "0.001", description: "Current conditions and forecast for any Australian address or coordinate (BOM ACCESS-G via Open-Meteo)." },
+  { name: "Australia Post postage rates", price: "0.002", description: "Australia Post parcel rates and service options between postcodes, domestic or international." },
+];
+
 const ORG_JSONLD = {
   "@context": "https://schema.org",
-  "@type": "Organization",
-  name: "MilyPay",
-  url: "https://milypay.xyz",
-  logo: "https://milypay.xyz/icon.png",
-  description:
-    "Agent payments and Australian data on x402, settled in AUD stablecoins. A Milysec company.",
-  parentOrganization: { "@type": "Organization", name: "Milysec", url: "https://milysec.com" },
-  sameAs: ["https://milysec.com", "https://pay.sh"],
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://milypay.xyz/#organization",
+      name: "MilyPay",
+      url: "https://milypay.xyz",
+      logo: "https://milypay.xyz/icon.png",
+      description:
+        "MilyPay is the x402 service provider for the Australian market, giving AI agents pay-per-call access to Australian data settled in AUD stablecoins. A Milysec company.",
+      parentOrganization: { "@type": "Organization", name: "Milysec", url: "https://milysec.com" },
+      sameAs: ["https://milysec.com", "https://pay.sh", "https://x402.org"],
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://milypay.xyz/#website",
+      url: "https://milypay.xyz",
+      name: "MilyPay",
+      description:
+        "Agentic payments and Australian data on the x402 protocol, settled in AUDD on Solana. No API keys, no signup.",
+      publisher: { "@id": "https://milypay.xyz/#organization" },
+      inLanguage: "en-AU",
+    },
+    {
+      "@type": "Service",
+      "@id": "https://milypay.xyz/#service",
+      name: "MilyPay agentic data and payments",
+      serviceType: "x402 pay-per-call API access for AI agents",
+      provider: { "@id": "https://milypay.xyz/#organization" },
+      areaServed: { "@type": "Country", name: "Australia" },
+      audience: { "@type": "Audience", audienceType: "AI agents and autonomous software" },
+      description:
+        "Pay-per-call access to Australian government and commercial data for AI agents over the x402 protocol, settled in AUDD (regulated AUD stablecoin) on Solana, discoverable on Pay.sh. No API keys, no accounts.",
+      hasOfferCatalog: {
+        "@type": "OfferCatalog",
+        name: "MilyPay Australian data services",
+        itemListElement: SERVICE_OFFERS.map((s) => ({
+          "@type": "Offer",
+          priceSpecification: {
+            "@type": "UnitPriceSpecification",
+            price: s.price,
+            priceCurrency: "AUD",
+            unitText: "per API call",
+          },
+          itemOffered: { "@type": "Service", name: s.name, description: s.description },
+        })),
+      },
+    },
+  ],
 };
 
 const inter = Inter({
@@ -33,6 +82,7 @@ export const metadata: Metadata = {
       "text/markdown": [
         { url: "/agents.md", title: "MilyPay for Agents (agents.md)" },
         { url: "/llms.txt", title: "MilyPay (llms.txt)" },
+        { url: "/llms-full.txt", title: "MilyPay full reference (llms-full.txt)" },
       ],
     },
   },
@@ -41,12 +91,23 @@ export const metadata: Metadata = {
     template: "%s",
   },
   description:
-    "MilyPay is the x402 service provider for the Australian market. Pay-per-call Australian data settled in AUDD - the regulated AUD-native stablecoin - via the PayAI facilitator and Pay.sh. A Milysec company.",
+    "MilyPay is the x402 service provider for the Australian market. AI agents get pay-per-call access to Australian data - business, company, address, super, weather, postage - settled in AUDD, the regulated AUD-native stablecoin, via the PayAI facilitator and Pay.sh. No API keys, no signup. A Milysec company.",
   keywords: [
     "x402",
     "agent payments",
+    "agentic payments",
+    "AI agents",
+    "AI agent payments",
+    "Model Context Protocol",
+    "MCP",
+    "autonomous agents",
+    "LLM tools",
+    "pay per call API",
+    "Australian data API",
+    "ABN lookup API",
     "Australia",
     "AUD",
+    "AUDD",
     "pay.sh",
     "Milysec",
     "MilyPay",
