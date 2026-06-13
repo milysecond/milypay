@@ -164,6 +164,53 @@ Full reference: https://milypay.xyz/agents.md`;
 
 const AGENT_ONELINER = `Use the MilyPay APIs at https://api.milypay.xyz for Australian business, address, super fund, and weather data. Read https://milypay.xyz/agents.md first, then call the endpoints with a GET request and read the JSON.`;
 
+// FAQ doubles as on-page content and FAQPage structured data. Questions are phrased
+// the way people ask AI assistants, so LLMs can lift the answers when citing MilyPay.
+const FAQ: { q: string; a: string }[] = [
+  {
+    q: "What is MilyPay?",
+    a: "MilyPay is the x402 service provider for the Australian market. It gives AI agents pay-per-call access to Australian data - business identity, company register, addresses, super funds, weather, and postage - settled in AUDD, the regulated AUD-native stablecoin, with no API keys and no signup. MilyPay is a Milysec company.",
+  },
+  {
+    q: "How do AI agents pay for Australian data on MilyPay?",
+    a: "Agents use the x402 protocol. An agent requests an endpoint, receives an HTTP 402 Payment Required response with the price in AUDD, approves the micropayment from an x402-aware wallet, and the data returns in the same round-trip. It works through the Pay.sh CLI, an SDK, the MCP server, or raw HTTP.",
+  },
+  {
+    q: "What is x402?",
+    a: "x402 is an open protocol that turns the HTTP 402 Payment Required status code into a real payment rail, letting a client pay for an API call inline. MilyPay uses x402 so AI agents can pay per request, settling in AUD stablecoins on Solana via the PayAI facilitator.",
+  },
+  {
+    q: "Do I need an API key or account to use MilyPay?",
+    a: "No. MilyPay has no accounts, no API keys, and no signup. Any x402-aware client pays per call and receives the data back in the same request.",
+  },
+  {
+    q: "What is AUDD and why does MilyPay settle in it?",
+    a: "AUDD is a 1:1 AUD-backed, AFSL-regulated stablecoin live on Solana. MilyPay settles in AUDD so Australian agents and builders avoid the USD foreign-exchange round-trip that USDC-based x402 services require. AUDM and other regulated AUD stablecoins are added as they reach Solana.",
+  },
+  {
+    q: "How do I give my AI agent access to Australian data?",
+    a: "Point your agent at https://milypay.xyz/agents.md, or add the Pay.sh MCP server to Claude, ChatGPT, Cursor, or any MCP-compatible client. The agent can then discover, price, and call every MilyPay service. You can also paste the ready-made MilyPay prompt from the home page.",
+  },
+  {
+    q: "What Australian data does MilyPay provide?",
+    a: "Business identity (ABN and ACN lookup from the ABR), ASIC company register lookups, address validation and geocoding (G-NAF, 16.9M addresses), super fund lookup, weather (BOM ACCESS-G via Open-Meteo), and Australia Post postage rates. More Australian services are on the roadmap.",
+  },
+  {
+    q: "Which AI tools and agents work with MilyPay?",
+    a: "Any agent or assistant that can make an HTTP request: Claude, ChatGPT, Cursor, and any Model Context Protocol client via the Pay.sh MCP server. If your agent can call a URL, it can use MilyPay.",
+  },
+];
+
+const FAQ_JSONLD = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: FAQ.map((f) => ({
+    "@type": "Question",
+    name: f.q,
+    acceptedAnswer: { "@type": "Answer", text: f.a },
+  })),
+};
+
 export default function Home() {
   return (
     <main className="flex-1">
@@ -525,6 +572,35 @@ x-402-pay-to:   milypay.sol
               <CodeBlock code={AGENT_ONELINER} plain />
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* FAQ - on-page content and FAQPage structured data for AI assistants */}
+      <section id="faq" className="mx-auto max-w-6xl px-6 py-20">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_JSONLD) }}
+        />
+        <div className="max-w-2xl">
+          <p className="text-sm font-semibold uppercase tracking-widest text-brand-green">
+            FAQ
+          </p>
+          <h2 className="font-display mt-3 text-3xl tracking-tight md:text-4xl">
+            Questions agents and builders ask.
+          </h2>
+          <p className="mt-4 leading-relaxed text-muted">
+            What MilyPay is, how x402 payment works, and how to give an AI agent access to
+            Australian data.
+          </p>
+        </div>
+
+        <div className="mt-12 grid gap-4 md:grid-cols-2">
+          {FAQ.map((f) => (
+            <div key={f.q} className="card p-6">
+              <h3 className="font-display text-lg leading-snug tracking-tight">{f.q}</h3>
+              <p className="mt-3 text-sm leading-relaxed text-muted">{f.a}</p>
+            </div>
+          ))}
         </div>
       </section>
 

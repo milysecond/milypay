@@ -1,0 +1,124 @@
+# MilyPay - Full Reference
+
+> MilyPay is the x402 service provider for the Australian market. AI agents pay per call for Australian data and settle in AUD stablecoins (AUDD and others), via the PayAI facilitator and the Pay.sh catalog. No API keys, no signup. A Milysec company.
+
+This is the long-form reference for language models and agents. For the short version see https://milypay.xyz/llms.txt . For the human and agent guide see https://milypay.xyz/agents.md . Machine-readable discovery manifest: https://milypay.xyz/.well-known/x402 .
+
+- Site: https://milypay.xyz
+- API base URL: https://api.milypay.xyz
+- Catalog: https://pay.sh (namespace milysec/*)
+- x402 specification: https://x402.org
+- Settlement asset: AUDD (Australian Digital Dollar), mint AUDDttiEpCydTm7joUMbYddm72jAWXZnCpPZtDoxqBSw, 6 decimals, Solana mainnet
+- Pay-to wallet: mi1ytDfgNFYgm54y4f3xzRQbfbyCz6TBmQcAL3brozA
+- Facilitator: https://facilitator.payai.network
+
+## How payment works (x402)
+
+1. Request an endpoint, for example GET https://api.milypay.xyz/au-business/abn/51824753556
+2. The first response is HTTP 402 Payment Required. The PAYMENT-REQUIRED header carries a base64 x402 challenge with the price, asset (AUDD), network (solana), and pay-to address.
+3. Approve the micropayment from an x402-aware wallet or client. The request is retried with a PAYMENT-SIGNATURE header, the facilitator verifies and settles in AUDD, and the data returns in the same round-trip.
+
+No accounts, no keys. Any x402-aware client, the Pay.sh CLI, an SDK, or the MCP server can transact. Prices below are per call, in AUDD.
+
+## Endpoints
+
+### au-business - Business identity (ABR / Australian Business Register)
+
+GET /au-business/abn/{abn} - price 0.002
+  Australian business by ABN. Returns entity name, ABN status, type, ACN, GST registration, business names, location.
+  Example: GET https://api.milypay.xyz/au-business/abn/33051775556
+  Example response:
+  {"abn":"33051775556","abnStatus":"Active","abnStatusFrom":"1999-11-01","acn":"051775556","entityName":"TELSTRA CORPORATION LIMITED","entityType":"Australian Public Company","businessNames":["TELSTRA INFRACO","TELECOM AUSTRALIA","YELLOW PAGES"],"gstRegistered":true,"gstFrom":"2000-07-01"}
+
+GET /au-business/acn/{acn} - price 0.002
+  Same as above, resolved from an ACN.
+  Example: GET https://api.milypay.xyz/au-business/acn/004085616
+
+GET /au-business/search?name={name}&maxResults={n} - price 0.004
+  ABN name search by business or entity name. Returns matching ABNs with status, state, postcode, score.
+  Example: GET https://api.milypay.xyz/au-business/search?name=woolworths
+
+### au-company - ASIC company register
+
+GET /au-company/acn/{acn} - price 0.002
+  ASIC company by ACN. Returns name, ABN, status, statusCode, type, class, registration and deregistration dates, former names.
+  Example: GET https://api.milypay.xyz/au-company/acn/000014675
+  Example response:
+  {"acn":"000014675","abn":"88000014675","name":"Woolworths Group Limited","status":"Registered","statusCode":"REGD","type":"Australian public company","class":"Limited by shares","registrationDate":"1924-09-22","deregistrationDate":null,"previousState":"NSW","formerNames":["Woolworths Ltd"]}
+
+GET /au-company/search?name={name}&limit={n} - price 0.004
+  ASIC company name search across current and former names.
+  Example: GET https://api.milypay.xyz/au-company/search?name=woolworths
+
+### au-address - Address (G-NAF, Geoscape, 16.9M addresses)
+
+GET /au-address/validate?q={address} - price 0.004
+  Validate an Australian address. Returns valid flag, canonical address, GNAF PID, components, latitude, longitude.
+  Example: GET https://api.milypay.xyz/au-address/validate?q=1 bligh st sydney
+
+GET /au-address/search?q={query}&limit={n} - price 0.004
+  Ranked address matches (autocomplete).
+  Example: GET https://api.milypay.xyz/au-address/search?q=120 collins st melbourne
+
+GET /au-address/geocode?q={address} - price 0.004
+  Latitude and longitude for an address.
+  Example: GET https://api.milypay.xyz/au-address/geocode?q=200 adelaide st brisbane
+  Example response:
+  {"found":true,"query":"200 adelaide st brisbane","lat":-27.46692633,"lng":153.02635408,"address":"200 Adelaide Street, Brisbane City QLD 4000","gnafPid":"GAQLD163129955"}
+
+### au-super - Super Fund Lookup (ATO)
+
+GET /au-super/abn/{abn} - price 0.002
+  Verify any Australian super fund by ABN. Returns fund name, status, type, complying status, suburb, state, postcode, and product USIs.
+  Example: GET https://api.milypay.xyz/au-super/abn/65714394898
+  Example response:
+  {"abn":"65714394898","abnStatus":"Active","fundName":"The Trustee for AUSTRALIANSUPER","fundType":"APRA Regulated Public Offer Fund","complyingStatus":"APRA Registered","suburb":"MELBOURNE","state":"VIC","postcode":"3000","products":[{"usi":"STA0002AU","productName":"AustralianSuper Pension"}]}
+
+### au-weather - Weather (BOM ACCESS-G via Open-Meteo)
+
+GET /au-weather?q={address}&days={n} - price 0.001
+  Current conditions and multi-day forecast for an Australian address (geocoded via G-NAF).
+  Example: GET https://api.milypay.xyz/au-weather?q=1 bligh st sydney&days=2
+
+GET /au-weather?lat={lat}&lng={lng}&days={n} - price 0.001
+  Same, by coordinate.
+  Example: GET https://api.milypay.xyz/au-weather?lat=-33.87&lng=151.21&days=2
+
+### au-postage - Australia Post (PAC)
+
+GET /au-postage?from={postcode}&to={postcode}&weight={kg}&length={cm}&width={cm}&height={cm} - price 0.002
+  Domestic parcel rates and service options between two postcodes. Length, width, and height are required for domestic parcels.
+  Example: GET https://api.milypay.xyz/au-postage?from=2000&to=3000&weight=1&length=10&width=10&height=10
+
+GET /au-postage?country={code}&weight={kg} - price 0.002
+  International parcel rates and service options.
+  Example: GET https://api.milypay.xyz/au-postage?country=US&weight=0.5
+
+## Settlement currency
+
+MilyPay is AUD-stablecoin-agnostic. AUDD (live on Solana, AFSL-regulated, 1:1 AUD-backed) is the default today. AUDM and other regulated AUD stablecoins are added as they reach Solana. Settling in AUDD removes the USD foreign-exchange round-trip that USDC-based x402 services require. AUD stablecoin reference: https://milypay.xyz/stables .
+
+## Ways to integrate
+
+- CLI: npx pay.sh call milysec/au-business/abn 51824753556
+- SDK: a drop-in x402 client for TypeScript and Python that wraps fetch and handles the 402 retry and AUD settlement.
+- MCP: add the Pay.sh MCP server to Claude, ChatGPT, Cursor, or any Model Context Protocol client; agents discover, price, and call services as tools.
+- Raw HTTP 402: any x402-aware client speaks directly to the endpoint.
+
+## FAQ
+
+Q: What is MilyPay?
+A: MilyPay is the x402 service provider for the Australian market. It gives AI agents pay-per-call access to Australian data settled in AUDD, the regulated AUD-native stablecoin, with no API keys and no signup. A Milysec company.
+
+Q: Do I need an API key or account?
+A: No. MilyPay has no accounts, no API keys, and no signup. Any x402-aware client pays per call and receives the data back.
+
+Q: How do I give my AI agent access to Australian data?
+A: Point your agent at https://milypay.xyz/agents.md, or add the Pay.sh MCP server to Claude, ChatGPT, Cursor, or any MCP-compatible client.
+
+Q: What is AUDD?
+A: AUDD is a 1:1 AUD-backed, AFSL-regulated stablecoin live on Solana. It is MilyPay's default settlement asset.
+
+## About
+
+MilyPay is a Milysec company (https://milysec.com). Built for Australia. Settled in AUD stablecoins. To list an Australian API: https://milypay.xyz/contact . MilyPay provides settlement and data services only; nothing here is an investment offer.
