@@ -18,6 +18,7 @@ Services live under the `milysec/*` namespace on Pay.sh:
 - Super funds (`milysec/au-super`): verify any super fund by ABN - name, status, type, USIs. Live.
 - Weather (`milysec/au-weather`): current conditions and forecast for any Australian address or coordinate (BOM ACCESS-G via Open-Meteo). Live.
 - Postage (`milysec/au-postage`): Australia Post parcel rates and service options between postcodes, domestic or international. Live.
+- BSB lookup (`milysec/au-bsb`): Validate any BSB number - bank name, branch, address, and supported payment methods (paper, electronic, high-value). 17,000+ BSBs from the AusPayNet directory. Live.
 
 Base URL: https://api.milypay.xyz . More Australian services are on the roadmap.
 

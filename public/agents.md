@@ -65,6 +65,10 @@ All services live under the `milysec/*` namespace on Pay.sh.
 | `GET /au-weather?lat={lat}&lng={lng}` | Same, by coordinate | $0.001 / call |
 | `GET /au-postage?from={pc}&to={pc}&weight={kg}` | Australia Post parcel rates + services between postcodes | $0.002 / call |
 | `GET /au-postage?country={cc}&weight={kg}` | International parcel rates | $0.002 / call |
+| `GET /au-bsb/{bsb}` | BSB lookup: bank name, branch, address, state, postcode, services (P/E/H), merged/redirect flag | $0.002 / call |
+| `GET /au-bsb/search?q=` | Search BSBs by bank name, branch, or suburb | $0.004 / call |
+
+BSB numbers can be supplied with or without the hyphen: `012-002` or `012002` both work.
 
 Base URL: `https://api.milypay.xyz`. More Australian services are on the roadmap.
 
