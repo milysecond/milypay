@@ -84,6 +84,19 @@ GET /au-weather?lat={lat}&lng={lng}&days={n} - price 0.001
   Same, by coordinate.
   Example: GET https://api.milypay.xyz/au-weather?lat=-33.87&lng=151.21&days=2
 
+### au-bsb - BSB directory (AusPayNet)
+
+GET /au-bsb/{bsb} - price 0.002
+  Lookup a BSB number. Accept 6 digits with or without hyphen: 012-002 or 012002.
+  Returns: bsb, bank (3-char mnemonic), bankName (full institution name), branch, address, suburb, state, postcode, services (array of human-readable payment method strings), merged (bool), mergedTo (BSB string if merged, else null).
+  Example: GET https://api.milypay.xyz/au-bsb/012-002
+  Example response:
+  {"bsb":"012-002","bank":"ANZ","bankName":"Australia & New Zealand Banking Group Limited","branch":"ANZ Smart Choice","address":"115 Pitt Street","suburb":"Sydney","state":"NSW","postcode":"2000","services":["Paper (cheques, APCS)","Electronic (direct entry)","High value (HVCS, same-day large payments)"],"merged":false,"mergedTo":null}
+
+GET /au-bsb/search?q={query}&limit={n} - price 0.004
+  Search BSBs by bank name, branch name, or suburb. Returns up to limit (max 20) matching records.
+  Example: GET https://api.milypay.xyz/au-bsb/search?q=westpac+sydney
+
 ### au-postage - Australia Post (PAC)
 
 GET /au-postage?from={postcode}&to={postcode}&weight={kg}&length={cm}&width={cm}&height={cm} - price 0.002

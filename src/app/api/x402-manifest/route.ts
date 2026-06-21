@@ -48,6 +48,8 @@ const MANIFEST = {
     { method: "GET", path: "/au-weather?lat={lat}&lng={lng}", price: "0.001", description: "Current conditions and forecast for an Australian coordinate." },
     { method: "GET", path: "/au-postage?from={postcode}&to={postcode}&weight={kg}&length={cm}&width={cm}&height={cm}", price: "0.002", description: "Australia Post domestic parcel rates and services between two postcodes." },
     { method: "GET", path: "/au-postage?country={code}&weight={kg}", price: "0.002", description: "Australia Post international parcel rates and services." },
+    { method: "GET", path: "/au-bsb/{bsb}", price: "0.002", description: "BSB lookup: bank name, branch, address, state, postcode, and supported payment methods (paper/electronic/high-value). 17,000+ BSBs from AusPayNet." },
+    { method: "GET", path: "/au-bsb/search?q={query}", price: "0.004", description: "Search BSBs by bank name, branch name, or suburb." },
   ],
   attribution: ATTRIBUTION,
 };

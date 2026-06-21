@@ -53,6 +53,12 @@ const SERVICES: {
     price: "from $0.002 / call",
   },
   {
+    tag: "au-bsb",
+    title: "BSB lookup",
+    desc: "Validate any BSB number and get the bank name, branch, address, and supported payment methods (paper, electronic, high-value). 17,000+ BSBs from the AusPayNet directory.",
+    price: "from $0.002 / call",
+  },
+  {
     tag: "au-tracking",
     title: "Parcel tracking",
     desc: "Track an Australia Post parcel by tracking number - status and full event history.",
@@ -193,7 +199,7 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: "What Australian data does MilyPay provide?",
-    a: "Business identity (ABN and ACN lookup from the ABR), ASIC company register lookups, address validation and geocoding (G-NAF, 16.9M addresses), super fund lookup, weather (BOM ACCESS-G via Open-Meteo), and Australia Post postage rates. More Australian services are on the roadmap.",
+    a: "Business identity (ABN and ACN lookup from the ABR), ASIC company register lookups, address validation and geocoding (G-NAF, 16.9M addresses), super fund lookup, weather (BOM ACCESS-G via Open-Meteo), Australia Post postage rates, and BSB lookup (17,000+ BSBs from the AusPayNet directory). More Australian services are on the roadmap.",
   },
   {
     q: "Which AI tools and agents work with MilyPay?",
