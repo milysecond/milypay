@@ -128,6 +128,9 @@ export const metadata: Metadata = {
     description:
       "Pay-per-call Australian data and AUD-settled micropayments for AI agents, on the x402 rail.",
   },
+  verification: {
+    google: "AXY9Pei5H-GIw4Vyn1CV_OQPBxl0X0rwSIAAmqaVzHo",
+  },
 };
 
 export default function RootLayout({
