@@ -7,8 +7,9 @@ import AddressDemo from "./AddressDemo";
 import SuperDemo from "./SuperDemo";
 import WeatherDemo from "./WeatherDemo";
 import PostageDemo from "./PostageDemo";
+import BsbDemo from "./BsbDemo";
 
-type Service = "business" | "company" | "address" | "super" | "weather" | "postage";
+type Service = "business" | "company" | "address" | "super" | "weather" | "postage" | "bsb";
 
 export default function DemoTabs() {
   const [service, setService] = useState<Service>("business");
@@ -40,6 +41,7 @@ export default function DemoTabs() {
           {tab("super", "Super Fund")}
           {tab("weather", "Weather")}
           {tab("postage", "Postage")}
+          {tab("bsb", "BSB")}
         </div>
         <p className="mt-3 text-sm text-muted">
           {service === "business" && "Live milysec/au-business - real ATO data."}
@@ -48,6 +50,7 @@ export default function DemoTabs() {
           {service === "super" && "Live milysec/au-super - ATO Super Fund Lookup register."}
           {service === "weather" && "Live milysec/au-weather - forecast for any Australian address."}
           {service === "postage" && "Live milysec/au-postage - Australia Post parcel rates between postcodes."}
+          {service === "bsb" && "Live milysec/au-bsb - 17,000+ BSBs from the AusPayNet directory."}
         </p>
       </div>
       <div className="mt-6">
@@ -57,6 +60,7 @@ export default function DemoTabs() {
         {service === "super" && <SuperDemo />}
         {service === "weather" && <WeatherDemo />}
         {service === "postage" && <PostageDemo />}
+        {service === "bsb" && <BsbDemo />}
       </div>
     </div>
   );
