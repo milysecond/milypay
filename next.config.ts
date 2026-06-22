@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
         source: "/.well-known/x402",
         destination: "/api/x402-manifest",
       },
+      // Google Search Console HTML file verification (served via API route to
+      // avoid Cloudflare Workers asset layer stripping the .html extension).
+      {
+        source: "/googleb787913ba29840de.html",
+        destination: "/api/gsc-verify",
+      },
       // api.milypay.xyz/<service>/... -> /api/<service>/...
       // so agents can call https://api.milypay.xyz/au-business/abn/{abn}
       {
