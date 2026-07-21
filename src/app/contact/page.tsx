@@ -4,9 +4,9 @@ import { SiteHeader, SiteFooter } from "@/components/site";
 import ContactForm from "./ContactForm";
 
 export const metadata: Metadata = {
-  title: "Talk to us | MilyPay",
+  title: "Talk to us | Milypay",
   description:
-    "Get in touch with the MilyPay team - list an Australian API, integrate an AUD stablecoin, or ask anything about agent payments on x402.",
+    "Get in touch with the Milypay team - list an Australian API, integrate an AUD stablecoin, or ask anything about agent payments on x402.",
   alternates: { canonical: "/contact" },
   robots: { index: false },
 };

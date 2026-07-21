@@ -92,7 +92,7 @@ export default function ContactForm() {
         </div>
         <h1 className="font-display mt-6 text-3xl tracking-tight md:text-4xl">Got it - thanks.</h1>
         <p className="mt-4 leading-relaxed text-muted">
-          Your message is on its way to the MilyPay team. We&rsquo;ll get back to you at{" "}
+          Your message is on its way to the Milypay team. We&rsquo;ll get back to you at{" "}
           <span className="text-fg">{values.email}</span>.
         </p>
         <Link

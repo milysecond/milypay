@@ -1,9 +1,9 @@
-# MilyPay — Brand
+# Milypay — Brand
 
-> **MilyPay** — agent-native payments & Australian data on the x402 rail. Settled in **AUDD**.
+> **Milypay** — agent-native payments & Australian data on the x402 rail. Settled in **AUDD**.
 > A **Milysec** company.
 
-MilyPay is Milysec's payments arm: an [x402](https://x402.org) service provider for the
+Milypay is Milysec's payments arm: an [x402](https://x402.org) service provider for the
 Australian market, listed on [pay.sh](https://pay.sh) and settling through the **PayAI**
 x402 facilitator. It gives AI agents user-approved, pay-per-call access to Australian data
 priced in **AUDD** (the regulated, 1:1 AUD-backed, AFSL-licensed AUD-native stablecoin) —
@@ -25,7 +25,7 @@ currency on the agentic payments stack (3+ AU APIs priced in AUDD, reference imp
 - Confident, technical, infrastructural — speaks to agent-devs, not consumers.
 - Plain and exact. No hype words ("revolutionary", "seamless"). Lead with what it does.
 - Dry Australian directness is on-brand; novelty/cute is not.
-- Parent inheritance from Milysec: *Fast. Web. App.* → MilyPay extends with *Pay.*
+- Parent inheritance from Milysec: *Fast. Web. App.* → Milypay extends with *Pay.*
 
 ## Color palette (commercial light shell — Decal-inspired, Solana-accented)
 
@@ -62,18 +62,18 @@ Type scale: H1 ~60 · H2 36 · H3 24 · Body 16 · Small 14 (px)
 ## Logo
 
 - Inherit Milysec mark: `milysec-logo.svg` / `milysec-logo-original.png` (from milysec.com).
-- MilyPay lockup: Milysec mark + "MilyPay" wordmark in **MoonWalk** (`font-logo`), "Pay" in brand-green.
+- Milypay lockup: Milysec mark + "Milypay" wordmark in **MoonWalk** (`font-logo`), "Pay" in brand-green.
 
 ## Domains
 
 - `milypay.xyz` (primary — $1.99/yr, crypto-native, ecosystem-fit) · `milypay.com` ($11, optional canonical/redirect) · `milypay.au` (AU market) · `milypay.ai` (optional AI hero)
-- Alias `pay.milysec.com` → MilyPay.
+- Alias `pay.milysec.com` → Milypay.
 
 ## Don'ts
 
 - Don't go full neon-on-black for marketing — light commercial shell is the default.
 - Don't drop AUDD / x402 / agent positioning when borrowing layout patterns (e.g. Decal).
-- Don't lean on kangaroo/novelty motifs; MilyPay is infrastructure, the AU angle is in the
+- Don't lean on kangaroo/novelty motifs; Milypay is infrastructure, the AU angle is in the
   data/rails, not in mascots.
 - Don't foreground "security/sec" — this is the payments line, not the Milysec security product.
 - No emoji or hashtags in marketing UI.

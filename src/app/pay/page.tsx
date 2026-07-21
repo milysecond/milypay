@@ -3,9 +3,9 @@ import { SiteHeader, SiteFooter } from "@/components/site";
 import PayClient from "./PayClient";
 
 export const metadata: Metadata = {
-  title: "Pay with wallet | MilyPay",
+  title: "Pay with wallet | Milypay",
   description:
-    "Connect a Solana wallet and pay the live x402 fee in AUDD to call a MilyPay endpoint, end to end.",
+    "Connect a Solana wallet and pay the live x402 fee in AUDD to call a Milypay endpoint, end to end.",
   alternates: { canonical: "/pay" },
   robots: { index: false },
 };

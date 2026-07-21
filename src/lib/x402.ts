@@ -1,4 +1,4 @@
-// x402 payment gate for MilyPay on Solana via the PayAI facilitator.
+// x402 payment gate for Milypay on Solana via the PayAI facilitator.
 // Accepts AUD stables (AUDD, AUDM, dAUD) plus USDC/USDT for pay-skills / pay.sh.
 // Spec: client gets HTTP 402 with a base64 PAYMENT-REQUIRED challenge, pays, and retries
 // with a PAYMENT-SIGNATURE header. We /verify, serve, then /settle.
@@ -70,7 +70,7 @@ interface PaymentRequirements {
 }
 
 /**
- * Stables MilyPay accepts on Solana.
+ * Stables Milypay accepts on Solana.
  * Order: USDC/USDT first (pay-skills CI), then AUD-native rails (AUDD, AUDM, dAUD).
  */
 function acceptedAssets(): AcceptedAsset[] {
@@ -122,7 +122,7 @@ function paymentRequired(req: Request, price: string, description: string): Next
       error: "Payment Required",
       price: `${price} ${symbols}`,
       description,
-      brand: "MilyPay",
+      brand: "Milypay",
     }),
     {
       status: 402,

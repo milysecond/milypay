@@ -1,21 +1,21 @@
 import { NextResponse } from "next/server";
 
-// Machine-readable x402 discovery manifest for MilyPay.
+// Machine-readable x402 discovery manifest for Milypay.
 // Served at https://milypay.xyz/.well-known/x402 via a rewrite in next.config.ts.
 // Lets agents, gateways, and crawlers discover the full service catalogue, pricing,
 // settlement asset, and network in one fetch, without scraping the HTML site.
 
 export const dynamic = "force-static";
 
-const ATTRIBUTION = "MilyPay - the x402 service provider for Australia. A Milysec company.";
+const ATTRIBUTION = "Milypay - the x402 service provider for Australia. A Milysec company.";
 
 const MANIFEST = {
   x402Version: 2,
-  name: "MilyPay",
+  name: "Milypay",
   description:
-    "MilyPay: pay-per-call Australian government and commercial data for AI agents over x402 on Solana. Settles in AUD (AUDD, AUDM, dAUD) plus USDC/USDT. No API keys, no signup. A Milysec company.",
+    "Milypay: pay-per-call Australian government and commercial data for AI agents over x402 on Solana. Settles in AUD (AUDD, AUDM, dAUD) plus USDC/USDT. No API keys, no signup. A Milysec company.",
   provider: { name: "Milysec", url: "https://milysec.com" },
-  brand: "MilyPay",
+  brand: "Milypay",
   homepage: "https://milypay.xyz",
   documentation: "https://milypay.xyz/agents.md",
   llms: "https://milypay.xyz/llms.txt",

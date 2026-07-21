@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-// MilyPay is an agent-native service. AI agents and crawlers are explicitly welcome.
+// Milypay is an agent-native service. AI agents and crawlers are explicitly welcome.
 const AI_AGENTS = [
   "GPTBot",
   "OAI-SearchBot",

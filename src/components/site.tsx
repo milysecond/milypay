@@ -5,7 +5,7 @@ export function Logo({ className = "", invert = false }: { className?: string; i
   return (
     <Link
       href="/"
-      aria-label="MilyPay home"
+      aria-label="Milypay home"
       className={`inline-flex items-center gap-2.5 transition hover:opacity-80 ${className}`}
     >
       <Image
@@ -17,7 +17,7 @@ export function Logo({ className = "", invert = false }: { className?: string; i
         priority
       />
       <span className={`font-logo text-xl ${invert ? "text-white" : "text-fg"}`}>
-        Mily<span className={invert ? "text-brand-green-bright" : "text-brand-green"}>Pay</span>
+        Mily<span className={invert ? "text-brand-green-bright" : "text-brand-green"}>pay</span>
       </span>
     </Link>
   );
