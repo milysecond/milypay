@@ -288,7 +288,7 @@ export default function Home() {
               AUD-native settlement on x402
             </div>
 
-            <h1 className="mt-7 text-[2.75rem] font-semibold leading-[1.05] tracking-tight text-fg sm:text-6xl md:text-[3.75rem]">
+            <h1 className="font-display mt-7 text-[2.75rem] leading-[1.05] text-fg sm:text-6xl md:text-[3.75rem]">
               Keep agent spend{" "}
               <span className="text-brand-green">in AUD</span>
               <span className="block">on every call.</span>
@@ -338,7 +338,7 @@ export default function Home() {
         <div className="grid gap-12 md:grid-cols-[1.1fr_0.9fr] md:items-end">
           <div>
             <p className="eyebrow">The gap</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
+            <h2 className="font-display mt-3 text-3xl md:text-4xl">
               Every x402 provider is global.
               <br className="hidden sm:block" />
               None of them own Australia.
@@ -370,7 +370,7 @@ export default function Home() {
         <div className="mx-auto max-w-6xl px-6 py-20">
           <div className="max-w-2xl">
             <p className="eyebrow">Services</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
+            <h2 className="font-display mt-3 text-3xl md:text-4xl">
               Australian data, priced per call — in AUDD.
             </h2>
             <p className="mt-4 leading-relaxed text-muted">
@@ -413,7 +413,7 @@ export default function Home() {
         <div className="grid items-center gap-12 lg:grid-cols-2">
           <div>
             <p className="eyebrow">How it works</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
+            <h2 className="font-display mt-3 text-3xl md:text-4xl">
               Same request for agents.
               <br />
               Lower friction for builders.
@@ -445,7 +445,7 @@ export default function Home() {
         <div className="mx-auto max-w-6xl px-6 py-20">
           <div className="max-w-2xl">
             <p className="eyebrow">Why AUDD</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
+            <h2 className="font-display mt-3 text-3xl md:text-4xl">
               The first AUD-native currency for agentic payments.
             </h2>
             <p className="mt-4 leading-relaxed text-muted">
@@ -486,7 +486,7 @@ export default function Home() {
         <div className="flex flex-col items-start justify-between gap-8 rounded-2xl border border-border-brand bg-cream p-8 md:flex-row md:items-center md:p-10">
           <div className="max-w-xl">
             <p className="eyebrow">For API providers</p>
-            <h2 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">
+            <h2 className="font-display mt-2 text-2xl md:text-3xl">
               List your Australian API. Accept AUDD from agents in under 10 minutes.
             </h2>
             <p className="mt-3 leading-relaxed text-muted">
@@ -506,7 +506,7 @@ export default function Home() {
           <div className="grid gap-12 md:grid-cols-[1fr_1.05fr] md:items-center">
             <div>
               <p className="eyebrow">For developers</p>
-              <h2 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
+              <h2 className="font-display mt-3 text-3xl md:text-4xl">
                 If your agent can make an HTTP request, it can pay.
               </h2>
               <p className="mt-5 leading-relaxed text-muted">
@@ -567,7 +567,7 @@ x-402-pay-to:   milypay.sol
           </div>
 
           <div className="mt-16">
-            <h3 className="text-2xl font-semibold tracking-tight">Four ways to integrate</h3>
+            <h3 className="font-display text-2xl">Four ways to integrate</h3>
             <p className="mt-2 text-sm text-muted">
               CLI, SDK, MCP, or raw API — every path settles in AUD on x402.
             </p>
@@ -593,7 +593,7 @@ x-402-pay-to:   milypay.sol
       <section id="for-agents" className="mx-auto max-w-6xl px-6 py-20">
         <div className="max-w-2xl">
           <p className="eyebrow">For your agent</p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
+          <h2 className="font-display mt-3 text-3xl md:text-4xl">
             Hand it to your agent.
           </h2>
           <p className="mt-4 leading-relaxed text-muted">
@@ -626,7 +626,7 @@ x-402-pay-to:   milypay.sol
           />
           <div className="max-w-2xl">
             <p className="eyebrow">FAQ</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
+            <h2 className="font-display mt-3 text-3xl md:text-4xl">
               Questions agents and builders ask.
             </h2>
             <p className="mt-4 leading-relaxed text-muted">
@@ -649,7 +649,7 @@ x-402-pay-to:   milypay.sol
       {/* Dark closing CTA — Decal pattern */}
       <section className="px-6 py-16 md:py-24">
         <div className="mx-auto max-w-6xl overflow-hidden rounded-[28px] bg-cta px-8 py-14 text-center text-cta-fg md:px-16 md:py-20">
-          <h2 className="mx-auto max-w-2xl text-3xl font-semibold tracking-tight md:text-5xl md:leading-[1.1]">
+          <h2 className="font-display mx-auto max-w-2xl text-3xl md:text-5xl md:leading-[1.1]">
             What if your agent paid for Australia in AUD?
           </h2>
           <p className="mx-auto mt-5 max-w-lg text-base leading-relaxed text-white/65">

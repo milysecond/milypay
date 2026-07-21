@@ -48,16 +48,21 @@ Light-first for decision-makers. Green reserved for pay/live states, not full-pa
 
 ## Typography
 
-- **Display / headings:** Inter 600, tight tracking (−0.03em) — commercial product tone
-- **Body / UI:** Inter via `next/font`
-- **Mono:** system mono for API mocks and code
-- **Legacy:** MoonWalk OTF kept in `/fonts` but not default for marketing UI
-- **Type scale:** H1 ~60 · H2 36 · H3 24 · Body 16 · Small 14 (px)
+Shared stack with milysec.com:
+
+| Role | Face | Notes |
+|---|---|---|
+| **Logo** | MoonWalk (OTF) | Class `font-logo`. Letter-spacing **−0.05em** (tight kerning). Logo only — not body or headings. |
+| **Headings** | **Plus Jakarta Sans** | Class `font-display`. Weights 500–700, tracking −0.03em. Geometric commercial product face. |
+| **Body / UI** | **Inter** | Default sans. Weights 400 / 500 / 600. Long-form and chrome. |
+| **Mono** | System mono | API mocks, code, tabular metrics. |
+
+Type scale: H1 ~60 · H2 36 · H3 24 · Body 16 · Small 14 (px)
 
 ## Logo
 
 - Inherit Milysec mark: `milysec-logo.svg` / `milysec-logo-original.png` (from milysec.com).
-- MilyPay lockup: Milysec mark + "MilyPay" wordmark in Inter semibold; "Pay" in brand-green.
+- MilyPay lockup: Milysec mark + "MilyPay" wordmark in **MoonWalk** (`font-logo`), "Pay" in brand-green.
 
 ## Domains
 

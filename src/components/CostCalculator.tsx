@@ -27,7 +27,7 @@ export default function CostCalculator() {
     <div className="card overflow-hidden">
       <div className="border-b border-border-brand px-6 py-5 sm:px-8">
         <p className="eyebrow">Estimate agent spend</p>
-        <h2 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">
+        <h2 className="font-display mt-1 text-2xl sm:text-3xl">
           What does per-call Australia cost?
         </h2>
         <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted">
@@ -92,7 +92,7 @@ export default function CostCalculator() {
         <div className="flex flex-col justify-between rounded-2xl bg-cta p-6 text-cta-fg sm:p-7">
           <div>
             <p className="text-sm text-white/60">Monthly MilyPay spend</p>
-            <p className="mt-2 text-4xl font-semibold tracking-tight tabular-nums sm:text-5xl">
+            <p className="font-display mt-2 text-4xl tabular-nums sm:text-5xl">
               {formatAud(math.milypay)}
             </p>
             <p className="mt-3 text-sm leading-relaxed text-white/65">
