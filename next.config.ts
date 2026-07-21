@@ -1,6 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return [
+      // Soft landings for common crawl junk / mistaken paths
+      { source: "/sitemap", destination: "/sitemap.xml", permanent: true },
+      { source: "/sitemap/", destination: "/sitemap.xml", permanent: true },
+      { source: "/home", destination: "/", permanent: true },
+      { source: "/home/", destination: "/", permanent: true },
+      { source: "/index.html", destination: "/", permanent: true },
+    ];
+  },
   async rewrites() {
     return [
       // Machine-readable x402 discovery manifest. Checked before the host rule
