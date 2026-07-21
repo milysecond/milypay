@@ -4,7 +4,7 @@ import { payAndFetch } from "@/lib/x402pay";
 
 export const dynamic = "force-dynamic";
 
-const ATTRIBUTION = "Market data by Birdeye (birdeye/data on pay.sh), resold by MilyPay";
+const ATTRIBUTION = "Market data by Birdeye (birdeye/data on pay.sh), resold by Milypay";
 const BIRDEYE = "https://public-api.birdeye.so/x402";
 
 export async function GET(req: Request, { params }: { params: Promise<{ path: string[] }> }) {

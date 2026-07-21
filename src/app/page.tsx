@@ -97,7 +97,7 @@ const WHY_AUDD = [
   },
   {
     title: "Multi-chain, Solana-first",
-    desc: "Agents already operate on Solana. MilyPay settles there for ~1-second finality.",
+    desc: "Agents already operate on Solana. Milypay settles there for ~1-second finality.",
   },
   {
     title: "Onchain AUD, zero FX friction",
@@ -123,12 +123,12 @@ const ACCESS = [
     tag: "SDK",
     title: "TypeScript & Python",
     desc: "Drop-in x402 client. Wrap fetch, get auto-paid responses — no manual payment plumbing.",
-    code: 'import { MilyPay } from "@milypay/sdk";\nconst au = new MilyPay({ wallet });\nawait au.business.abn("51824753556");',
+    code: 'import { Milypay } from "@milypay/sdk";\nconst au = new Milypay({ wallet });\nawait au.business.abn("51824753556");',
   },
   {
     tag: "MCP",
     title: "Model Context Protocol",
-    desc: "Expose MilyPay to any agent via the pay.sh MCP server. Discover, price, and pay as tools.",
+    desc: "Expose Milypay to any agent via the pay.sh MCP server. Discover, price, and pay as tools.",
     code: '// claude / cursor mcp config\n{ "pay": { "command": "npx", "args": ["pay.sh", "mcp"] } }',
   },
   {
@@ -143,12 +143,12 @@ const STEPS = [
   {
     n: "01",
     title: "Agent requests data",
-    desc: "Hit a MilyPay endpoint for Australian data — no API key, no signup.",
+    desc: "Hit a Milypay endpoint for Australian data — no API key, no signup.",
   },
   {
     n: "02",
     title: "402 Payment Required",
-    desc: "MilyPay answers with price, asset (AUDD), and pay-to address.",
+    desc: "Milypay answers with price, asset (AUDD), and pay-to address.",
   },
   {
     n: "03",
@@ -157,7 +157,7 @@ const STEPS = [
   },
 ];
 
-const AGENT_SYSTEM_PROMPT = `You can use MilyPay, free Australian data APIs at https://api.milypay.xyz (no API key needed). Make a GET request and read the JSON:
+const AGENT_SYSTEM_PROMPT = `You can use Milypay, free Australian data APIs at https://api.milypay.xyz (no API key needed). Make a GET request and read the JSON:
 - Australian business by ABN: /au-business/abn/{abn}
 - Business by ACN: /au-business/acn/{acn}
 - Business name search: /au-business/search?name={name}
@@ -169,40 +169,40 @@ const AGENT_SYSTEM_PROMPT = `You can use MilyPay, free Australian data APIs at h
 - Postage between postcodes: /au-postage?from={from}&to={to}&weight={kg}
 Full reference: https://milypay.xyz/agents.md`;
 
-const AGENT_ONELINER = `Use the MilyPay APIs at https://api.milypay.xyz for Australian business, address, super fund, and weather data. Read https://milypay.xyz/agents.md first, then call the endpoints with a GET request and read the JSON.`;
+const AGENT_ONELINER = `Use the Milypay APIs at https://api.milypay.xyz for Australian business, address, super fund, and weather data. Read https://milypay.xyz/agents.md first, then call the endpoints with a GET request and read the JSON.`;
 
 const FAQ: { q: string; a: string }[] = [
   {
-    q: "What is MilyPay?",
-    a: "MilyPay is the x402 service provider for the Australian market. It gives AI agents pay-per-call access to Australian data — business identity, company register, addresses, super funds, weather, and postage — settled in AUDD, the regulated AUD-native stablecoin, with no API keys and no signup. MilyPay is a Milysec company.",
+    q: "What is Milypay?",
+    a: "Milypay is the x402 service provider for the Australian market. It gives AI agents pay-per-call access to Australian data — business identity, company register, addresses, super funds, weather, and postage — settled in AUDD, the regulated AUD-native stablecoin, with no API keys and no signup. Milypay is a Milysec company.",
   },
   {
-    q: "How do AI agents pay for Australian data on MilyPay?",
+    q: "How do AI agents pay for Australian data on Milypay?",
     a: "Agents use the x402 protocol. An agent requests an endpoint, receives an HTTP 402 Payment Required response with the price in AUDD, approves the micropayment from an x402-aware wallet, and the data returns in the same round-trip. It works through the Pay.sh CLI, an SDK, the MCP server, or raw HTTP.",
   },
   {
     q: "What is x402?",
-    a: "x402 is an open protocol that turns the HTTP 402 Payment Required status code into a real payment rail, letting a client pay for an API call inline. MilyPay uses x402 so AI agents can pay per request, settling in AUD stablecoins on Solana via the PayAI facilitator.",
+    a: "x402 is an open protocol that turns the HTTP 402 Payment Required status code into a real payment rail, letting a client pay for an API call inline. Milypay uses x402 so AI agents can pay per request, settling in AUD stablecoins on Solana via the PayAI facilitator.",
   },
   {
-    q: "Do I need an API key or account to use MilyPay?",
-    a: "No. MilyPay has no accounts, no API keys, and no signup. Any x402-aware client pays per call and receives the data back in the same request.",
+    q: "Do I need an API key or account to use Milypay?",
+    a: "No. Milypay has no accounts, no API keys, and no signup. Any x402-aware client pays per call and receives the data back in the same request.",
   },
   {
-    q: "What is AUDD and why does MilyPay settle in it?",
-    a: "MilyPay settles agent payments in AUD on Solana. Accepted AUD stables: AUDD (Novatti), AUDM (Macropod), and dAUD (New Money). USDC and USDT are also accepted for pay.sh compatibility. AUD settlement avoids the USD foreign-exchange round-trip that USDC-only x402 services require.",
+    q: "What is AUDD and why does Milypay settle in it?",
+    a: "Milypay settles agent payments in AUD on Solana. Accepted AUD stables: AUDD (Novatti), AUDM (Macropod), and dAUD (New Money). USDC and USDT are also accepted for pay.sh compatibility. AUD settlement avoids the USD foreign-exchange round-trip that USDC-only x402 services require.",
   },
   {
     q: "How do I give my AI agent access to Australian data?",
-    a: "Point your agent at https://milypay.xyz/agents.md, or add the Pay.sh MCP server to Claude, ChatGPT, Cursor, or any MCP-compatible client. The agent can then discover, price, and call every MilyPay service. You can also paste the ready-made MilyPay prompt from the home page.",
+    a: "Point your agent at https://milypay.xyz/agents.md, or add the Pay.sh MCP server to Claude, ChatGPT, Cursor, or any MCP-compatible client. The agent can then discover, price, and call every Milypay service. You can also paste the ready-made Milypay prompt from the home page.",
   },
   {
-    q: "What Australian data does MilyPay provide?",
+    q: "What Australian data does Milypay provide?",
     a: "Business identity (ABN and ACN lookup from the ABR), ASIC company register lookups, address validation and geocoding (G-NAF, 16.9M addresses), super fund lookup, weather (BOM ACCESS-G via Open-Meteo), Australia Post postage rates, and BSB lookup (17,000+ BSBs from the AusPayNet directory). More Australian services are on the roadmap.",
   },
   {
-    q: "Which AI tools and agents work with MilyPay?",
-    a: "Any agent or assistant that can make an HTTP request: Claude, ChatGPT, Cursor, and any Model Context Protocol client via the Pay.sh MCP server. If your agent can call a URL, it can use MilyPay.",
+    q: "Which AI tools and agents work with Milypay?",
+    a: "Any agent or assistant that can make an HTTP request: Claude, ChatGPT, Cursor, and any Model Context Protocol client via the Pay.sh MCP server. If your agent can call a URL, it can use Milypay.",
   },
 ];
 
@@ -295,7 +295,7 @@ export default function Home() {
             </h1>
 
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted">
-              MilyPay gives AI agents pay-per-call access to Australian data — business,
+              Milypay gives AI agents pay-per-call access to Australian data — business,
               address, weather, postage — settled in AUDD. No keys. No signup. Just 402.
             </p>
 
@@ -346,7 +346,7 @@ export default function Home() {
             <p className="mt-5 max-w-xl leading-relaxed text-muted">
               The pay.sh catalog is full of horizontal providers — crypto data, email, OCR,
               search. None speak Australian. No ABN lookup, no GNAF addresses, no BOM weather,
-              no AUD rail. MilyPay is the local layer for agents operating here.
+              no AUD rail. Milypay is the local layer for agents operating here.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -450,7 +450,7 @@ export default function Home() {
             </h2>
             <p className="mt-4 leading-relaxed text-muted">
               x402 today runs on USDC — Australian builders bridge through USD and eat the FX.
-              MilyPay settles in <span className="text-fg font-medium">AUDD</span>: 1:1
+              Milypay settles in <span className="text-fg font-medium">AUDD</span>: 1:1
               AUD-backed, regulated, and programmable.
             </p>
           </div>
@@ -475,7 +475,7 @@ export default function Home() {
 
           <p className="mt-6 text-xs leading-relaxed text-muted">
             Ecosystem figures via Pay.sh and the PayAI x402 facilitator. AUDD is issued 1:1
-            and AUD-backed under an AFSL framework. MilyPay provides settlement and data
+            and AUD-backed under an AFSL framework. Milypay provides settlement and data
             services only — nothing here is an investment offer.
           </p>
         </div>
@@ -511,7 +511,7 @@ export default function Home() {
               </h2>
               <p className="mt-5 leading-relaxed text-muted">
                 No API keys, no onboarding forms, no invoices. Point any x402-aware client —
-                or the pay.sh MCP — at a MilyPay endpoint. First response is a 402; wallet
+                or the pay.sh MCP — at a Milypay endpoint. First response is a 402; wallet
                 approves; data comes back. Settlement in AUDD on Solana via PayAI.
               </p>
               <div className="mt-7 flex flex-wrap gap-3">
@@ -598,7 +598,7 @@ x-402-pay-to:   milypay.sol
           </h2>
           <p className="mt-4 leading-relaxed text-muted">
             Not a developer? Copy one of these into Claude, ChatGPT, Cursor, or any assistant
-            that can call URLs — and it can use every MilyPay service.
+            that can call URLs — and it can use every Milypay service.
           </p>
         </div>
         <div className="mt-10 grid gap-6 md:grid-cols-2">
@@ -630,7 +630,7 @@ x-402-pay-to:   milypay.sol
               Questions agents and builders ask.
             </h2>
             <p className="mt-4 leading-relaxed text-muted">
-              What MilyPay is, how x402 payment works, and how to give an AI agent access to
+              What Milypay is, how x402 payment works, and how to give an AI agent access to
               Australian data.
             </p>
           </div>

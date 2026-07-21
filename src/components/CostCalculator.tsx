@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 
-const AVG_PRICE = 0.002; // AUDD per call (typical MilyPay price)
+const AVG_PRICE = 0.002; // AUDD per call (typical Milypay price)
 const TRADITIONAL_SETUP = 200; // rough monthly API seat / key / support friction
 const FX_FRICTION_PCT = 0.015; // USD round-trip friction proxy
 
@@ -31,7 +31,7 @@ export default function CostCalculator() {
           What does per-call Australia cost?
         </h2>
         <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted">
-          Typical MilyPay price is ~$0.002 AUDD per call. No seats, no FX bridge, no monthly minimum.
+          Typical Milypay price is ~$0.002 AUDD per call. No seats, no FX bridge, no monthly minimum.
         </p>
       </div>
 
@@ -72,7 +72,7 @@ export default function CostCalculator() {
               </span>
             </div>
             <div className="flex items-center justify-between rounded-xl bg-secondary px-4 py-3 text-sm">
-              <span className="text-muted">MilyPay metered (AUDD)</span>
+              <span className="text-muted">Milypay metered (AUDD)</span>
               <span className="font-medium tabular-nums text-brand-green">
                 {formatAud(math.milypay)}
               </span>
@@ -91,7 +91,7 @@ export default function CostCalculator() {
 
         <div className="flex flex-col justify-between rounded-2xl bg-cta p-6 text-cta-fg sm:p-7">
           <div>
-            <p className="text-sm text-white/60">Monthly MilyPay spend</p>
+            <p className="text-sm text-white/60">Monthly Milypay spend</p>
             <p className="font-display mt-2 text-4xl tabular-nums sm:text-5xl">
               {formatAud(math.milypay)}
             </p>

@@ -44,12 +44,12 @@ export async function POST(req: Request) {
   }
 
   const to = process.env.CONTACT_TO || "gm@metasal.xyz";
-  const from = process.env.CONTACT_FROM || "MilyPay <onboarding@resend.dev>";
+  const from = process.env.CONTACT_FROM || "Milypay <onboarding@resend.dev>";
   const label = TOPIC_LABEL[topic];
 
   const html = `
     <div style="font-family:system-ui,sans-serif;line-height:1.6">
-      <h2 style="margin:0 0 4px">New MilyPay enquiry - ${esc(label)}</h2>
+      <h2 style="margin:0 0 4px">New Milypay enquiry - ${esc(label)}</h2>
       <table style="border-collapse:collapse;margin-top:12px">
         <tr><td style="padding:4px 12px 4px 0;color:#666">Name</td><td>${esc(name)}</td></tr>
         <tr><td style="padding:4px 12px 4px 0;color:#666">Email</td><td>${esc(email)}</td></tr>
@@ -66,7 +66,7 @@ export async function POST(req: Request) {
       from,
       to: [to],
       reply_to: email,
-      subject: `MilyPay · ${label} - ${name}`,
+      subject: `Milypay · ${label} - ${name}`,
       html,
     }),
   });

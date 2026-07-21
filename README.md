@@ -1,8 +1,8 @@
-# MilyPay
+# Milypay
 
 Agent-native payments and Australian data on the [x402](https://x402.org) protocol, settled in AUD stablecoins. A [Milysec](https://milysec.com) company.
 
-MilyPay is the x402 service provider built for Australia. AI agents get pay-per-call access to Australian government data, settled in AUDD on Solana via the [PayAI](https://docs.payai.network/x402) facilitator and listed on [Pay.sh](https://pay.sh). No API keys, no signup.
+Milypay is the x402 service provider built for Australia. AI agents get pay-per-call access to Australian government data, settled in AUDD on Solana via the [PayAI](https://docs.payai.network/x402) facilitator and listed on [Pay.sh](https://pay.sh). No API keys, no signup.
 
 - Site: https://milypay.xyz
 - API: https://api.milypay.xyz

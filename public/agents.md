@@ -1,8 +1,8 @@
-# MilyPay for Agents
+# Milypay for Agents
 
-The complete way for AI agents to pay for Australian data. MilyPay exposes Australian APIs over the x402 protocol, settled in AUD stablecoins on Solana, and discoverable through Pay.sh, a CLI, an MCP server, SDKs, and raw HTTP 402. No accounts, no API keys.
+The complete way for AI agents to pay for Australian data. Milypay exposes Australian APIs over the x402 protocol, settled in AUD stablecoins on Solana, and discoverable through Pay.sh, a CLI, an MCP server, SDKs, and raw HTTP 402. No accounts, no API keys.
 
-Agents and crawlers are welcome here. This document describes how to use MilyPay programmatically. A Milysec company.
+Agents and crawlers are welcome here. This document describes how to use Milypay programmatically. A Milysec company.
 
 ## Quickstart
 
@@ -24,7 +24,7 @@ Call any endpoint from your terminal. The Pay.sh CLI handles the 402 challenge a
 
 ### MCP (Model Context Protocol)
 
-Expose MilyPay to any agent through the Pay.sh MCP server. Agents discover, price, and pay for Australian data as tools.
+Expose Milypay to any agent through the Pay.sh MCP server. Agents discover, price, and pay for Australian data as tools.
 
 - Drop-in for Claude, Cursor, and other MCP clients
 - Tools are auto-priced in AUD
@@ -74,21 +74,21 @@ Base URL: `https://api.milypay.xyz`. More Australian services are on the roadmap
 
 ## How payment works
 
-1. Your agent requests a MilyPay endpoint, for example `GET https://api.milypay.xyz/au-business/abn/{abn}`.
-2. MilyPay answers with an x402 challenge: price, asset (AUDD), network (solana), and pay-to address.
+1. Your agent requests a Milypay endpoint, for example `GET https://api.milypay.xyz/au-business/abn/{abn}`.
+2. Milypay answers with an x402 challenge: price, asset (AUDD), network (solana), and pay-to address.
 3. Your wallet approves the micropayment via the PayAI facilitator. Settlement is in AUDD on Solana, and the data returns in the same request.
 
 ## Settlement currency
 
-MilyPay is AUD-stablecoin-agnostic. On Solana it accepts **AUDD**, **AUDM**, and **dAUD** for AUD-native settlement, plus **USDC** and **USDT** for pay.sh compatibility. See https://milypay.xyz/stables for the full reference.
+Milypay is AUD-stablecoin-agnostic. On Solana it accepts **AUDD**, **AUDM**, and **dAUD** for AUD-native settlement, plus **USDC** and **USDT** for pay.sh compatibility. See https://milypay.xyz/stables for the full reference.
 
 ## List your API
 
-Wrap any existing Australian API with the MilyPay reference implementation, set a price in AUD, and it becomes discoverable and payable by every agent on Pay.sh. Start at https://milypay.xyz/contact.
+Wrap any existing Australian API with the Milypay reference implementation, set a price in AUD, and it becomes discoverable and payable by every agent on Pay.sh. Start at https://milypay.xyz/contact.
 
 ## FAQ
 
-**What can an agent do with MilyPay?**
+**What can an agent do with Milypay?**
 Discover Australian data services, get a price in AUD, pay per call, and receive data, all autonomously over x402.
 
 **Do I need an account or API key?**

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Seed the MilyPay BSB Turso database from the AusPayNet public bulk download.
+// Seed the Milypay BSB Turso database from the AusPayNet public bulk download.
 // Run manually or on the first business day of each month to refresh.
 //
 // Usage:

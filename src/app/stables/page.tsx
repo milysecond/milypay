@@ -3,9 +3,9 @@ import Link from "next/link";
 import { SiteHeader, SiteFooter } from "@/components/site";
 
 export const metadata: Metadata = {
-  title: "AUD Stablecoins - settlement options | MilyPay",
+  title: "AUD Stablecoins - settlement options | Milypay",
   description:
-    "MilyPay settles agent payments in regulated AUD stablecoins. A reference to the options - AUDD, AUDM, dAUD and more - and how MilyPay routes settlement.",
+    "Milypay settles agent payments in regulated AUD stablecoins. A reference to the options - AUDD, AUDM, dAUD and more - and how Milypay routes settlement.",
   alternates: { canonical: "/stables" },
 };
 
@@ -38,7 +38,7 @@ const STABLES: {
     solana: "Live",
     status: "live",
     statusLabel: "Flagship · Live on Solana",
-    desc: "The market leader and first AUD stablecoin listed on Coinbase. Fully reserved 1:1 via bare trust. MilyPay's default settlement asset today, via the PayAI facilitator.",
+    desc: "The market leader and first AUD stablecoin listed on Coinbase. Fully reserved 1:1 via bare trust. Milypay's default settlement asset today, via the PayAI facilitator.",
   },
   {
     ticker: "AUDM",
@@ -49,7 +49,7 @@ const STABLES: {
     solana: "Live",
     status: "live",
     statusLabel: "Institutional · Live on Solana",
-    desc: "Built for settlement infrastructure, tokenised assets, and wholesale markets. Accepted for MilyPay x402 settlement on Solana (mint CiYXBwHPrdNkMtxR8YEWKv78K6bQjFoEWhPQrZqEmubi).",
+    desc: "Built for settlement infrastructure, tokenised assets, and wholesale markets. Accepted for Milypay x402 settlement on Solana (mint CiYXBwHPrdNkMtxR8YEWKv78K6bQjFoEWhPQrZqEmubi).",
   },
   {
     ticker: "dAUD",
@@ -60,7 +60,7 @@ const STABLES: {
     solana: "Live",
     status: "live",
     statusLabel: "Live on Solana",
-    desc: "On-chain AUD unit for settlement. Accepted for MilyPay x402 settlement on Solana (mint F7FiKutfrMMXd8Zw5ysZsfx5v4aBHffWc4EhRZE8NHiF, 9 decimals).",
+    desc: "On-chain AUD unit for settlement. Accepted for Milypay x402 settlement on Solana (mint F7FiKutfrMMXd8Zw5ysZsfx5v4aBHffWc4EhRZE8NHiF, 9 decimals).",
   },
   {
     ticker: "A$DC",
@@ -101,9 +101,9 @@ export default function StablesPage() {
             Settled in <span className="brand-gradient-text">AUD stablecoins</span>.
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted">
-            MilyPay is stablecoin-agnostic. Agents pay for Australian data and settle in a
+            Milypay is stablecoin-agnostic. Agents pay for Australian data and settle in a
             regulated, AUD-denominated stablecoin - no bridging through USD, no FX. AUDD is
-            live today; as new AUD stables reach Solana, MilyPay routes to them automatically.
+            live today; as new AUD stables reach Solana, Milypay routes to them automatically.
           </p>
         </div>
       </section>
@@ -122,7 +122,7 @@ export default function StablesPage() {
             },
             {
               t: "One rail, many issuers",
-              d: "MilyPay abstracts the asset. Price in AUD; settle in whichever AUD stablecoin the counterparty holds.",
+              d: "Milypay abstracts the asset. Price in AUD; settle in whichever AUD stablecoin the counterparty holds.",
             },
           ].map((x) => (
             <div key={x.t} className="card p-6">
@@ -141,7 +141,7 @@ export default function StablesPage() {
               The AUD stablecoin landscape.
             </h2>
             <p className="mt-4 leading-relaxed text-muted">
-              A living reference. MilyPay supports regulated AUD stables as they become
+              A living reference. Milypay supports regulated AUD stables as they become
               available on Solana - this list grows as the market does.
             </p>
           </div>
@@ -174,7 +174,7 @@ export default function StablesPage() {
           <p className="mt-8 text-xs leading-relaxed text-muted">
             Informational only - not financial advice or an endorsement of any issuer. AUDN
             (NAB) is omitted as discontinued. Details current as of mid-2026 and subject to
-            change; new AUD stablecoins will be added as they launch. MilyPay provides
+            change; new AUD stablecoins will be added as they launch. Milypay provides
             settlement and data services, not currency issuance.
           </p>
         </div>
@@ -188,7 +188,7 @@ export default function StablesPage() {
             Issue an AUD stablecoin? Let&rsquo;s get it on the agent rail.
           </h2>
           <p className="mx-auto mt-4 max-w-xl leading-relaxed text-muted">
-            MilyPay is the AUD-native settlement layer for x402. If you want your stablecoin
+            Milypay is the AUD-native settlement layer for x402. If you want your stablecoin
             routable by agents across the Pay.sh catalog, talk to us.
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">

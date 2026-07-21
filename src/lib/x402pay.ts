@@ -1,6 +1,6 @@
 // Server-side x402 payer: lets the Worker pay an upstream x402 service (e.g. Birdeye)
 // in USDC on Solana, using a funded server keypair. Used to resell third-party pay.sh
-// services, settled to MilyPay customers in AUDD.
+// services, settled to Milypay customers in AUDD.
 //
 // Config (Worker secret): SOLANA_PAYER_SECRET (base58 secret key of the funded payer).
 

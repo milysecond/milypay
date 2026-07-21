@@ -22,11 +22,11 @@ const ORG_JSONLD = {
     {
       "@type": "Organization",
       "@id": "https://milypay.xyz/#organization",
-      name: "MilyPay",
+      name: "Milypay",
       url: "https://milypay.xyz",
       logo: "https://milypay.xyz/icon.png",
       description:
-        "MilyPay is the x402 service provider for the Australian market, giving AI agents pay-per-call access to Australian data settled in AUD stablecoins. A Milysec company.",
+        "Milypay is the x402 service provider for the Australian market, giving AI agents pay-per-call access to Australian data settled in AUD stablecoins. A Milysec company.",
       parentOrganization: { "@type": "Organization", name: "Milysec", url: "https://milysec.com" },
       sameAs: ["https://milysec.com", "https://pay.sh", "https://x402.org"],
     },
@@ -34,7 +34,7 @@ const ORG_JSONLD = {
       "@type": "WebSite",
       "@id": "https://milypay.xyz/#website",
       url: "https://milypay.xyz",
-      name: "MilyPay",
+      name: "Milypay",
       description:
         "Agentic payments and Australian data on the x402 protocol, settled in AUDD on Solana. No API keys, no signup.",
       publisher: { "@id": "https://milypay.xyz/#organization" },
@@ -43,7 +43,7 @@ const ORG_JSONLD = {
     {
       "@type": "Service",
       "@id": "https://milypay.xyz/#service",
-      name: "MilyPay agentic data and payments",
+      name: "Milypay agentic data and payments",
       serviceType: "x402 pay-per-call API access for AI agents",
       provider: { "@id": "https://milypay.xyz/#organization" },
       areaServed: { "@type": "Country", name: "Australia" },
@@ -52,7 +52,7 @@ const ORG_JSONLD = {
         "Pay-per-call access to Australian government and commercial data for AI agents over the x402 protocol, settled in AUDD (regulated AUD stablecoin) on Solana, discoverable on Pay.sh. No API keys, no accounts.",
       hasOfferCatalog: {
         "@type": "OfferCatalog",
-        name: "MilyPay Australian data services",
+        name: "Milypay Australian data services",
         itemListElement: SERVICE_OFFERS.map((s) => ({
           "@type": "Offer",
           priceSpecification: {
@@ -90,18 +90,18 @@ export const metadata: Metadata = {
     canonical: "/",
     types: {
       "text/markdown": [
-        { url: "/agents.md", title: "MilyPay for Agents (agents.md)" },
-        { url: "/llms.txt", title: "MilyPay (llms.txt)" },
-        { url: "/llms-full.txt", title: "MilyPay full reference (llms-full.txt)" },
+        { url: "/agents.md", title: "Milypay for Agents (agents.md)" },
+        { url: "/llms.txt", title: "Milypay (llms.txt)" },
+        { url: "/llms-full.txt", title: "Milypay full reference (llms-full.txt)" },
       ],
     },
   },
   title: {
-    default: "MilyPay - Agent payments & Australian data on x402",
+    default: "Milypay - Agent payments & Australian data on x402",
     template: "%s",
   },
   description:
-    "MilyPay is the x402 service provider for the Australian market. AI agents get pay-per-call access to Australian data - business, company, address, super, weather, postage - settled in AUDD, the regulated AUD-native stablecoin, via the PayAI facilitator and Pay.sh. No API keys, no signup. A Milysec company.",
+    "Milypay is the x402 service provider for the Australian market. AI agents get pay-per-call access to Australian data - business, company, address, super, weather, postage - settled in AUDD, the regulated AUD-native stablecoin, via the PayAI facilitator and Pay.sh. No API keys, no signup. A Milysec company.",
   keywords: [
     "x402",
     "agent payments",
@@ -120,21 +120,21 @@ export const metadata: Metadata = {
     "AUDD",
     "pay.sh",
     "Milysec",
-    "MilyPay",
+    "Milypay",
     "Solana",
     "stablecoin",
   ],
   openGraph: {
-    title: "MilyPay - Agent payments & Australian data on x402",
+    title: "Milypay - Agent payments & Australian data on x402",
     description:
       "Pay-per-call Australian data and AUD-settled micropayments for AI agents, on the x402 rail. A Milysec company.",
     url: "https://milypay.xyz",
-    siteName: "MilyPay",
+    siteName: "Milypay",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "MilyPay - Agent payments & Australian data on x402",
+    title: "Milypay - Agent payments & Australian data on x402",
     description:
       "Pay-per-call Australian data and AUD-settled micropayments for AI agents, on the x402 rail.",
   },

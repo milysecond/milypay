@@ -1,6 +1,6 @@
-# MilyPay - Full Reference
+# Milypay - Full Reference
 
-> MilyPay is the x402 service provider for the Australian market. AI agents pay per call for Australian data and settle in AUD stablecoins (AUDD and others), via the PayAI facilitator and the Pay.sh catalog. No API keys, no signup. A Milysec company.
+> Milypay is the x402 service provider for the Australian market. AI agents pay per call for Australian data and settle in AUD stablecoins (AUDD and others), via the PayAI facilitator and the Pay.sh catalog. No API keys, no signup. A Milysec company.
 
 This is the long-form reference for language models and agents. For the short version see https://milypay.xyz/llms.txt . For the human and agent guide see https://milypay.xyz/agents.md . Machine-readable discovery manifest: https://milypay.xyz/.well-known/x402 .
 
@@ -109,7 +109,7 @@ GET /au-postage?country={code}&weight={kg} - price 0.002
 
 ## Settlement currency
 
-MilyPay is AUD-stablecoin-agnostic. On Solana it accepts AUDD, AUDM, and dAUD for AUD-native settlement, plus USDC and USDT for pay.sh compatibility. Settling in AUD removes the USD foreign-exchange round-trip that USDC-only x402 services require. AUD stablecoin reference: https://milypay.xyz/stables .
+Milypay is AUD-stablecoin-agnostic. On Solana it accepts AUDD, AUDM, and dAUD for AUD-native settlement, plus USDC and USDT for pay.sh compatibility. Settling in AUD removes the USD foreign-exchange round-trip that USDC-only x402 services require. AUD stablecoin reference: https://milypay.xyz/stables .
 
 ## Ways to integrate
 
@@ -120,18 +120,18 @@ MilyPay is AUD-stablecoin-agnostic. On Solana it accepts AUDD, AUDM, and dAUD fo
 
 ## FAQ
 
-Q: What is MilyPay?
-A: MilyPay is the x402 service provider for the Australian market. It gives AI agents pay-per-call access to Australian data settled in AUDD, the regulated AUD-native stablecoin, with no API keys and no signup. A Milysec company.
+Q: What is Milypay?
+A: Milypay is the x402 service provider for the Australian market. It gives AI agents pay-per-call access to Australian data settled in AUDD, the regulated AUD-native stablecoin, with no API keys and no signup. A Milysec company.
 
 Q: Do I need an API key or account?
-A: No. MilyPay has no accounts, no API keys, and no signup. Any x402-aware client pays per call and receives the data back.
+A: No. Milypay has no accounts, no API keys, and no signup. Any x402-aware client pays per call and receives the data back.
 
 Q: How do I give my AI agent access to Australian data?
 A: Point your agent at https://milypay.xyz/agents.md, or add the Pay.sh MCP server to Claude, ChatGPT, Cursor, or any MCP-compatible client.
 
 Q: What is AUDD?
-A: AUDD is a 1:1 AUD-backed, AFSL-regulated stablecoin live on Solana. It is MilyPay's default settlement asset.
+A: AUDD is a 1:1 AUD-backed, AFSL-regulated stablecoin live on Solana. It is Milypay's default settlement asset.
 
 ## About
 
-MilyPay is a Milysec company (https://milysec.com). Built for Australia. Settled in AUD stablecoins. To list an Australian API: https://milypay.xyz/contact . MilyPay provides settlement and data services only; nothing here is an investment offer.
+Milypay is a Milysec company (https://milysec.com). Built for Australia. Settled in AUD stablecoins. To list an Australian API: https://milypay.xyz/contact . Milypay provides settlement and data services only; nothing here is an investment offer.

@@ -1,14 +1,14 @@
-# MilyPay
+# Milypay
 
-> MilyPay is the x402 service provider for the Australian market. AI agents pay per call for Australian data and settle in AUD stablecoins (AUDD and others), via the PayAI facilitator and the Pay.sh catalog. A Milysec company.
+> Milypay is the x402 service provider for the Australian market. AI agents pay per call for Australian data and settle in AUD stablecoins (AUDD and others), via the PayAI facilitator and the Pay.sh catalog. A Milysec company.
 
-MilyPay turns any Australian API into something an AI agent can discover, pay for, and call autonomously over the x402 protocol, with no API keys and no signup. Settlement is in regulated, AUD-denominated stablecoins on Solana. Agents and crawlers are welcome here.
+Milypay turns any Australian API into something an AI agent can discover, pay for, and call autonomously over the x402 protocol, with no API keys and no signup. Settlement is in regulated, AUD-denominated stablecoins on Solana. Agents and crawlers are welcome here.
 
 Full agent guide: https://milypay.xyz/agents.md
 Full LLM reference (every endpoint, params, example responses): https://milypay.xyz/llms-full.txt
 Machine-readable x402 discovery manifest: https://milypay.xyz/.well-known/x402
 
-## What MilyPay offers
+## What Milypay offers
 
 Services live under the `milysec/*` namespace on Pay.sh:
 
@@ -32,7 +32,7 @@ No accounts, no keys. Any x402-aware client, the Pay.sh CLI, SDK, or MCP server 
 
 ## Settlement currency
 
-MilyPay is AUD-stablecoin-agnostic. AUDD (live on Solana, AFSL-regulated) is the default today; AUDM and other regulated AUD stablecoins are added as they reach Solana.
+Milypay is AUD-stablecoin-agnostic. AUDD (live on Solana, AFSL-regulated) is the default today; AUDM and other regulated AUD stablecoins are added as they reach Solana.
 
 - AUD stablecoin reference: https://milypay.xyz/stables
 
@@ -47,22 +47,22 @@ MilyPay is AUD-stablecoin-agnostic. AUDD (live on Solana, AFSL-regulated) is the
 
 ## FAQ
 
-Q: What is MilyPay?
-A: MilyPay is the x402 service provider for the Australian market. It gives AI agents pay-per-call access to Australian data - business identity, company register, addresses, super funds, weather, and postage - settled in AUDD, the regulated AUD-native stablecoin, with no API keys and no signup. A Milysec company.
+Q: What is Milypay?
+A: Milypay is the x402 service provider for the Australian market. It gives AI agents pay-per-call access to Australian data - business identity, company register, addresses, super funds, weather, and postage - settled in AUDD, the regulated AUD-native stablecoin, with no API keys and no signup. A Milysec company.
 
-Q: How do AI agents pay for Australian data on MilyPay?
+Q: How do AI agents pay for Australian data on Milypay?
 A: Agents use the x402 protocol. An agent requests an endpoint, receives HTTP 402 Payment Required with the price in AUDD, approves the micropayment from an x402-aware wallet, and the data returns in the same round-trip. Works via the Pay.sh CLI, SDK, MCP server, or raw HTTP.
 
 Q: Do I need an API key or account?
-A: No. MilyPay has no accounts, no API keys, and no signup. Any x402-aware client pays per call and receives the data back.
+A: No. Milypay has no accounts, no API keys, and no signup. Any x402-aware client pays per call and receives the data back.
 
-Q: What is AUDD and why does MilyPay settle in it?
-A: AUDD is a 1:1 AUD-backed, AFSL-regulated stablecoin live on Solana. MilyPay settles in AUDD so Australian agents avoid the USD foreign-exchange round-trip that USDC-based x402 services require.
+Q: What is AUDD and why does Milypay settle in it?
+A: AUDD is a 1:1 AUD-backed, AFSL-regulated stablecoin live on Solana. Milypay settles in AUDD so Australian agents avoid the USD foreign-exchange round-trip that USDC-based x402 services require.
 
 Q: How do I give my AI agent access to Australian data?
-A: Point your agent at https://milypay.xyz/agents.md, or add the Pay.sh MCP server to Claude, ChatGPT, Cursor, or any MCP-compatible client. The agent can then discover, price, and call every MilyPay service.
+A: Point your agent at https://milypay.xyz/agents.md, or add the Pay.sh MCP server to Claude, ChatGPT, Cursor, or any MCP-compatible client. The agent can then discover, price, and call every Milypay service.
 
-Q: Which AI tools and agents work with MilyPay?
+Q: Which AI tools and agents work with Milypay?
 A: Any agent or assistant that can make an HTTP request: Claude, ChatGPT, Cursor, and any Model Context Protocol client via the Pay.sh MCP server.
 
 ## Integrate or list an API
@@ -74,4 +74,4 @@ A: Any agent or assistant that can make an HTTP request: Claude, ChatGPT, Cursor
 
 ## About
 
-MilyPay is a Milysec company (https://milysec.com). Built for Australia. Settled in AUD stablecoins.
+Milypay is a Milysec company (https://milysec.com). Built for Australia. Settled in AUD stablecoins.

@@ -4,9 +4,9 @@ import { SiteHeader, SiteFooter } from "@/components/site";
 import CodeBlock from "@/components/CodeBlock";
 
 export const metadata: Metadata = {
-  title: "Docs | MilyPay",
+  title: "Docs | Milypay",
   description:
-    "MilyPay API documentation: Australian business, company, address, super fund, and weather endpoints, with x402 (AUDD) payment details and examples.",
+    "Milypay API documentation: Australian business, company, address, super fund, and weather endpoints, with x402 (AUDD) payment details and examples.",
   alternates: { canonical: "/docs" },
 };
 
@@ -215,9 +215,9 @@ const SECTIONS: Section[] = [
     id: "markets",
     title: "Market data (third-party)",
     namespace: "milysec/markets",
-    source: "Birdeye (birdeye/data on pay.sh), resold by MilyPay",
+    source: "Birdeye (birdeye/data on pay.sh), resold by Milypay",
     blurb:
-      "Solana and multi-chain DeFi data - token prices, overviews, security, holders, trending. You pay MilyPay in AUDD; MilyPay pays Birdeye in USDC. Paid-only (no free tier, since each call costs us upstream). Path maps to Birdeye's /x402/* endpoints (47 available).",
+      "Solana and multi-chain DeFi data - token prices, overviews, security, holders, trending. You pay Milypay in AUDD; Milypay pays Birdeye in USDC. Paid-only (no free tier, since each call costs us upstream). Path maps to Birdeye's /x402/* endpoints (47 available).",
     endpoints: [
       {
         path: "GET /markets/defi/price?address={mint}&chain=solana",
@@ -274,7 +274,7 @@ export default function DocsPage() {
             <p className="text-sm font-semibold uppercase tracking-widest text-brand-green">
               Documentation
             </p>
-            <H id="overview">MilyPay API</H>
+            <H id="overview">Milypay API</H>
             <p className="leading-relaxed text-muted">
               Pay-per-call Australian data for AI agents, settled in AUD stablecoins on the x402
               rail. Five services: business identity, company register, address, super funds, and

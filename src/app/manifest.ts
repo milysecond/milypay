@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "MilyPay",
-    short_name: "MilyPay",
+    name: "Milypay",
+    short_name: "Milypay",
     description:
       "Agent payments and Australian data on x402. Settled in AUD stablecoins. A Milysec company.",
     start_url: "/",
