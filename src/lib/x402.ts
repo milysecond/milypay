@@ -1,4 +1,5 @@
-// x402 payment gate for MilyPay, settling in AUDD on Solana via the PayAI facilitator.
+// x402 payment gate for MilyPay on Solana via the PayAI facilitator.
+// Accepts AUDD (preferred, AUD-native) plus USDC and USDT (required by pay-skills / pay.sh).
 // Spec: client gets HTTP 402 with a base64 PAYMENT-REQUIRED challenge, pays, and retries
 // with a PAYMENT-SIGNATURE header. We /verify, serve, then /settle.
 // Docs: https://docs.payai.network/x402
@@ -7,9 +8,10 @@
 //   X402_ENABLED      "true" to enforce payment. Anything else = pass-through (dev/testing).
 //   PAYAI_FACILITATOR facilitator base URL (default https://facilitator.payai.network)
 //   X402_NETWORK      CAIP-2 network id (default Solana mainnet)
-//   PAY_TO_WALLET     merchant Solana wallet that receives AUDD
+//   PAY_TO_WALLET     merchant Solana wallet that receives settlement
 //   AUDD_MINT         AUDD SPL token mint address on Solana
 //   AUDD_DECIMALS     token decimals (default 6)
+//   USDC_MINT / USDT_MINT optional overrides (defaults: mainnet Circle USDC / Tether USDT)
 
 import { NextResponse } from "next/server";
 import { isThrottled } from "./throttle";
@@ -17,6 +19,15 @@ import { isThrottled } from "./throttle";
 const FACILITATOR = process.env.PAYAI_FACILITATOR || "https://facilitator.payai.network";
 const NETWORK = process.env.X402_NETWORK || "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp";
 const DECIMALS = Number(process.env.AUDD_DECIMALS || "6");
+
+// Solana mainnet stablecoin mints. USDC/USDT required for pay-skills registry CI.
+const USDC_MINT =
+  process.env.USDC_MINT || "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+const USDT_MINT =
+  process.env.USDT_MINT || "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB";
+
+const FEE_PAYER =
+  process.env.PAYAI_FEE_PAYER || "2wKupLR9q6wXYppw8Gr2NvWxKBUqm4PPJKkQfoxHDBg4";
 
 function enabled(): boolean {
   return process.env.X402_ENABLED === "true";
@@ -30,7 +41,7 @@ function b64decodeJson<T>(s: string): T {
   return JSON.parse(atob(s)) as T;
 }
 
-// Convert a human AUD amount ("0.02") to atomic token units as a string.
+// Convert a human amount ("0.02") to atomic token units as a string (6 decimals).
 function toAtomic(human: string): string {
   const [whole, frac = ""] = human.split(".");
   const fracPadded = (frac + "0".repeat(DECIMALS)).slice(0, DECIMALS);
@@ -48,18 +59,32 @@ interface PaymentRequirements {
   extra?: Record<string, unknown>;
 }
 
-function requirements(price: string): PaymentRequirements {
+/** Stables MilyPay accepts on Solana: USDC + USDT (pay.sh) then AUDD (AUD-native). */
+function acceptedMints(): { mint: string; symbol: string }[] {
+  const list: { mint: string; symbol: string }[] = [
+    { mint: USDC_MINT, symbol: "USDC" },
+    { mint: USDT_MINT, symbol: "USDT" },
+  ];
+  if (process.env.AUDD_MINT) {
+    list.push({ mint: process.env.AUDD_MINT, symbol: "AUDD" });
+  }
+  return list.filter((a) => Boolean(a.mint));
+}
+
+function requirementsForAsset(price: string, asset: string): PaymentRequirements {
   return {
     scheme: "exact",
     network: NETWORK,
     amount: toAtomic(price),
-    asset: process.env.AUDD_MINT || "",
+    asset,
     payTo: process.env.PAY_TO_WALLET || "",
     maxTimeoutSeconds: 60,
-    extra: {
-      feePayer: process.env.PAYAI_FEE_PAYER || "2wKupLR9q6wXYppw8Gr2NvWxKBUqm4PPJKkQfoxHDBg4",
-    },
+    extra: { feePayer: FEE_PAYER },
   };
+}
+
+function allRequirements(price: string): PaymentRequirements[] {
+  return acceptedMints().map((a) => requirementsForAsset(price, a.mint));
 }
 
 function challenge(req: Request, price: string, description: string) {
@@ -67,14 +92,23 @@ function challenge(req: Request, price: string, description: string) {
     x402Version: 2,
     error: "PAYMENT-SIGNATURE header is required",
     resource: { url: req.url, description, mimeType: "application/json" },
-    accepts: [requirements(price)],
+    // USDC first so pay-skills probes recognize a Solana USDC/USDT accept.
+    accepts: allRequirements(price),
     extensions: {},
   };
 }
 
 function paymentRequired(req: Request, price: string, description: string): NextResponse {
+  const symbols = acceptedMints()
+    .map((a) => a.symbol)
+    .join(" / ");
   return new NextResponse(
-    JSON.stringify({ error: "Payment Required", price: `${price} AUDD`, description }),
+    JSON.stringify({
+      error: "Payment Required",
+      price: `${price} ${symbols}`,
+      description,
+      brand: "MilyPay",
+    }),
     {
       status: 402,
       headers: {
@@ -85,8 +119,35 @@ function paymentRequired(req: Request, price: string, description: string): Next
   );
 }
 
+/** Best-effort extract of the paid asset mint from a payment payload. */
+function extractPaidAsset(payload: unknown): string | null {
+  if (!payload || typeof payload !== "object") return null;
+  const walk = (obj: unknown, depth = 0): string | null => {
+    if (!obj || typeof obj !== "object" || depth > 4) return null;
+    const rec = obj as Record<string, unknown>;
+    if (typeof rec.asset === "string" && rec.asset.length > 20) return rec.asset;
+    for (const v of Object.values(rec)) {
+      const found = walk(v, depth + 1);
+      if (found) return found;
+    }
+    return null;
+  };
+  return walk(payload);
+}
+
+function pickRequirements(price: string, payload: unknown): PaymentRequirements {
+  const accepts = allRequirements(price);
+  const paid = extractPaidAsset(payload);
+  if (paid) {
+    const match = accepts.find((a) => a.asset === paid);
+    if (match) return match;
+  }
+  // Default to USDC (first accept) for facilitator calls when shape is unknown.
+  return accepts[0];
+}
+
 export interface GateOptions {
-  price: string; // human AUD amount, e.g. "0.02"
+  price: string; // human amount, e.g. "0.002" (same atomic scale for all 6-dec stables)
   description: string;
   // Always require payment (even on the website host). Use for services that cost us
   // money upstream (e.g. resold third-party APIs) so the free host can't drain funds.
@@ -121,20 +182,24 @@ export async function withX402(
     return handler();
   }
 
-  if (!process.env.PAY_TO_WALLET || !process.env.AUDD_MINT) {
+  if (!process.env.PAY_TO_WALLET) {
     return NextResponse.json({ error: "Payment not configured" }, { status: 503 });
+  }
+  if (allRequirements(opts.price).length === 0) {
+    return NextResponse.json({ error: "No settlement assets configured" }, { status: 503 });
   }
 
   const sig = req.headers.get("PAYMENT-SIGNATURE");
   if (!sig) return paymentRequired(req, opts.price, opts.description);
 
-  const reqs = requirements(opts.price);
   let payload: unknown;
   try {
     payload = b64decodeJson(sig);
   } catch {
     return paymentRequired(req, opts.price, opts.description);
   }
+
+  const reqs = pickRequirements(opts.price, payload);
 
   // 1. Verify the payment proof with the facilitator.
   try {
@@ -144,7 +209,25 @@ export async function withX402(
       body: JSON.stringify({ paymentPayload: payload, paymentRequirements: reqs }),
     });
     const verify = (await vr.json()) as { isValid?: boolean };
-    if (!vr.ok || !verify.isValid) return paymentRequired(req, opts.price, opts.description);
+    if (!vr.ok || !verify.isValid) {
+      // Retry against each accepted asset if the first match failed.
+      let ok = false;
+      for (const alt of allRequirements(opts.price)) {
+        if (alt.asset === reqs.asset) continue;
+        const vr2 = await fetch(`${FACILITATOR}/verify`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ paymentPayload: payload, paymentRequirements: alt }),
+        });
+        const v2 = (await vr2.json()) as { isValid?: boolean };
+        if (vr2.ok && v2.isValid) {
+          ok = true;
+          Object.assign(reqs, alt);
+          break;
+        }
+      }
+      if (!ok) return paymentRequired(req, opts.price, opts.description);
+    }
   } catch {
     return NextResponse.json({ error: "Verification unavailable" }, { status: 502 });
   }

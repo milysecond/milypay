@@ -13,8 +13,9 @@ const MANIFEST = {
   x402Version: 2,
   name: "MilyPay",
   description:
-    "Pay-per-call access to Australian government and commercial data for AI agents over the x402 protocol, settled in AUDD (regulated AUD stablecoin) on Solana. No API keys, no signup.",
+    "MilyPay: pay-per-call Australian government and commercial data for AI agents over x402 on Solana. Settles in USDC, USDT, or AUDD. No API keys, no signup. A Milysec company.",
   provider: { name: "Milysec", url: "https://milysec.com" },
+  brand: "MilyPay",
   homepage: "https://milypay.xyz",
   documentation: "https://milypay.xyz/agents.md",
   llms: "https://milypay.xyz/llms.txt",
@@ -26,6 +27,28 @@ const MANIFEST = {
     network: "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
     facilitator: "https://facilitator.payai.network",
     payTo: "mi1ytDfgNFYgm54y4f3xzRQbfbyCz6TBmQcAL3brozA",
+    // USDC/USDT first for pay.sh registry compatibility; AUDD is the AUD-native option.
+    assets: [
+      {
+        symbol: "USDC",
+        name: "USD Coin",
+        address: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        decimals: 6,
+      },
+      {
+        symbol: "USDT",
+        name: "Tether USD",
+        address: "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+        decimals: 6,
+      },
+      {
+        symbol: "AUDD",
+        name: "Australian Digital Dollar",
+        address: "AUDDttiEpCydTm7joUMbYddm72jAWXZnCpPZtDoxqBSw",
+        decimals: 6,
+      },
+    ],
+    // Back-compat single asset field (AUD-native default for docs).
     asset: {
       symbol: "AUDD",
       name: "Australian Digital Dollar",
