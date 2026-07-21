@@ -50,7 +50,7 @@ export default function CodeBlock({ code, plain = false }: { code: string; plain
         type="button"
         onClick={copy}
         aria-label="Copy code"
-        className="absolute right-2 top-2 z-10 flex items-center gap-1 rounded-md border border-border-brand bg-card px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-muted opacity-0 transition hover:text-fg group-hover/code:opacity-100"
+        className="absolute right-2 top-2 z-10 flex min-h-8 min-w-8 items-center gap-1 rounded-md border border-border-brand bg-card px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-muted opacity-0 transition hover:text-fg group-hover/code:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fg/30"
       >
         {copied ? (
           <>
