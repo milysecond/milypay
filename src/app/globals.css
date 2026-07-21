@@ -8,28 +8,44 @@
   font-display: swap;
 }
 
-/* MilyPay brand tokens - inherited from Milysec (Solana-native palette) */
+/*
+  MilyPay tokens — Decal-inspired commercial light shell.
+  Charcoal CTAs, warm paper surfaces, green reserved for pay/live states.
+  Solana green still in the system for ecosystem continuity.
+*/
 :root {
-  --brand-green: #14f195;
-  --brand-purple: #9945ff;
-  --bg: #0a0f0a;
-  --bg-card: #0f1410;
-  --fg: #ffffff;
-  --muted: #8aa394;
-  --border: rgba(20, 241, 149, 0.12);
+  --brand-green: #0d9b6a;
+  --brand-green-bright: #14f195;
+  --brand-purple: #6d28d9;
+  --bg: #f9f8f6;
+  --bg-card: #ffffff;
+  --bg-secondary: #f6f5f4;
+  --bg-cream: #f8f5e8;
+  --fg: #2b2b2b;
+  --muted: #6b6560;
+  --border: #e3e0de;
+  --cta: #292929;
+  --cta-fg: #ffffff;
+  --shadow-soft: 0 1px 2px rgba(43, 43, 43, 0.04), 0 12px 32px rgba(43, 43, 43, 0.06);
 }
 
 @theme inline {
   --color-bg: var(--bg);
   --color-card: var(--bg-card);
+  --color-secondary: var(--bg-secondary);
+  --color-cream: var(--bg-cream);
   --color-fg: var(--fg);
   --color-muted: var(--muted);
   --color-brand-green: var(--brand-green);
+  --color-brand-green-bright: var(--brand-green-bright);
   --color-brand-purple: var(--brand-purple);
   --color-border-brand: var(--border);
+  --color-cta: var(--cta);
+  --color-cta-fg: var(--cta-fg);
 
-  --font-display: "MoonWalk", ui-sans-serif, system-ui;
+  --font-display: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 html {
@@ -46,37 +62,117 @@ body {
 
 .font-display {
   font-family: var(--font-display);
-  letter-spacing: -0.01em;
+  font-weight: 600;
+  letter-spacing: -0.03em;
 }
 
 .brand-gradient-text {
-  background: linear-gradient(100deg, var(--brand-green), var(--brand-purple));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--brand-green);
 }
 
 .brand-gradient-bg {
-  background: linear-gradient(100deg, var(--brand-green), var(--brand-purple));
+  background: linear-gradient(100deg, var(--brand-green-bright), var(--brand-purple));
 }
 
-/* soft radial glow used behind the hero */
+/* Soft warm wash behind hero — no neon grid */
 .hero-glow {
   background:
-    radial-gradient(60% 50% at 50% 0%, rgba(20, 241, 149, 0.16), transparent 70%),
-    radial-gradient(40% 40% at 80% 10%, rgba(153, 69, 255, 0.14), transparent 70%);
+    radial-gradient(70% 55% at 70% 20%, rgba(248, 245, 232, 0.95), transparent 65%),
+    radial-gradient(50% 40% at 15% 0%, rgba(20, 241, 149, 0.08), transparent 60%);
 }
 
 .card {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 16px;
+  box-shadow: var(--shadow-soft);
+}
+
+.card-flat {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+.surface-secondary {
+  background: var(--bg-secondary);
+}
+
+.surface-cream {
+  background: var(--bg-cream);
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: var(--cta);
+  color: var(--cta-fg);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.btn-primary:focus-visible {
+  outline: 2px solid var(--cta);
+  outline-offset: 2px;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: var(--bg-secondary);
+  color: var(--fg);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  transition: background 150ms ease;
+}
+
+.btn-secondary:hover {
+  background: #eeebe8;
+}
+
+.btn-secondary:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 2px;
+}
+
+.eyebrow {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--muted);
 }
 
 .grid-lines {
-  background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
-  background-size: 64px 64px;
-  mask-image: radial-gradient(70% 60% at 50% 0%, #000 30%, transparent 100%);
+  display: none;
+}
+
+.dark-band {
+  background: var(--cta);
+  color: var(--cta-fg);
+}
+
+.dark-band .text-muted {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    transition: none;
+  }
 }

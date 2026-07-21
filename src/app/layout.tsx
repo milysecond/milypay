@@ -3,8 +3,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 
 export const viewport: Viewport = {
-  themeColor: "#0a0f0a",
-  colorScheme: "dark",
+  themeColor: "#f9f8f6",
+  colorScheme: "light",
 };
 
 const SERVICE_OFFERS: { name: string; price: string; description: string }[] = [

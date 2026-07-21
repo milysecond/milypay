@@ -27,32 +27,37 @@ currency on the agentic payments stack (3+ AU APIs priced in AUDD, reference imp
 - Dry Australian directness is on-brand; novelty/cute is not.
 - Parent inheritance from Milysec: *Fast. Web. App.* → MilyPay extends with *Pay.*
 
-## Color palette (inherited from Milysec — Solana-native)
+## Color palette (commercial light shell — Decal-inspired, Solana-accented)
+
+Light-first for decision-makers. Green reserved for pay/live states, not full-page neon.
 
 | Token | Hex | Use |
 |---|---|---|
-| `--brand-green` | `#14F195` | Primary — CTAs, highlights, the "pay" accent |
-| `--brand-purple` | `#9945FF` | Secondary — accents, gradients |
-| `--bg` | `#0A0F0A` | Dark page background |
-| `--bg-card` | `#0F1410` | Cards / sections |
-| `--fg` | `#FFFFFF` | Body text / headings on dark |
-| `--bg-light` | `#F0F4F0` | Light-mode page background |
-| Brand gradient | `linear-gradient(to right, #14F195, #9945FF)` | Hero, key marks |
-
-These are the Solana brand colors — deliberate: x402 + pay.sh are Solana-ecosystem, so the
-palette signals "agent payments on crypto rails" at a glance.
+| `--bg` | `#F9F8F6` | Warm paper page background |
+| `--bg-secondary` | `#F6F5F4` | Alternating section wash |
+| `--bg-cream` | `#F8F5E8` | Product mock / highlight panels |
+| `--bg-card` | `#FFFFFF` | Cards |
+| `--fg` | `#2B2B2B` | Body / headings |
+| `--muted` | `#6B6560` | Secondary text |
+| `--border` | `#E3E0DE` | Borders |
+| `--cta` | `#292929` | Primary button fill (charcoal) |
+| `--cta-fg` | `#FFFFFF` | Primary button text |
+| `--brand-green` | `#0D9B6A` | Text-safe green (prices, success, Pay) |
+| `--brand-green-bright` | `#14F195` | Dots, bright accents (Solana) |
+| `--brand-purple` | `#6D28D9` | Code / secondary accent |
 
 ## Typography
 
-- **Display / headings:** `MoonWalk` (custom OTF — `/fonts/MoonWalk.otf` from milysec.com)
-- **Body / UI:** `Inter` (Google Fonts), via `next/font`
-- **Type scale:** Display 96 · H1 60 · H2 36 · H3 24 · Body 16 · Small 14 (px)
+- **Display / headings:** Inter 600, tight tracking (−0.03em) — commercial product tone
+- **Body / UI:** Inter via `next/font`
+- **Mono:** system mono for API mocks and code
+- **Legacy:** MoonWalk OTF kept in `/fonts` but not default for marketing UI
+- **Type scale:** H1 ~60 · H2 36 · H3 24 · Body 16 · Small 14 (px)
 
 ## Logo
 
 - Inherit Milysec mark: `milysec-logo.svg` / `milysec-logo-original.png` (from milysec.com).
-- MilyPay lockup: Milysec mark + "MilyPay" wordmark in MoonWalk, green-on-dark, with the
-  green→purple gradient reserved for the hero and the "x402" / "Pay" emphasis.
+- MilyPay lockup: Milysec mark + "MilyPay" wordmark in Inter semibold; "Pay" in brand-green.
 
 ## Domains
 
@@ -61,7 +66,9 @@ palette signals "agent payments on crypto rails" at a glance.
 
 ## Don'ts
 
-- Don't repaint the palette — it's inherited equity and ecosystem-correct.
+- Don't go full neon-on-black for marketing — light commercial shell is the default.
+- Don't drop AUDD / x402 / agent positioning when borrowing layout patterns (e.g. Decal).
 - Don't lean on kangaroo/novelty motifs; MilyPay is infrastructure, the AU angle is in the
   data/rails, not in mascots.
 - Don't foreground "security/sec" — this is the payments line, not the Milysec security product.
+- No emoji or hashtags in marketing UI.
