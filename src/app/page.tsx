@@ -190,7 +190,7 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: "What is AUDD and why does MilyPay settle in it?",
-    a: "AUDD is a 1:1 AUD-backed, AFSL-regulated stablecoin live on Solana. MilyPay settles in AUDD so Australian agents and builders avoid the USD foreign-exchange round-trip that USDC-based x402 services require. AUDM and other regulated AUD stablecoins are added as they reach Solana.",
+    a: "MilyPay settles agent payments in AUD on Solana. Accepted AUD stables: AUDD (Novatti), AUDM (Macropod), and dAUD (New Money). USDC and USDT are also accepted for pay.sh compatibility. AUD settlement avoids the USD foreign-exchange round-trip that USDC-only x402 services require.",
   },
   {
     q: "How do I give my AI agent access to Australian data?",

@@ -1,5 +1,5 @@
 // x402 payment gate for MilyPay on Solana via the PayAI facilitator.
-// Accepts AUDD (preferred, AUD-native) plus USDC and USDT (required by pay-skills / pay.sh).
+// Accepts AUD stables (AUDD, AUDM, dAUD) plus USDC/USDT for pay-skills / pay.sh.
 // Spec: client gets HTTP 402 with a base64 PAYMENT-REQUIRED challenge, pays, and retries
 // with a PAYMENT-SIGNATURE header. We /verify, serve, then /settle.
 // Docs: https://docs.payai.network/x402
@@ -9,25 +9,35 @@
 //   PAYAI_FACILITATOR facilitator base URL (default https://facilitator.payai.network)
 //   X402_NETWORK      CAIP-2 network id (default Solana mainnet)
 //   PAY_TO_WALLET     merchant Solana wallet that receives settlement
-//   AUDD_MINT         AUDD SPL token mint address on Solana
-//   AUDD_DECIMALS     token decimals (default 6)
-//   USDC_MINT / USDT_MINT optional overrides (defaults: mainnet Circle USDC / Tether USDT)
+//   AUDD_MINT         AUDD mint (default Novatti on Solana)
+//   AUDM_MINT         AUDM mint (default Macropod on Solana)
+//   DAUD_MINT         dAUD mint (default New Money on Solana)
+//   USDC_MINT / USDT_MINT optional overrides
 
 import { NextResponse } from "next/server";
 import { isThrottled } from "./throttle";
 
 const FACILITATOR = process.env.PAYAI_FACILITATOR || "https://facilitator.payai.network";
 const NETWORK = process.env.X402_NETWORK || "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp";
-const DECIMALS = Number(process.env.AUDD_DECIMALS || "6");
 
-// Solana mainnet stablecoin mints. USDC/USDT required for pay-skills registry CI.
+// Solana mainnet mints
 const USDC_MINT =
   process.env.USDC_MINT || "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
 const USDT_MINT =
   process.env.USDT_MINT || "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB";
+const AUDD_MINT =
+  process.env.AUDD_MINT || "AUDDttiEpCydTm7joUMbYddm72jAWXZnCpPZtDoxqBSw";
+// Macropod AUDM (Token-2022) — CoinGecko / stablesonsolana
+const AUDM_MINT =
+  process.env.AUDM_MINT || "CiYXBwHPrdNkMtxR8YEWKv78K6bQjFoEWhPQrZqEmubi";
+// New Money dAUD — 9 decimals
+const DAUD_MINT =
+  process.env.DAUD_MINT || "F7FiKutfrMMXd8Zw5ysZsfx5v4aBHffWc4EhRZE8NHiF";
 
 const FEE_PAYER =
   process.env.PAYAI_FEE_PAYER || "2wKupLR9q6wXYppw8Gr2NvWxKBUqm4PPJKkQfoxHDBg4";
+
+type AcceptedAsset = { mint: string; symbol: string; decimals: number };
 
 function enabled(): boolean {
   return process.env.X402_ENABLED === "true";
@@ -41,11 +51,11 @@ function b64decodeJson<T>(s: string): T {
   return JSON.parse(atob(s)) as T;
 }
 
-// Convert a human amount ("0.02") to atomic token units as a string (6 decimals).
-function toAtomic(human: string): string {
+/** Convert a human amount ("0.02") to atomic units for a given decimal scale. */
+function toAtomic(human: string, decimals: number): string {
   const [whole, frac = ""] = human.split(".");
-  const fracPadded = (frac + "0".repeat(DECIMALS)).slice(0, DECIMALS);
-  const base = BigInt(10) ** BigInt(DECIMALS);
+  const fracPadded = (frac + "0".repeat(decimals)).slice(0, decimals);
+  const base = BigInt(10) ** BigInt(decimals);
   return (BigInt(whole || "0") * base + BigInt(fracPadded || "0")).toString();
 }
 
@@ -59,24 +69,29 @@ interface PaymentRequirements {
   extra?: Record<string, unknown>;
 }
 
-/** Stables MilyPay accepts on Solana: USDC + USDT (pay.sh) then AUDD (AUD-native). */
-function acceptedMints(): { mint: string; symbol: string }[] {
-  const list: { mint: string; symbol: string }[] = [
-    { mint: USDC_MINT, symbol: "USDC" },
-    { mint: USDT_MINT, symbol: "USDT" },
-  ];
-  if (process.env.AUDD_MINT) {
-    list.push({ mint: process.env.AUDD_MINT, symbol: "AUDD" });
-  }
-  return list.filter((a) => Boolean(a.mint));
+/**
+ * Stables MilyPay accepts on Solana.
+ * Order: USDC/USDT first (pay-skills CI), then AUD-native rails (AUDD, AUDM, dAUD).
+ */
+function acceptedAssets(): AcceptedAsset[] {
+  return [
+    { mint: USDC_MINT, symbol: "USDC", decimals: 6 },
+    { mint: USDT_MINT, symbol: "USDT", decimals: 6 },
+    { mint: AUDD_MINT, symbol: "AUDD", decimals: 6 },
+    { mint: AUDM_MINT, symbol: "AUDM", decimals: 6 },
+    { mint: DAUD_MINT, symbol: "dAUD", decimals: 9 },
+  ].filter((a) => Boolean(a.mint));
 }
 
-function requirementsForAsset(price: string, asset: string): PaymentRequirements {
+function requirementsForAsset(
+  price: string,
+  asset: AcceptedAsset,
+): PaymentRequirements {
   return {
     scheme: "exact",
     network: NETWORK,
-    amount: toAtomic(price),
-    asset,
+    amount: toAtomic(price, asset.decimals),
+    asset: asset.mint,
     payTo: process.env.PAY_TO_WALLET || "",
     maxTimeoutSeconds: 60,
     extra: { feePayer: FEE_PAYER },
@@ -84,7 +99,7 @@ function requirementsForAsset(price: string, asset: string): PaymentRequirements
 }
 
 function allRequirements(price: string): PaymentRequirements[] {
-  return acceptedMints().map((a) => requirementsForAsset(price, a.mint));
+  return acceptedAssets().map((a) => requirementsForAsset(price, a));
 }
 
 function challenge(req: Request, price: string, description: string) {
@@ -99,7 +114,7 @@ function challenge(req: Request, price: string, description: string) {
 }
 
 function paymentRequired(req: Request, price: string, description: string): NextResponse {
-  const symbols = acceptedMints()
+  const symbols = acceptedAssets()
     .map((a) => a.symbol)
     .join(" / ");
   return new NextResponse(
@@ -147,7 +162,7 @@ function pickRequirements(price: string, payload: unknown): PaymentRequirements 
 }
 
 export interface GateOptions {
-  price: string; // human amount, e.g. "0.002" (same atomic scale for all 6-dec stables)
+  price: string; // human amount in AUD-equivalent units, e.g. "0.002"
   description: string;
   // Always require payment (even on the website host). Use for services that cost us
   // money upstream (e.g. resold third-party APIs) so the free host can't drain funds.
