@@ -3,7 +3,7 @@ import type { MetadataRoute } from "next";
 const BASE = "https://milypay.xyz";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const lastModified = new Date("2026-06-14");
+  const lastModified = new Date("2026-07-22");
   return [
     { url: `${BASE}/`, lastModified, changeFrequency: "weekly", priority: 1 },
     { url: `${BASE}/demo`, lastModified, changeFrequency: "weekly", priority: 0.9 },
