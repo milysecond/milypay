@@ -16,7 +16,7 @@ export function Logo({ className = "", invert = false }: { className?: string; i
         className={`h-7 w-7 ${invert ? "brightness-0 invert" : ""}`}
         priority
       />
-      <span className={`text-xl font-semibold tracking-tight ${invert ? "text-white" : "text-fg"}`}>
+      <span className={`font-logo text-xl ${invert ? "text-white" : "text-fg"}`}>
         Mily<span className={invert ? "text-brand-green-bright" : "text-brand-green"}>Pay</span>
       </span>
     </Link>

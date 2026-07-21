@@ -19,7 +19,7 @@ export default function DemoPage() {
         <div className="hero-glow absolute inset-0 -z-10" />
         <div className="mx-auto max-w-3xl px-6 pb-12 pt-20">
           <p className="eyebrow">Live demo</p>
-          <h1 className="mt-4 text-4xl font-semibold leading-[1.08] tracking-tight md:text-5xl">
+          <h1 className="font-display mt-4 text-4xl leading-[1.08] md:text-5xl">
             Try the live MilyPay APIs.
           </h1>
           <p className="mt-5 max-w-2xl leading-relaxed text-muted">
