@@ -80,7 +80,7 @@ Base URL: `https://api.milypay.xyz`. More Australian services are on the roadmap
 
 ## Settlement currency
 
-MilyPay is AUD-stablecoin-agnostic. AUDD (live on Solana, AFSL-regulated) is the default today. AUDM and other regulated AUD stablecoins are added as they reach Solana. See https://milypay.xyz/stables for the full reference.
+MilyPay is AUD-stablecoin-agnostic. On Solana it accepts **AUDD**, **AUDM**, and **dAUD** for AUD-native settlement, plus **USDC** and **USDT** for pay.sh compatibility. See https://milypay.xyz/stables for the full reference.
 
 ## List your API
 
@@ -101,7 +101,7 @@ With an x402-aware wallet. The first response is an HTTP 402 with the price; the
 Per call, priced in AUD. See the services table. No subscriptions or minimums.
 
 **Which currency is settlement in?**
-AUD stablecoins. AUDD is the default; others are added as they reach Solana.
+AUD stablecoins on Solana: AUDD, AUDM, and dAUD. USDC and USDT are also accepted for catalog compatibility.
 
 **Which network?**
 Solana, via the PayAI x402 facilitator.

@@ -109,7 +109,7 @@ GET /au-postage?country={code}&weight={kg} - price 0.002
 
 ## Settlement currency
 
-MilyPay is AUD-stablecoin-agnostic. AUDD (live on Solana, AFSL-regulated, 1:1 AUD-backed) is the default today. AUDM and other regulated AUD stablecoins are added as they reach Solana. Settling in AUDD removes the USD foreign-exchange round-trip that USDC-based x402 services require. AUD stablecoin reference: https://milypay.xyz/stables .
+MilyPay is AUD-stablecoin-agnostic. On Solana it accepts AUDD, AUDM, and dAUD for AUD-native settlement, plus USDC and USDT for pay.sh compatibility. Settling in AUD removes the USD foreign-exchange round-trip that USDC-only x402 services require. AUD stablecoin reference: https://milypay.xyz/stables .
 
 ## Ways to integrate
 
