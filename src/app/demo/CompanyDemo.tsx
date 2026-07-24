@@ -1,8 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Mode = "acn" | "name";
+
+const ASIC_COMPANY_SEARCH =
+  "https://connectonline.asic.gov.au/RegistrySearch/faces/landing/SearchRegisters.jspx";
+const ASIC_ABOUT =
+  "https://www.asic.gov.au/online-services/search-asic-registers/company-and-organisation-registers/";
 
 interface Company {
   acn: string;
@@ -36,23 +41,48 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-function Row({ label, value }: { label: string; value: string }) {
+function Row({
+  label,
+  value,
+  href,
+}: {
+  label: string;
+  value: string;
+  href?: string;
+}) {
   return (
     <div className="flex justify-between gap-6 border-t border-border-brand py-2.5 text-sm">
       <span className="text-muted">{label}</span>
-      <span className="text-right text-fg">{value}</span>
+      {href ? (
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-right text-brand-green hover:underline"
+        >
+          {value}
+        </a>
+      ) : (
+        <span className="text-right text-fg">{value}</span>
+      )}
     </div>
   );
 }
 
-export default function CompanyDemo() {
-  const [mode, setMode] = useState<Mode>("name");
-  const [query, setQuery] = useState("woolworths group");
+function digitsOnly(s: string): string {
+  return s.replace(/\D/g, "");
+}
+
+export default function CompanyDemo({ initialAcn }: { initialAcn?: string | null }) {
+  const seed = initialAcn ? digitsOnly(initialAcn) : "";
+  const [mode, setMode] = useState<Mode>(seed ? "acn" : "name");
+  const [query, setQuery] = useState(seed || "woolworths group");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [company, setCompany] = useState<Company | null>(null);
   const [matches, setMatches] = useState<Match[] | null>(null);
   const [lastPath, setLastPath] = useState<string | null>(null);
+  const ranSeed = useRef<string | null>(null);
 
   async function run(m: Mode, q: string) {
     if (!q.trim()) return;
@@ -77,6 +107,17 @@ export default function CompanyDemo() {
       setLoading(false);
     }
   }
+
+  // Auto-lookup when opened via deeplink (?tab=company&acn=...).
+  useEffect(() => {
+    if (!seed || seed.length === 0) return;
+    if (ranSeed.current === seed) return;
+    ranSeed.current = seed;
+    setMode("acn");
+    setQuery(seed);
+    void run("acn", seed);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- seed-driven auto lookup once
+  }, [seed]);
 
   return (
     <div className="mx-auto max-w-3xl px-6 pb-24">
@@ -131,6 +172,29 @@ export default function CompanyDemo() {
         </button>
       </form>
 
+      <p className="mt-3 text-xs text-muted">
+        Open data snapshot for agents. For official extracts and register search, use{" "}
+        <a
+          href={ASIC_COMPANY_SEARCH}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-medium text-brand-green hover:underline"
+        >
+          ASIC company search
+        </a>
+        {" "}
+        (
+        <a
+          href={ASIC_ABOUT}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:underline"
+        >
+          about company &amp; organisation registers
+        </a>
+        ).
+      </p>
+
       {lastPath && (
         <div className="mt-6 overflow-x-auto rounded-lg border border-border-brand bg-bg p-3 font-mono text-xs text-muted">
           <span className="text-brand-green">GET</span> https://milypay.xyz{lastPath}
@@ -147,7 +211,7 @@ export default function CompanyDemo() {
               <StatusBadge status={company.status} />
             </div>
             <div className="mt-5">
-              <Row label="ACN" value={company.acn} />
+              <Row label="ACN" value={company.acn} href={ASIC_COMPANY_SEARCH} />
               {company.abn && <Row label="ABN" value={company.abn} />}
               {company.type && <Row label="Type" value={company.type} />}
               {company.class && <Row label="Class" value={company.class} />}
@@ -168,6 +232,18 @@ export default function CompanyDemo() {
                 </div>
               </div>
             )}
+            <p className="mt-5 border-t border-border-brand pt-4 text-xs text-muted">
+              Verify on{" "}
+              <a
+                href={ASIC_COMPANY_SEARCH}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-brand-green hover:underline"
+              >
+                ASIC company search
+              </a>
+              .
+            </p>
           </div>
         )}
 

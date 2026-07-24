@@ -362,7 +362,28 @@ curl https://milypay.xyz/api/au-business/abn/33051775556`}
             <H id="data">Data & attribution</H>
             <ul className="space-y-2 text-sm leading-relaxed text-muted">
               <li>Business and super: Australian Business Register and Super Fund Lookup, Australian Taxation Office.</li>
-              <li>Company: ASIC Company Register, published open on data.gov.au.</li>
+              <li>
+                Company: ASIC Company Register, published open on data.gov.au. Official search:{" "}
+                <a
+                  href="https://connectonline.asic.gov.au/RegistrySearch/faces/landing/SearchRegisters.jspx"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-brand-green hover:underline"
+                >
+                  ASIC company search
+                </a>
+                {" "}
+                (
+                <a
+                  href="https://www.asic.gov.au/online-services/search-asic-registers/company-and-organisation-registers/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline"
+                >
+                  about the registers
+                </a>
+                ).
+              </li>
               <li>Address: Incorporates G-NAF &copy; Geoscape Australia, open G-NAF licence. Per-call lookups only.</li>
               <li>Weather: Open-Meteo.com (CC BY 4.0), Australian model BOM ACCESS-G.</li>
             </ul>
