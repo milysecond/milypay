@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { businessApiReadiness } from "@/lib/businessapi";
+import { bapiEnvFromRequest, businessApiReadiness } from "@/lib/businessapi";
 
 export const dynamic = "force-dynamic";
 
@@ -29,16 +29,22 @@ async function tokenBalance(owner: string, mint: string): Promise<number> {
   );
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   const payTo = process.env.PAY_TO_WALLET || "";
+  // Status reflects this host: website/demo -> sandbox readiness; api -> live.
+  const environment = bapiEnvFromRequest(req);
   try {
     const [floatUsdc, receivedAudd, bapi] = await Promise.all([
       tokenBalance(PAYER, USDC),
       payTo ? tokenBalance(payTo, AUDD) : Promise.resolve(0),
-      businessApiReadiness().catch(() => ({
-        configured: Boolean(process.env.BAPI_SECRET_KEY || process.env.BAPI_TEST_SECRET_KEY),
+      businessApiReadiness({ environment }).catch(() => ({
+        configured: Boolean(
+          environment === "test"
+            ? process.env.BAPI_TEST_SECRET_KEY || process.env.BAPI_SECRET_KEY
+            : process.env.BAPI_SECRET_KEY,
+        ),
         paidOk: false,
-        environment: (process.env.BAPI_ENV === "test" ? "test" : "live") as "live" | "test",
+        environment,
         message: "readiness probe failed",
       })),
     ]);
@@ -61,6 +67,7 @@ export async function GET() {
           configured: bapi.configured,
           extracts: bapi.paidOk,
           environment: bapi.environment,
+          demoSandbox: environment === "test",
         },
       },
       { headers: { "Cache-Control": "public, max-age=30" } },

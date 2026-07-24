@@ -1,35 +1,39 @@
 import { NextResponse } from "next/server";
-import { BusinessApiError, orderAndFetchExtract } from "@/lib/businessapi";
+import {
+  BusinessApiError,
+  bapiEnvFromRequest,
+  orderAndFetchExtract,
+} from "@/lib/businessapi";
 import { withX402 } from "@/lib/x402";
 
 export const dynamic = "force-dynamic";
 
 const ATTRIBUTION = "Source: ASIC company extract ordered via Business API (DSP)";
 
-// ASIC current extracts typically cost ~AUD 9-20 at the counter; retail via x402
-// covers upstream + margin. Adjust after first live BAPI invoice.
+// Live retail price on api.milypay.xyz. Website demos use sandbox (free, throttled).
 const PRICE = "12.00";
 
 /**
- * Official ASIC company extract (directors, office, share capital, etc.).
- * Upstream: POST /asic/extracts via Business API DSP.
+ * Official ASIC company extract.
  *
- * Prefer free gov sources for basic company identity:
- *   GET /au-company/acn/{acn}   (ASIC open data)
- *   GET /au-business/abn/{abn}  (ABR)
- * Use this endpoint only for extract fields those free APIs do not publish.
+ * Host routing:
+ *   milypay.xyz / www / demo  -> Business API test keys (sandbox), free + throttled
+ *   api.milypay.xyz           -> live keys, always paid via x402
  *
- * Always paid: never free on the website host (upstream costs real money).
+ * Prefer free gov sources for basic company identity (/au-company, /au-business).
  * Query: ?acn=000014675&type=current|historical
- * POST JSON: { "acn": "...", "type": "current" }
  */
 async function handle(req: Request, acn: string, extractType?: string) {
+  const environment = bapiEnvFromRequest(req);
+  const isDemo = environment === "test";
+
   return withX402(
     req,
     {
       price: PRICE,
-      description: `ASIC company extract for ACN ${acn}`,
-      alwaysPaid: true,
+      description: `ASIC company extract for ACN ${acn}${isDemo ? " (sandbox demo)" : ""}`,
+      // Only charge on the API host / live path. Website demos use free sandbox.
+      alwaysPaid: !isDemo,
     },
     async () => {
       try {
@@ -38,16 +42,22 @@ async function handle(req: Request, acn: string, extractType?: string) {
           return NextResponse.json({ error: "ACN must be up to 9 digits" }, { status: 400 });
         }
 
-        const extract = await orderAndFetchExtract(digits, extractType || "current");
+        const extract = await orderAndFetchExtract(digits, extractType || "current", {
+          environment,
+        });
+
         return NextResponse.json(
           {
             ...extract,
-            attribution: ATTRIBUTION,
+            attribution: isDemo
+              ? `${ATTRIBUTION} [sandbox demo - not a live ASIC extract]`
+              : ATTRIBUTION,
           },
           {
             headers: {
               "Cache-Control": "private, no-store",
-              "x-data-source": ATTRIBUTION,
+              "x-data-source": isDemo ? `${ATTRIBUTION} (sandbox)` : ATTRIBUTION,
+              "x-bapi-environment": environment,
             },
           },
         );
@@ -58,7 +68,7 @@ async function handle(req: Request, acn: string, extractType?: string) {
               {
                 error: "Upstream Business API account requires a saved payment method",
                 code: "upstream_payment_method_required",
-                hint: "Add a card at https://businessapi.com.au dashboard for live extracts, or set BAPI_ENV=test for sandbox",
+                hint: "Live extracts need a card on businessapi.com.au. Website demos use sandbox automatically.",
               },
               { status: 503 },
             );

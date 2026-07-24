@@ -8,40 +8,49 @@
 //
 // Business API is reserved for:
 //   - Official ASIC company extracts (directors, office, share capital, charges)
-//     Free open data does not include officeholders or shareholdings.
+//
+// Environments:
+//   live  - bapi_sk_live_* + /api/v2/      (production agents on api.milypay.xyz)
+//   test  - bapi_sk_test_* + /api/test/v2/ (website demos on milypay.xyz)
 //
 // Config (Worker secrets / .env.local):
-//   BAPI_SECRET_KEY            bapi_sk_live_... (production)
-//   BAPI_TEST_SECRET_KEY       bapi_sk_test_... (sandbox)
-//   BAPI_ENV                   "live" (default) | "test"
-//   BAPI_BASE_URL              optional override
+//   BAPI_SECRET_KEY            bapi_sk_live_...
+//   BAPI_TEST_SECRET_KEY       bapi_sk_test_...
+//   BAPI_ENV                   optional default when no per-call override
+//   BAPI_BASE_URL              optional full base override
 //
-// Sandbox base: https://businessapi.com.au/api/test/v2
-// Live base:    https://businessapi.com.au/api/v2
-//
-// Extract body (verified against sandbox):
+// Extract body (verified sandbox):
 //   POST /asic/extracts
 //   { "generalInformation": { "acn": "000014675", "type": "current" | "historical" } }
-//   -> 202 { requestId, status, acn }
-//   GET  /asic/extracts/{requestId}/pdf -> PDF bytes
+//   GET  /asic/extracts/{requestId}/pdf -> PDF
 
 const LIVE_BASE = "https://businessapi.com.au/api/v2";
 const TEST_BASE = "https://businessapi.com.au/api/test/v2";
 
+export type BapiEnvironment = "live" | "test";
 export type ExtractType = "current" | "historical";
 
-function envMode(): "live" | "test" {
+export type BapiCallOptions = {
+  /** Override env for this call. Website demos use "test"; api host uses "live". */
+  environment?: BapiEnvironment;
+};
+
+function defaultEnv(): BapiEnvironment {
   const m = (process.env.BAPI_ENV || "live").toLowerCase();
   return m === "test" ? "test" : "live";
 }
 
-function baseUrl(): string {
-  if (process.env.BAPI_BASE_URL) return process.env.BAPI_BASE_URL.replace(/\/$/, "");
-  return envMode() === "test" ? TEST_BASE : LIVE_BASE;
+function resolveEnv(opts?: BapiCallOptions): BapiEnvironment {
+  return opts?.environment || defaultEnv();
 }
 
-function secretKey(): string {
-  if (envMode() === "test") {
+function baseUrl(env: BapiEnvironment): string {
+  if (process.env.BAPI_BASE_URL) return process.env.BAPI_BASE_URL.replace(/\/$/, "");
+  return env === "test" ? TEST_BASE : LIVE_BASE;
+}
+
+function secretKey(env: BapiEnvironment): string {
+  if (env === "test") {
     const k = process.env.BAPI_TEST_SECRET_KEY || process.env.BAPI_SECRET_KEY;
     if (!k) throw new Error("BAPI_TEST_SECRET_KEY is not configured");
     return k;
@@ -49,6 +58,21 @@ function secretKey(): string {
   const k = process.env.BAPI_SECRET_KEY;
   if (!k) throw new Error("BAPI_SECRET_KEY is not configured");
   return k;
+}
+
+/**
+ * Website demos (milypay.xyz) use sandbox. Paid API host (api.milypay.xyz) uses live.
+ */
+export function bapiEnvFromRequest(req: Request): BapiEnvironment {
+  const host = (req.headers.get("host") || "").toLowerCase();
+  if (host.startsWith("api.")) return "live";
+  // Local dev / preview / marketing site: sandbox for demos.
+  if (host.includes("localhost") || host.includes("127.0.0.1") || host.includes("workers.dev")) {
+    return "test";
+  }
+  // milypay.xyz, www.milypay.xyz, and any non-api host
+  if (!host.startsWith("api.")) return "test";
+  return "live";
 }
 
 export class BusinessApiError extends Error {
@@ -64,7 +88,6 @@ export class BusinessApiError extends Error {
     this.body = body;
   }
 
-  /** True when the BAPI account needs a saved card before paid production endpoints work. */
   get needsPaymentMethod(): boolean {
     return this.status === 402 || this.code === "payment_method_required";
   }
@@ -72,19 +95,24 @@ export class BusinessApiError extends Error {
 
 async function bapiFetch<T = unknown>(
   path: string,
-  init: RequestInit & { query?: Record<string, string | undefined>; raw?: boolean } = {},
+  init: RequestInit & {
+    query?: Record<string, string | undefined>;
+    raw?: boolean;
+    environment?: BapiEnvironment;
+  } = {},
 ): Promise<T> {
-  const url = new URL(`${baseUrl()}${path.startsWith("/") ? path : `/${path}`}`);
+  const env = resolveEnv({ environment: init.environment });
+  const url = new URL(`${baseUrl(env)}${path.startsWith("/") ? path : `/${path}`}`);
   if (init.query) {
     for (const [k, v] of Object.entries(init.query)) {
       if (v !== undefined && v !== "") url.searchParams.set(k, v);
     }
   }
 
-  const { query: _q, raw, ...fetchInit } = init;
+  const { query: _q, raw, environment: _e, ...fetchInit } = init;
   const headers = new Headers(fetchInit.headers);
   if (!headers.has("Authorization")) {
-    headers.set("Authorization", `Bearer ${secretKey()}`);
+    headers.set("Authorization", `Bearer ${secretKey(env)}`);
   }
   if (fetchInit.body && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
@@ -121,7 +149,6 @@ async function bapiFetch<T = unknown>(
     }
   }
 
-  // 202 Accepted is success for async extract orders.
   if (!res.ok) {
     const rec = body && typeof body === "object" ? (body as Record<string, unknown>) : null;
     const code = typeof rec?.error === "string" ? rec.error : null;
@@ -129,7 +156,6 @@ async function bapiFetch<T = unknown>(
       (typeof rec?.message === "string" && rec.message) ||
       (typeof rec?.error === "string" && rec.error) ||
       `Business API upstream ${res.status}`;
-    // Flatten validation errors when present.
     if (rec?.errors && typeof rec.errors === "object") {
       const parts = Object.entries(rec.errors as Record<string, unknown>).map(([k, v]) => {
         const val = Array.isArray(v) ? v.join("; ") : String(v);
@@ -142,8 +168,6 @@ async function bapiFetch<T = unknown>(
 
   return body as T;
 }
-
-// ---- Company extracts only (not available from free ASIC open data / ABR) ----
 
 export interface ExtractOrderResult {
   requestId: number | string;
@@ -176,27 +200,24 @@ function normalizeExtractType(type?: string): ExtractType {
   throw new BusinessApiError(400, 'extract type must be "current" or "historical"');
 }
 
-/**
- * Order an official ASIC company extract via Business API.
- * Upstream: POST /asic/extracts
- * Body: { generalInformation: { acn, type: "current" | "historical" } }
- */
 export async function orderCompanyExtract(
   acn: string,
   extractType: string = "current",
+  opts?: BapiCallOptions,
 ): Promise<ExtractOrderResult> {
   const clean = cleanAcn(acn);
   if (!clean) throw new BusinessApiError(400, "ACN must be up to 9 digits");
   const type = normalizeExtractType(extractType);
+  const environment = resolveEnv(opts);
 
   const raw = await bapiFetch<Record<string, unknown>>("/asic/extracts", {
     method: "POST",
+    environment,
     body: JSON.stringify({
       generalInformation: { acn: clean, type },
     }),
   });
 
-  // Some responses nest under response; sandbox returns flat { requestId, status, acn }.
   const nested =
     raw.response && typeof raw.response === "object"
       ? (raw.response as Record<string, unknown>)
@@ -217,9 +238,14 @@ export async function orderCompanyExtract(
   };
 }
 
-export async function getExtractStatus(requestId: string | number): Promise<ExtractStatus> {
+export async function getExtractStatus(
+  requestId: string | number,
+  opts?: BapiCallOptions,
+): Promise<ExtractStatus> {
+  const environment = resolveEnv(opts);
   const raw = await bapiFetch<Record<string, unknown>>(`/asic/extracts/${requestId}`, {
     method: "GET",
+    environment,
   });
   return {
     requestId: (raw.requestId as number | string) ?? requestId,
@@ -231,10 +257,14 @@ export async function getExtractStatus(requestId: string | number): Promise<Extr
   };
 }
 
-export async function getExtractPdf(requestId: string | number): Promise<ArrayBuffer> {
+export async function getExtractPdf(
+  requestId: string | number,
+  opts?: BapiCallOptions,
+): Promise<ArrayBuffer> {
   return bapiFetch<ArrayBuffer>(`/asic/extracts/${requestId}/pdf`, {
     method: "GET",
     raw: true,
+    environment: resolveEnv(opts),
   });
 }
 
@@ -248,14 +278,10 @@ function bufToBase64(buf: ArrayBuffer): string {
   return btoa(binary);
 }
 
-/**
- * Order extract, wait briefly for finish, return status + optional PDF (base64).
- * Sandbox often finishes immediately; live may stay pending longer.
- */
 export async function orderAndFetchExtract(
   acn: string,
   extractType: string = "current",
-  opts: { waitMs?: number; pollMs?: number } = {},
+  opts: BapiCallOptions & { waitMs?: number; pollMs?: number } = {},
 ): Promise<{
   acn: string;
   type: ExtractType;
@@ -264,10 +290,13 @@ export async function orderAndFetchExtract(
   documentNumber?: string | null;
   pdfBase64?: string;
   pdfBytes?: number;
-  environment: "live" | "test";
+  environment: BapiEnvironment;
+  demo: boolean;
 }> {
   const type = normalizeExtractType(extractType);
-  const order = await orderCompanyExtract(acn, type);
+  const environment = resolveEnv(opts);
+  const callOpts: BapiCallOptions = { environment };
+  const order = await orderCompanyExtract(acn, type, callOpts);
   const waitMs = opts.waitMs ?? 8000;
   const pollMs = opts.pollMs ?? 1000;
   const deadline = Date.now() + waitMs;
@@ -276,7 +305,7 @@ export async function orderAndFetchExtract(
   let documentNumber: string | null | undefined = null;
 
   while (Date.now() < deadline) {
-    const st = await getExtractStatus(order.requestId);
+    const st = await getExtractStatus(order.requestId, callOpts);
     status = st.status;
     documentNumber = st.documentNumber;
     if (/finish|complete|done|ready/i.test(status)) break;
@@ -294,48 +323,42 @@ export async function orderAndFetchExtract(
     documentNumber?: string | null;
     pdfBase64?: string;
     pdfBytes?: number;
-    environment: "live" | "test";
+    environment: BapiEnvironment;
+    demo: boolean;
   } = {
     acn: order.acn || cleanAcn(acn) || acn,
     type,
     requestId: order.requestId,
     status,
     documentNumber,
-    environment: envMode(),
+    environment,
+    demo: environment === "test",
   };
 
   if (/finish|complete|done|ready/i.test(status)) {
     try {
-      const pdf = await getExtractPdf(order.requestId);
+      const pdf = await getExtractPdf(order.requestId, callOpts);
       result.pdfBase64 = bufToBase64(pdf);
       result.pdfBytes = pdf.byteLength;
     } catch {
-      // Status finished but PDF not yet available; return status without PDF.
+      // Status finished but PDF not yet available.
     }
   }
 
   return result;
 }
 
-export async function requestStatus(requestId: string | number): Promise<unknown> {
-  return bapiFetch(`/status/${requestId}`, { method: "GET" });
+export async function accountStatus(opts?: BapiCallOptions): Promise<unknown> {
+  return bapiFetch("/account-status", { method: "GET", environment: resolveEnv(opts) });
 }
 
-export async function accountStatus(): Promise<unknown> {
-  return bapiFetch("/account-status", { method: "GET" });
-}
-
-/**
- * Readiness for extract endpoints.
- * Test env uses test secret (no card required). Live needs secret + dashboard card.
- */
-export async function businessApiReadiness(): Promise<{
+export async function businessApiReadiness(opts?: BapiCallOptions): Promise<{
   configured: boolean;
   paidOk: boolean;
-  environment: "live" | "test";
+  environment: BapiEnvironment;
   message: string;
 }> {
-  const environment = envMode();
+  const environment = resolveEnv(opts);
   const configured =
     environment === "test"
       ? Boolean(process.env.BAPI_TEST_SECRET_KEY || process.env.BAPI_SECRET_KEY)
@@ -354,7 +377,7 @@ export async function businessApiReadiness(): Promise<{
   }
 
   try {
-    await accountStatus();
+    await accountStatus({ environment });
     return { configured: true, paidOk: true, environment, message: "ok" };
   } catch (e) {
     if (e instanceof BusinessApiError && e.needsPaymentMethod) {
