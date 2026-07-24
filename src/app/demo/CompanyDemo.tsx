@@ -82,6 +82,15 @@ export default function CompanyDemo({ initialAcn }: { initialAcn?: string | null
   const [company, setCompany] = useState<Company | null>(null);
   const [matches, setMatches] = useState<Match[] | null>(null);
   const [lastPath, setLastPath] = useState<string | null>(null);
+  const [extractLoading, setExtractLoading] = useState(false);
+  const [extractError, setExtractError] = useState<string | null>(null);
+  const [extractMeta, setExtractMeta] = useState<{
+    requestId: string | number;
+    status: string;
+    type: string;
+    pdfBytes?: number;
+    demo?: boolean;
+  } | null>(null);
   const ranSeed = useRef<string | null>(null);
 
   async function run(m: Mode, q: string) {
@@ -90,6 +99,8 @@ export default function CompanyDemo({ initialAcn }: { initialAcn?: string | null
     setError(null);
     setCompany(null);
     setMatches(null);
+    setExtractMeta(null);
+    setExtractError(null);
     const path =
       m === "acn"
         ? `/api/au-company/acn/${encodeURIComponent(q.trim())}`
@@ -105,6 +116,45 @@ export default function CompanyDemo({ initialAcn }: { initialAcn?: string | null
       setError("Network error. Please try again.");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function orderExtract(acn: string) {
+    setExtractLoading(true);
+    setExtractError(null);
+    setExtractMeta(null);
+    const path = `/api/au-company-report?acn=${encodeURIComponent(acn)}&type=current`;
+    setLastPath(path);
+    try {
+      const res = await fetch(path);
+      const data = await res.json();
+      if (!res.ok) {
+        setExtractError(data.error || `Extract failed (${res.status})`);
+        return;
+      }
+      setExtractMeta({
+        requestId: data.requestId,
+        status: data.status,
+        type: data.type || "current",
+        pdfBytes: data.pdfBytes,
+        demo: data.demo === true || data.environment === "test",
+      });
+      if (data.pdfBase64) {
+        const bin = atob(data.pdfBase64 as string);
+        const bytes = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        const blob = new Blob([bytes], { type: "application/pdf" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `asic-extract-${acn}-current.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+    } catch {
+      setExtractError("Network error ordering extract.");
+    } finally {
+      setExtractLoading(false);
     }
   }
 
@@ -232,6 +282,44 @@ export default function CompanyDemo({ initialAcn }: { initialAcn?: string | null
                 </div>
               </div>
             )}
+            <div className="mt-5 border-t border-border-brand pt-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  disabled={extractLoading}
+                  onClick={() => void orderExtract(company.acn)}
+                  className="btn-primary disabled:opacity-40"
+                >
+                  {extractLoading ? "Ordering extract..." : "Demo company extract (sandbox)"}
+                </button>
+                <p className="text-xs text-muted">
+                  Uses Business API test keys on this site. Not a live ASIC order. Agents pay for live extracts on api.milypay.xyz.
+                </p>
+              </div>
+              {extractError && (
+                <p className="mt-3 text-sm text-brand-purple">{extractError}</p>
+              )}
+              {extractMeta && (
+                <div className="mt-3 rounded-md border border-border-brand bg-bg p-3 font-mono text-xs text-muted">
+                  <p>
+                    status <span className="text-fg">{extractMeta.status}</span>
+                    {" · "}
+                    requestId <span className="text-fg">{String(extractMeta.requestId)}</span>
+                    {" · "}
+                    type <span className="text-fg">{extractMeta.type}</span>
+                    {extractMeta.pdfBytes != null && (
+                      <>
+                        {" · "}
+                        pdf <span className="text-fg">{extractMeta.pdfBytes}</span> bytes
+                      </>
+                    )}
+                  </p>
+                  {extractMeta.demo && (
+                    <p className="mt-1 text-brand-green">Sandbox demo extract downloaded</p>
+                  )}
+                </div>
+              )}
+            </div>
             <p className="mt-5 border-t border-border-brand pt-4 text-xs text-muted">
               Verify on{" "}
               <a

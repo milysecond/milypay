@@ -90,7 +90,7 @@ function DemoTabsInner() {
           {service === "business" && "Live milysec/au-business - real ATO data."}
           {service === "company" && (
             <>
-              Live milysec/au-company - ASIC company register (3.9M companies).{" "}
+              Live milysec/au-company open data (3.9M companies), plus sandbox company extract demo via Business API test keys.{" "}
               <a
                 href="https://connectonline.asic.gov.au/RegistrySearch/faces/landing/SearchRegisters.jspx"
                 target="_blank"
