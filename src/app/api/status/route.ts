@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { businessApiReadiness } from "@/lib/businessapi";
 
 export const dynamic = "force-dynamic";
 
@@ -31,16 +32,37 @@ async function tokenBalance(owner: string, mint: string): Promise<number> {
 export async function GET() {
   const payTo = process.env.PAY_TO_WALLET || "";
   try {
-    const [floatUsdc, receivedAudd] = await Promise.all([
+    const [floatUsdc, receivedAudd, bapi] = await Promise.all([
       tokenBalance(PAYER, USDC),
       payTo ? tokenBalance(payTo, AUDD) : Promise.resolve(0),
+      businessApiReadiness().catch(() => ({
+        configured: Boolean(process.env.BAPI_SECRET_KEY),
+        helpersOk: false,
+        paidOk: false,
+        message: "readiness probe failed",
+      })),
     ]);
     return NextResponse.json(
       {
-        services: ["au-business", "au-company", "au-address", "au-super", "au-weather", "markets"],
+        services: [
+          "au-business",
+          "au-company",
+          "au-company-report",
+          "au-address",
+          "au-super",
+          "au-weather",
+          "markets",
+        ],
         x402: process.env.X402_ENABLED === "true",
         float: { usdc: floatUsdc },
         receiving: { audd: receivedAudd },
+        businessapi: {
+          configured: bapi.configured,
+          helpers: bapi.helpersOk,
+          paid: bapi.paidOk,
+          // Do not echo full upstream messages that might leak account detail.
+          ready: bapi.helpersOk,
+        },
       },
       { headers: { "Cache-Control": "public, max-age=30" } },
     );

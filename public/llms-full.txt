@@ -50,6 +50,23 @@ GET /au-company/search?name={name}&limit={n} - price 0.004
   ASIC company name search across current and former names.
   Example: GET https://api.milypay.xyz/au-company/search?name=woolworths
 
+GET /au-company/name-availability?name={name} - price 0.001
+  Live ASIC company name availability (identical names, objections).
+  Example: GET https://api.milypay.xyz/au-company/name-availability?name=MILYSEC
+  Example response:
+  {"name":"MILYSEC","available":false,"availability":"Unavailable","objections":["IDENTICAL TO AN ALREADY REGISTERED CORPORATION - Australian Proprietary Company MILYSEC PTY LTD ACN 695 484 756"]}
+
+GET /au-company/live/acn/{acn} - price 0.05
+  Live ACN validation and lookup via Business API DSP.
+  Example: GET https://api.milypay.xyz/au-company/live/acn/000014675
+
+### au-company-report - Official ASIC company extract
+
+GET /au-company-report?acn={acn} - price 12.00
+POST /au-company-report - price 12.00 (JSON body: {"acn":"000014675"})
+  Official ASIC company extract ordered via Business API (directors, office, share capital, charges where available). Always paid; never free on the website host.
+  Example: GET https://api.milypay.xyz/au-company-report?acn=000014675
+
 ### au-address - Address (G-NAF, Geoscape, 16.9M addresses)
 
 GET /au-address/validate?q={address} - price 0.004

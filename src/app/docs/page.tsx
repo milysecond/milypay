@@ -103,6 +103,41 @@ const SECTIONS: Section[] = [
   ]
 }`,
       },
+      {
+        path: "GET /au-company/name-availability?name={name}",
+        desc: "Live ASIC company name availability check (identical names and objections).",
+        example: 'curl "https://api.milypay.xyz/au-company/name-availability?name=MILYSEC"',
+        response: `{
+  "name": "MILYSEC",
+  "available": false,
+  "availability": "Unavailable",
+  "objections": ["IDENTICAL TO AN ALREADY REGISTERED CORPORATION ..."]
+}`,
+      },
+      {
+        path: "GET /au-company/live/acn/{acn}",
+        desc: "Live ACN validation and lookup via Business API DSP.",
+        example: "curl https://api.milypay.xyz/au-company/live/acn/000014675",
+        response: `{ "acn": "000014675", "data": { /* live BAPI payload */ } }`,
+      },
+    ],
+  },
+  {
+    id: "company-report",
+    title: "ASIC company extract",
+    namespace: "milysec/au-company-report",
+    source: "ASIC via Business API (DSP)",
+    blurb: "Order an official ASIC company extract: directors, office, share capital, and related fields where available.",
+    endpoints: [
+      {
+        path: "GET /au-company-report?acn={acn}",
+        desc: "Order a company extract by ACN. Always paid ($12). Also accepts POST with JSON body.",
+        example: "curl https://api.milypay.xyz/au-company-report?acn=000014675",
+        response: `{
+  "acn": "000014675",
+  "extract": { /* Business API order / document payload */ }
+}`,
+      },
     ],
   },
   {
