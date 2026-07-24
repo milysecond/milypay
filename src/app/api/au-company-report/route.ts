@@ -1,18 +1,18 @@
 import { NextResponse } from "next/server";
-import { BusinessApiError, orderCompanyExtract } from "@/lib/businessapi";
+import { BusinessApiError, orderAndFetchExtract } from "@/lib/businessapi";
 import { withX402 } from "@/lib/x402";
 
 export const dynamic = "force-dynamic";
 
 const ATTRIBUTION = "Source: ASIC company extract ordered via Business API (DSP)";
 
-// ASIC current extracts typically cost ~AUD 9–20 at the counter; retail via x402
+// ASIC current extracts typically cost ~AUD 9-20 at the counter; retail via x402
 // covers upstream + margin. Adjust after first live BAPI invoice.
 const PRICE = "12.00";
 
 /**
  * Official ASIC company extract (directors, office, share capital, etc.).
- * Upstream: POST /api/v2/asic/extracts via Business API DSP.
+ * Upstream: POST /asic/extracts via Business API DSP.
  *
  * Prefer free gov sources for basic company identity:
  *   GET /au-company/acn/{acn}   (ASIC open data)
@@ -20,9 +20,8 @@ const PRICE = "12.00";
  * Use this endpoint only for extract fields those free APIs do not publish.
  *
  * Always paid: never free on the website host (upstream costs real money).
- * Returns 503 if the Business API account still needs a dashboard card.
- *
- * Query: ?acn=000014675  (or POST JSON { "acn": "..." })
+ * Query: ?acn=000014675&type=current|historical
+ * POST JSON: { "acn": "...", "type": "current" }
  */
 async function handle(req: Request, acn: string, extractType?: string) {
   return withX402(
@@ -39,16 +38,10 @@ async function handle(req: Request, acn: string, extractType?: string) {
           return NextResponse.json({ error: "ACN must be up to 9 digits" }, { status: 400 });
         }
 
-        const body: { acn: string; extractType?: string } = {
-          acn: digits.padStart(9, "0"),
-        };
-        if (extractType) body.extractType = extractType;
-
-        const data = await orderCompanyExtract(body);
+        const extract = await orderAndFetchExtract(digits, extractType || "current");
         return NextResponse.json(
           {
-            acn: body.acn,
-            extract: data,
+            ...extract,
             attribution: ATTRIBUTION,
           },
           {
@@ -65,12 +58,11 @@ async function handle(req: Request, acn: string, extractType?: string) {
               {
                 error: "Upstream Business API account requires a saved payment method",
                 code: "upstream_payment_method_required",
-                hint: "Add a card at https://businessapi.com.au dashboard, then retry",
+                hint: "Add a card at https://businessapi.com.au dashboard for live extracts, or set BAPI_ENV=test for sandbox",
               },
               { status: 503 },
             );
           }
-          // Validation / schema issues from BAPI (body shape may need tuning after first live order)
           if (e.status === 400 || e.status === 422) {
             return NextResponse.json(
               { error: e.message, code: e.code, details: e.body },
@@ -83,7 +75,8 @@ async function handle(req: Request, acn: string, extractType?: string) {
           return NextResponse.json({ error: e.message, code: e.code }, { status: 502 });
         }
         const msg = e instanceof Error ? e.message : "company extract failed";
-        const status = msg.includes("BAPI_SECRET_KEY") ? 503 : 502;
+        const status =
+          msg.includes("BAPI_SECRET_KEY") || msg.includes("BAPI_TEST_SECRET_KEY") ? 503 : 502;
         return NextResponse.json({ error: msg }, { status });
       }
     },

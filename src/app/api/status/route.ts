@@ -36,8 +36,9 @@ export async function GET() {
       tokenBalance(PAYER, USDC),
       payTo ? tokenBalance(payTo, AUDD) : Promise.resolve(0),
       businessApiReadiness().catch(() => ({
-        configured: Boolean(process.env.BAPI_SECRET_KEY),
+        configured: Boolean(process.env.BAPI_SECRET_KEY || process.env.BAPI_TEST_SECRET_KEY),
         paidOk: false,
+        environment: (process.env.BAPI_ENV === "test" ? "test" : "live") as "live" | "test",
         message: "readiness probe failed",
       })),
     ]);
@@ -59,6 +60,7 @@ export async function GET() {
         businessapi: {
           configured: bapi.configured,
           extracts: bapi.paidOk,
+          environment: bapi.environment,
         },
       },
       { headers: { "Cache-Control": "public, max-age=30" } },
