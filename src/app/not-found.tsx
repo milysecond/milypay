@@ -44,22 +44,13 @@ x-402-reason:   nothing to settle here
           </div>
 
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-            <Link
-              href="/"
-              className="rounded-full bg-brand-green px-6 py-3 text-center text-sm font-semibold text-bg transition hover:opacity-90"
-            >
+            <Link href="/" className="btn-mono-solid text-center">
               Back home
             </Link>
-            <Link
-              href="/#services"
-              className="rounded-full border border-border-brand bg-card px-6 py-3 text-center text-sm font-semibold text-fg transition hover:border-brand-green/40"
-            >
+            <Link href="/#services" className="btn-mono text-center">
               Browse services
             </Link>
-            <Link
-              href="/stables"
-              className="rounded-full border border-border-brand bg-card px-6 py-3 text-center text-sm font-semibold text-fg transition hover:border-brand-green/40"
-            >
+            <Link href="/stables" className="btn-mono text-center">
               AUD stablecoins
             </Link>
           </div>

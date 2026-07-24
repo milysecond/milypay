@@ -59,13 +59,15 @@ function DemoTabsInner() {
     <button
       type="button"
       onClick={() => selectService(key)}
-      className={`rounded-full px-5 py-2 text-sm font-semibold transition ${
-        service === key ? "bg-brand-green text-bg" : "text-muted hover:text-fg"
+      className={`rounded-md px-4 py-2 font-mono text-[11px] font-medium uppercase tracking-[0.1em] transition-colors ${
+        service === key
+          ? "bg-brand-green text-cta-fg"
+          : "text-muted hover:bg-secondary hover:text-fg"
       }`}
     >
       {label}
       {soon && (
-        <span className="ml-2 rounded-full border border-border-brand px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted">
+        <span className="ml-2 border border-border-brand px-1.5 py-0.5 text-[9px] uppercase tracking-wide text-muted">
           soon
         </span>
       )}
@@ -75,7 +77,7 @@ function DemoTabsInner() {
   return (
     <div>
       <div className="mx-auto max-w-3xl px-6">
-        <div className="inline-flex flex-wrap rounded-full border border-border-brand bg-card p-1">
+        <div className="inline-flex flex-wrap gap-1 border border-border-brand bg-card p-1">
           {tab("business", "Business (ABN)")}
           {tab("company", "Company (ASIC)")}
           {tab("address", "Address (G-NAF)")}

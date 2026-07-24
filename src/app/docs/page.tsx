@@ -271,9 +271,7 @@ export default function DocsPage() {
         {/* content */}
         <div className="min-w-0 space-y-16">
           <section className="space-y-4">
-            <p className="text-sm font-semibold uppercase tracking-widest text-brand-green">
-              Documentation
-            </p>
+            <p className="section-label">Documentation</p>
             <H id="overview">Milypay API</H>
             <p className="leading-relaxed text-muted">
               Pay-per-call Australian data for AI agents, settled in AUD stablecoins on the x402

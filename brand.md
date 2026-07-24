@@ -7,7 +7,7 @@ Milypay is Milysec's payments arm: an [x402](https://x402.org) service provider 
 Australian market, listed on [pay.sh](https://pay.sh) and settling through the **PayAI**
 x402 facilitator. It gives AI agents user-approved, pay-per-call access to Australian data
 priced in **AUDD** (the regulated, 1:1 AUD-backed, AFSL-licensed AUD-native stablecoin) —
-the one provider in the pay.sh catalog that owns 🇦🇺 Australia while everyone else is
+the one provider in the pay.sh catalog that owns Australia while everyone else is
 horizontal. Underpins the **AUDDapt grant** pilot: AUDD as the first AUD-native settlement
 currency on the agentic payments stack (3+ AU APIs priced in AUDD, reference impl, agent demo).
 
@@ -27,24 +27,32 @@ currency on the agentic payments stack (3+ AU APIs priced in AUDD, reference imp
 - Dry Australian directness is on-brand; novelty/cute is not.
 - Parent inheritance from Milysec: *Fast. Web. App.* → Milypay extends with *Pay.*
 
-## Color palette (commercial light shell — Decal-inspired, Solana-accented)
+## Design system (lab — shared with milysec.com)
 
-Light-first for decision-makers. Green reserved for pay/live states, not full-page neon.
+Dark-first research-lab shell. Sharp geometry, mono labels, green primary actions.
+Light mode available via theme toggle.
 
-| Token | Hex | Use |
+| Token | Hex / value | Use |
 |---|---|---|
-| `--bg` | `#F9F8F6` | Warm paper page background |
-| `--bg-secondary` | `#F6F5F4` | Alternating section wash |
-| `--bg-cream` | `#F8F5E8` | Product mock / highlight panels |
-| `--bg-card` | `#FFFFFF` | Cards |
-| `--fg` | `#2B2B2B` | Body / headings |
-| `--muted` | `#6B6560` | Secondary text |
-| `--border` | `#E3E0DE` | Borders |
-| `--cta` | `#292929` | Primary button fill (charcoal) |
-| `--cta-fg` | `#FFFFFF` | Primary button text |
-| `--brand-green` | `#0D9B6A` | Text-safe green (prices, success, Pay) |
-| `--brand-green-bright` | `#14F195` | Dots, bright accents (Solana) |
-| `--brand-purple` | `#6D28D9` | Code / secondary accent |
+| `--bg` (dark) | `#070A08` | Page background |
+| `--bg` (light) | `#F7F8F7` | Page background |
+| `--bg-card` (dark) | `#0C100D` | Lab panels |
+| `--bg-card` (light) | `#FFFFFF` | Cards |
+| `--fg` | white / `#0F172A` | Body / headings |
+| `--muted` | white/55 / `#64748B` | Secondary text |
+| `--border` | white/8% / slate 10% | Borders |
+| `--brand-green` / primary | `#08D592` | CTAs, live, prices, Pay |
+| `--brand-green-bright` | `#14F195` | Bright accents |
+| `--brand-purple` | `#9C32DF` | Code / secondary accent |
+
+### Surfaces & components
+
+- **Lab panel** (`.lab-panel` / `.card`): bordered figure cell, no large radius
+- **Section label** (`.section-label` / `.eyebrow`): mono uppercase tracking
+- **Buttons:** `.btn-primary` (green), `.btn-mono` / `.btn-mono-solid` (uppercase mono)
+- **Hero:** `.hero-wash` + `.lab-grid` + terminal line whisper
+- **Quote band:** `.quote-band` solid green closing CTA
+- **Partner cells:** density wall for stack / proof
 
 ## Typography
 
@@ -52,28 +60,25 @@ Shared stack with milysec.com:
 
 | Role | Face | Notes |
 |---|---|---|
-| **Logo** | MoonWalk (OTF) | Class `font-logo`. Letter-spacing **−0.05em** (tight kerning). Logo only — not body or headings. |
-| **Headings** | **Plus Jakarta Sans** | Class `font-display`. Weights 500–700, tracking −0.03em. Geometric commercial product face. |
-| **Body / UI** | **Inter** | Default sans. Weights 400 / 500 / 600. Long-form and chrome. |
-| **Mono** | System mono | API mocks, code, tabular metrics. |
-
-Type scale: H1 ~60 · H2 36 · H3 24 · Body 16 · Small 14 (px)
+| **Logo** | MoonWalk (OTF) | Class `font-logo`. Letter-spacing **−0.05em**. Logo only. |
+| **Headings** | **Bricolage Grotesque** | Class `font-display`. Weights 500–800, tracking −0.03em. |
+| **Body / UI** | **Inter** | Default sans. Weights 400 / 500 / 600. |
+| **Mono** | System mono | Labels, API mocks, code, metrics. |
 
 ## Logo
 
 - Inherit Milysec mark: `milysec-logo.svg` / `milysec-logo-original.png` (from milysec.com).
-- Milypay lockup: Milysec mark + "Milypay" wordmark in **MoonWalk** (`font-logo`), "Pay" in brand-green.
+- Milypay lockup: Milysec mark + "Milypay" wordmark in **MoonWalk** (`font-logo`), "pay" in brand-green.
 
 ## Domains
 
-- `milypay.xyz` (primary — $1.99/yr, crypto-native, ecosystem-fit) · `milypay.com` ($11, optional canonical/redirect) · `milypay.au` (AU market) · `milypay.ai` (optional AI hero)
+- `milypay.xyz` (primary) · `milypay.com` (optional) · `milypay.au` · `milypay.ai`
 - Alias `pay.milysec.com` → Milypay.
 
 ## Don'ts
 
-- Don't go full neon-on-black for marketing — light commercial shell is the default.
-- Don't drop AUDD / x402 / agent positioning when borrowing layout patterns (e.g. Decal).
-- Don't lean on kangaroo/novelty motifs; Milypay is infrastructure, the AU angle is in the
-  data/rails, not in mascots.
+- Don't use charcoal pill CTAs from the old Decal shell — use lab mono / green.
+- Don't drop AUDD / x402 / agent positioning when borrowing layout patterns.
+- Don't lean on kangaroo/novelty motifs; the AU angle is in the data/rails.
 - Don't foreground "security/sec" — this is the payments line, not the Milysec security product.
 - No emoji or hashtags in marketing UI.

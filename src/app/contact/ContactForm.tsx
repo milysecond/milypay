@@ -181,7 +181,7 @@ export default function ContactForm() {
           type="button"
           onClick={next}
           disabled={!valid || status === "submitting"}
-          className="rounded-full bg-brand-green px-6 py-3 text-sm font-semibold text-bg transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+          className="btn-primary disabled:cursor-not-allowed disabled:opacity-40"
         >
           {status === "submitting" ? "Sending…" : isLast ? "Send message" : "OK"}
         </button>
