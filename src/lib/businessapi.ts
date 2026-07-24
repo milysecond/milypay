@@ -45,8 +45,13 @@ function resolveEnv(opts?: BapiCallOptions): BapiEnvironment {
 }
 
 function baseUrl(env: BapiEnvironment): string {
+  // Never let a live BAPI_BASE_URL override the sandbox path when env is test.
+  // (Next/OpenNext can bake .env.local BAPI_BASE_URL into the worker bundle.)
+  if (env === "test") {
+    return (process.env.BAPI_TEST_BASE_URL || TEST_BASE).replace(/\/$/, "");
+  }
   if (process.env.BAPI_BASE_URL) return process.env.BAPI_BASE_URL.replace(/\/$/, "");
-  return env === "test" ? TEST_BASE : LIVE_BASE;
+  return LIVE_BASE;
 }
 
 function secretKey(env: BapiEnvironment): string {
