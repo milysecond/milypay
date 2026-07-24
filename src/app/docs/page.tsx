@@ -94,7 +94,7 @@ const SECTIONS: Section[] = [
       },
       {
         path: "GET /au-company/search?name={name}",
-        desc: "Companies matching a name, across current and former names.",
+        desc: "Companies matching a name, across current and former names (ASIC open data).",
         example: 'curl "https://api.milypay.xyz/au-company/search?name=commonwealth bank"',
         response: `{
   "matches": [
@@ -103,23 +103,6 @@ const SECTIONS: Section[] = [
   ]
 }`,
       },
-      {
-        path: "GET /au-company/name-availability?name={name}",
-        desc: "Live ASIC company name availability check (identical names and objections).",
-        example: 'curl "https://api.milypay.xyz/au-company/name-availability?name=MILYSEC"',
-        response: `{
-  "name": "MILYSEC",
-  "available": false,
-  "availability": "Unavailable",
-  "objections": ["IDENTICAL TO AN ALREADY REGISTERED CORPORATION ..."]
-}`,
-      },
-      {
-        path: "GET /au-company/live/acn/{acn}",
-        desc: "Live ACN validation and lookup via Business API DSP.",
-        example: "curl https://api.milypay.xyz/au-company/live/acn/000014675",
-        response: `{ "acn": "000014675", "data": { /* live BAPI payload */ } }`,
-      },
     ],
   },
   {
@@ -127,7 +110,8 @@ const SECTIONS: Section[] = [
     title: "ASIC company extract",
     namespace: "milysec/au-company-report",
     source: "ASIC via Business API (DSP)",
-    blurb: "Order an official ASIC company extract: directors, office, share capital, and related fields where available.",
+    blurb:
+      "Official company extract (directors, office, share capital). Free gov open data does not include officeholders; this is the only Business API use case.",
     endpoints: [
       {
         path: "GET /au-company-report?acn={acn}",

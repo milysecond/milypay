@@ -55,11 +55,9 @@ All services live under the `milysec/*` namespace on Pay.sh.
 | `GET /au-business/abn/{abn}` | Entity name, status, type, ACN, GST, business names, location | $0.002 / call |
 | `GET /au-business/acn/{acn}` | Same, resolved from an ACN | $0.002 / call |
 | `GET /au-business/search?name=` | Matching ABNs by business or entity name | $0.004 / call |
-| `GET /au-company/acn/{acn}` | ASIC company: status, type, class, registration dates, former names | $0.002 / call |
-| `GET /au-company/search?name=` | Companies matching a name (current + former names) | $0.004 / call |
-| `GET /au-company/name-availability?name=` | Live ASIC company name availability (identical names, objections) | $0.001 / call |
-| `GET /au-company/live/acn/{acn}` | Live ACN validation and lookup via Business API | $0.05 / call |
-| `GET /au-company-report?acn=` | Official ASIC company extract (directors, office, share capital) | $12 / extract |
+| `GET /au-company/acn/{acn}` | ASIC company: status, type, class, registration dates, former names (open data) | $0.002 / call |
+| `GET /au-company/search?name=` | Companies matching a name (current + former names, open data) | $0.004 / call |
+| `GET /au-company-report?acn=` | Official ASIC extract (directors, office, share capital). Paid DSP only | $12 / extract |
 | `GET /au-address/validate?q=` | Canonical address, GNAF PID, geocode | $0.004 / call |
 | `GET /au-address/search?q=` | Ranked address matches (autocomplete) | $0.004 / call |
 | `GET /au-address/geocode?q=` | Latitude / longitude for an address | $0.004 / call |

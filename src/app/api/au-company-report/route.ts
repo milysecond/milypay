@@ -12,7 +12,12 @@ const PRICE = "12.00";
 
 /**
  * Official ASIC company extract (directors, office, share capital, etc.).
- * Upstream: POST /api/v2/asic/extracts
+ * Upstream: POST /api/v2/asic/extracts via Business API DSP.
+ *
+ * Prefer free gov sources for basic company identity:
+ *   GET /au-company/acn/{acn}   (ASIC open data)
+ *   GET /au-business/abn/{abn}  (ABR)
+ * Use this endpoint only for extract fields those free APIs do not publish.
  *
  * Always paid: never free on the website host (upstream costs real money).
  * Returns 503 if the Business API account still needs a dashboard card.

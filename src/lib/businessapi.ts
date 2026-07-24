@@ -1,10 +1,17 @@
 // Business API (businessapi.com.au) client.
-// Official ASIC / ATO / ABRS digital service provider. Live base: /api/v2/.
-// Auth: Authorization: Bearer bapi_sk_live_* (server only) or bapi_pk_live_* (browser helpers).
+// Use ONLY for paid/official products that free government APIs do not cover.
+//
+// Free gov sources (prefer these elsewhere in Milypay):
+//   - ABR ABN Lookup (ABR_GUID)         -> au-business
+//   - ASIC open company register (Turso) -> au-company acn/search
+//   - ATO Super Fund Lookup             -> au-super
+//
+// Business API is reserved for:
+//   - Official ASIC company extracts (directors, office, share capital, charges)
+//     Free open data does not include officeholders or shareholdings.
 //
 // Config (Worker secrets / .env.local):
-//   BAPI_SECRET_KEY       bapi_sk_live_... (required for server routes)
-//   BAPI_PUBLISHABLE_KEY  bapi_pk_live_... (optional, helpers only)
+//   BAPI_SECRET_KEY       bapi_sk_live_... (server only)
 //   BAPI_BASE_URL         default https://businessapi.com.au/api/v2
 
 const DEFAULT_BASE = "https://businessapi.com.au/api/v2";
@@ -83,85 +90,7 @@ async function bapiFetch<T = unknown>(
   return body as T;
 }
 
-// ---- Helpers (no card required on free/helper tier) ----
-
-export interface CompanyNameAvailability {
-  name: string;
-  availability: string;
-  shortDescription?: string;
-  objections?: string[];
-  existingbn?: boolean;
-  /** Normalised availability flag for agents. */
-  available: boolean;
-  raw: unknown;
-}
-
-export async function companyNameAvailability(name: string): Promise<CompanyNameAvailability> {
-  const trimmed = name.trim();
-  if (trimmed.length < 1) throw new BusinessApiError(400, "name is required");
-
-  const raw = await bapiFetch<Record<string, unknown>>("/helpers/company-name-availability", {
-    method: "GET",
-    query: { name: trimmed },
-  });
-
-  const availability = String(raw.availability ?? "");
-  const available = /^available$/i.test(availability);
-
-  return {
-    name: String(raw.name ?? trimmed),
-    availability,
-    shortDescription: typeof raw.shortDescription === "string" ? raw.shortDescription : undefined,
-    objections: Array.isArray(raw.objections) ? (raw.objections as string[]) : undefined,
-    existingbn: typeof raw.existingbn === "boolean" ? raw.existingbn : undefined,
-    available,
-    raw,
-  };
-}
-
-export interface BusinessNameAvailability {
-  name: string;
-  availability: string;
-  available: boolean;
-  raw: unknown;
-}
-
-export async function businessNameAvailability(
-  name: string,
-  state?: string,
-): Promise<BusinessNameAvailability> {
-  const trimmed = name.trim();
-  if (trimmed.length < 1) throw new BusinessApiError(400, "name is required");
-
-  const raw = await bapiFetch<Record<string, unknown>>("/helpers/business-name-availability", {
-    method: "GET",
-    query: { name: trimmed, state },
-  });
-
-  const availability = String(raw.availability ?? raw.status ?? "");
-  return {
-    name: String(raw.name ?? trimmed),
-    availability,
-    available: /^available$/i.test(availability),
-    raw,
-  };
-}
-
-// ---- Paid lookup (requires saved payment method on BAPI dashboard) ----
-
-export async function lookupAcn(acn: string): Promise<unknown> {
-  const digits = acn.replace(/\D/g, "").padStart(9, "0");
-  if (digits.length !== 9) throw new BusinessApiError(400, "ACN must be 9 digits");
-  return bapiFetch(`/lookup/acn/${digits}`, { method: "GET" });
-}
-
-export async function lookupAbn(abn: string): Promise<unknown> {
-  const digits = abn.replace(/\D/g, "");
-  if (digits.length !== 11) throw new BusinessApiError(400, "ABN must be 11 digits");
-  return bapiFetch(`/lookup/abn/${digits}`, { method: "GET" });
-}
-
-// ---- Company extracts (POST; requires payment method + collection access) ----
+// ---- Company extracts only (not available from free ASIC open data / ABR) ----
 
 export type ExtractOrderBody = {
   acn?: string;
@@ -171,9 +100,9 @@ export type ExtractOrderBody = {
 };
 
 /**
- * Order an ASIC company extract via Business API.
+ * Order an official ASIC company extract via Business API.
  * Upstream: POST /api/v2/asic/extracts (secret key).
- * Exact body fields depend on your BAPI plan; common shape uses acn + optional extractType.
+ * Free ASIC open data and ABR do not include directors, secretaries, or shareholders.
  */
 export async function orderCompanyExtract(body: ExtractOrderBody): Promise<unknown> {
   if (!body.acn && !body.abn) {
@@ -197,60 +126,34 @@ export async function accountStatus(): Promise<unknown> {
 }
 
 /**
- * Lightweight readiness probe. Returns whether paid BAPI endpoints can be used.
- * Does not throw for payment_method_required.
+ * Readiness for paid extract endpoints (requires BAPI secret + dashboard card).
  */
 export async function businessApiReadiness(): Promise<{
   configured: boolean;
-  helpersOk: boolean;
   paidOk: boolean;
   message: string;
 }> {
   if (!process.env.BAPI_SECRET_KEY) {
     return {
       configured: false,
-      helpersOk: false,
       paidOk: false,
       message: "BAPI_SECRET_KEY not configured",
     };
   }
 
-  let helpersOk = false;
-  try {
-    await companyNameAvailability("TEST");
-    helpersOk = true;
-  } catch (e) {
-    if (e instanceof BusinessApiError && e.status === 400) helpersOk = true;
-    else {
-      return {
-        configured: true,
-        helpersOk: false,
-        paidOk: false,
-        message: e instanceof Error ? e.message : "helper probe failed",
-      };
-    }
-  }
-
   try {
     await accountStatus();
-    return {
-      configured: true,
-      helpersOk,
-      paidOk: true,
-      message: "ok",
-    };
+    return { configured: true, paidOk: true, message: "ok" };
   } catch (e) {
     if (e instanceof BusinessApiError && e.needsPaymentMethod) {
       return {
         configured: true,
-        helpersOk,
         paidOk: false,
-        message: "Add a saved payment method in the Business API dashboard to unlock production paid endpoints",
+        message: "Add a saved payment method in the Business API dashboard to unlock extracts",
       };
     }
     return {
       configured: true,
-      helpersOk,
       paidOk: false,
       message: e instanceof Error ? e.message : "account-status failed",
     };

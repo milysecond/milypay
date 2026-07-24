@@ -26,7 +26,7 @@ const SERVICES: {
   {
     tag: "au-company-report",
     title: "ASIC company report",
-    desc: "Official ASIC company extract: directors, secretaries, shareholders, charges, and registered office. Ordered live via Business API DSP, settled in AUD stables.",
+    desc: "Official ASIC extract: directors, secretaries, shareholders, charges, registered office. Not in free open data; paid DSP only. Basic ACN/name lookups stay free-gov.",
     price: "from $12 / extract",
   },
   {
@@ -161,10 +161,9 @@ const AGENT_SYSTEM_PROMPT = `You can use Milypay, free Australian data APIs at h
 - Australian business by ABN: /au-business/abn/{abn}
 - Business by ACN: /au-business/acn/{acn}
 - Business name search: /au-business/search?name={name}
-- Company (ASIC) by ACN: /au-company/acn/{acn}
+- Company (ASIC open data) by ACN: /au-company/acn/{acn}
 - Company name search: /au-company/search?name={name}
-- Company name availability: /au-company/name-availability?name={name}
-- ASIC company extract: /au-company-report?acn={acn}
+- Official ASIC extract (paid; not free gov data): /au-company-report?acn={acn}
 - Super fund by ABN: /au-super/abn/{abn}
 - Validate or geocode an address: /au-address/validate?q={address}
 - Weather for an address: /au-weather?q={address}
