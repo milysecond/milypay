@@ -37,7 +37,6 @@ export async function GET() {
       payTo ? tokenBalance(payTo, AUDD) : Promise.resolve(0),
       businessApiReadiness().catch(() => ({
         configured: Boolean(process.env.BAPI_SECRET_KEY),
-        helpersOk: false,
         paidOk: false,
         message: "readiness probe failed",
       })),
@@ -56,12 +55,10 @@ export async function GET() {
         x402: process.env.X402_ENABLED === "true",
         float: { usdc: floatUsdc },
         receiving: { audd: receivedAudd },
+        // Business API is extracts-only; free lookups use ABR/ASIC open data.
         businessapi: {
           configured: bapi.configured,
-          helpers: bapi.helpersOk,
-          paid: bapi.paidOk,
-          // Do not echo full upstream messages that might leak account detail.
-          ready: bapi.helpersOk,
+          extracts: bapi.paidOk,
         },
       },
       { headers: { "Cache-Control": "public, max-age=30" } },
