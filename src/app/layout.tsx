@@ -1,10 +1,13 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import { Inter, Bricolage_Grotesque } from "next/font/google";
 import "./globals.css";
 
 export const viewport: Viewport = {
-  themeColor: "#f9f8f6",
-  colorScheme: "light",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#F7F8F7" },
+    { media: "(prefers-color-scheme: dark)", color: "#070a08" },
+  ],
+  colorScheme: "dark light",
 };
 
 const SERVICE_OFFERS: { name: string; price: string; description: string }[] = [
@@ -68,7 +71,7 @@ const ORG_JSONLD = {
   ],
 };
 
-// Body / UI — Inter (readable, neutral)
+// Body / UI — Inter
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
@@ -76,12 +79,12 @@ const inter = Inter({
   weight: ["400", "500", "600"],
 });
 
-// Headings — Plus Jakarta Sans (geometric, commercial product)
-const plusJakarta = Plus_Jakarta_Sans({
+// Headings — Bricolage Grotesque (shared with milysec.com)
+const bricolage = Bricolage_Grotesque({
   variable: "--font-heading",
   subsets: ["latin"],
   display: "swap",
-  weight: ["500", "600", "700"],
+  weight: ["500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -143,6 +146,8 @@ export const metadata: Metadata = {
   },
 };
 
+const THEME_INIT = `(function(){try{var t=localStorage.getItem("milypay-theme");var d=t!=="light";var r=document.documentElement;r.classList.toggle("dark",d);r.classList.toggle("light",!d);var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute("content",d?"#070a08":"#F7F8F7");}catch(e){document.documentElement.classList.add("dark");}})();`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -151,8 +156,12 @@ export default function RootLayout({
   return (
     <html
       lang="en-AU"
-      className={`${inter.variable} ${plusJakarta.variable} h-full antialiased`}
+      className={`${inter.variable} ${bricolage.variable} dark h-full antialiased`}
+      suppressHydrationWarning
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT }} />
+      </head>
       <body className="min-h-full flex flex-col bg-bg text-fg font-sans">
         <script
           type="application/ld+json"

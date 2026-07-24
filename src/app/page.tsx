@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { SiteHeader, SiteFooter } from "@/components/site";
 import CodeBlock from "@/components/CodeBlock";
 import CostCalculator from "@/components/CostCalculator";
@@ -217,32 +218,36 @@ const FAQ_JSONLD = {
 };
 
 const TRUST = [
-  "x402 protocol",
-  "PayAI facilitator",
-  "pay.sh catalog",
-  "AUDD on Solana",
-  "Milysec",
+  { name: "x402", chip: "Protocol" },
+  { name: "PayAI", chip: "Facilitator" },
+  { name: "pay.sh", chip: "Catalog" },
+  { name: "AUDD", chip: "Stablecoin" },
+  { name: "Solana", chip: "Settlement" },
+  { name: "Milysec", chip: "Studio" },
+  { name: "ASIC open data", chip: "Source" },
+  { name: "G-NAF", chip: "Source" },
 ];
 
 function PaymentMock() {
   return (
     <div className="relative">
-      <div className="absolute -inset-4 rounded-[28px] bg-cream sm:-inset-6" aria-hidden />
-      <div className="relative overflow-hidden rounded-2xl border border-border-brand bg-card shadow-[0_20px_50px_rgba(43,43,43,0.08)]">
+      <div className="lab-panel overflow-hidden">
         <div className="flex items-center justify-between border-b border-border-brand px-4 py-3">
           <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-[#e3e0de]" />
-            <span className="h-2.5 w-2.5 rounded-full bg-[#e3e0de]" />
-            <span className="h-2.5 w-2.5 rounded-full bg-brand-green-bright" />
+            <span className="h-2 w-2 rounded-full bg-border-brand" />
+            <span className="h-2 w-2 rounded-full bg-border-brand" />
+            <span className="h-2 w-2 rounded-full bg-brand-green" />
           </div>
-          <span className="text-xs font-medium text-muted">api.milypay.xyz</span>
+          <span className="font-mono text-[10px] tracking-[0.14em] uppercase text-muted">
+            api.milypay.xyz
+          </span>
         </div>
         <div className="space-y-4 p-5 font-mono text-[12px] leading-relaxed sm:p-6 sm:text-[13px]">
-          <div>
-            <div className="text-muted">$ curl /au-business/abn/51824753556</div>
+          <div className="text-muted">
+            <span className="text-brand-green">$</span> curl /au-business/abn/51824753556
           </div>
-          <div className="rounded-xl bg-secondary p-4">
-            <div className="font-sans text-[11px] font-semibold uppercase tracking-wide text-muted">
+          <div className="border border-border-brand bg-secondary p-4">
+            <div className="font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-muted">
               Challenge
             </div>
             <div className="mt-2 text-brand-purple">HTTP/1.1 402 Payment Required</div>
@@ -253,12 +258,12 @@ function PaymentMock() {
             </div>
           </div>
           <div className="flex items-center gap-2 text-muted">
-            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-brand-green/15 text-[10px] font-bold text-brand-green">
+            <span className="inline-flex h-5 w-5 items-center justify-center border border-brand-green/30 bg-brand-green/10 text-[10px] font-bold text-brand-green">
               ✓
             </span>
             <span>wallet approves · PayAI settles</span>
           </div>
-          <div className="rounded-xl border border-brand-green/25 bg-brand-green/5 p-4">
+          <div className="border border-brand-green/25 bg-brand-green/5 p-4">
             <div className="text-brand-green">HTTP/1.1 200 OK</div>
             <pre className="mt-2 whitespace-pre-wrap text-fg">{`{
   "abn": "51824753556",
@@ -275,20 +280,17 @@ function PaymentMock() {
 
 export default function Home() {
   return (
-    <main className="flex-1">
+    <main id="main-content" className="flex-1">
       <SiteHeader />
 
       {/* Hero */}
-      <section className="relative overflow-hidden">
-        <div className="hero-glow absolute inset-0 -z-10" />
-        <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 pb-20 pt-16 md:grid-cols-[1.05fr_0.95fr] md:gap-14 md:pb-28 md:pt-24">
+      <section className="hero-wash relative overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 lab-grid opacity-40 dark:opacity-30" aria-hidden />
+        <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-4 pb-16 pt-16 sm:px-6 md:grid-cols-[1.05fr_0.95fr] md:gap-14 md:pb-24 md:pt-20">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-border-brand bg-card px-3.5 py-1.5 text-xs font-medium text-muted shadow-sm">
-              <span className="h-1.5 w-1.5 rounded-full bg-brand-green" />
-              AUD-native settlement on x402
-            </div>
+            <p className="section-label mb-5">x402 · Australia · AUDD</p>
 
-            <h1 className="font-display mt-7 text-[2.75rem] leading-[1.05] text-fg sm:text-6xl md:text-[3.75rem]">
+            <h1 className="font-display text-4xl leading-[1.08] tracking-tight text-fg sm:text-5xl md:text-[3.5rem]">
               Keep agent spend{" "}
               <span className="text-brand-green">in AUD</span>
               <span className="block">on every call.</span>
@@ -299,46 +301,60 @@ export default function Home() {
               address, weather, postage — settled in AUDD. No keys. No signup. Just 402.
             </p>
 
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <Link href="/demo" className="btn-primary">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <Link href="/demo" className="btn-mono-solid">
                 Try it live
+                <ArrowRight className="h-3.5 w-3.5" />
               </Link>
-              <a href="#developers" className="btn-secondary">
+              <a href="#developers" className="btn-mono">
                 Start building
               </a>
             </div>
 
-            <div className="mt-12 flex flex-wrap items-center gap-x-2 gap-y-2 text-xs font-medium text-muted">
-              {TRUST.map((t, i) => (
-                <span key={t} className="inline-flex items-center gap-2">
-                  {i > 0 && (
-                    <span className="select-none text-border-brand" aria-hidden>
-                      ·
-                    </span>
-                  )}
-                  <span>{t}</span>
-                </span>
-              ))}
-            </div>
+            <p className="terminal-line mt-6">
+              <span className="prompt">$</span> request → 402 → settle AUDD → data
+            </p>
           </div>
 
           <PaymentMock />
         </div>
       </section>
 
+      {/* Proof density wall */}
+      <section className="border-y border-border-brand">
+        <div className="mx-auto max-w-6xl px-4 py-5 sm:px-6">
+          <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.16em] text-muted">
+            Stack · rails · sources
+          </p>
+          <div className="grid grid-cols-2 border-l border-t border-border-brand sm:grid-cols-4">
+            {TRUST.map((t) => (
+              <div
+                key={t.name}
+                className="partner-cell !min-h-[4rem] !rounded-none border-b border-r !border-t-0 !border-l-0"
+              >
+                <span className="absolute right-2 top-2 font-mono text-[9px] uppercase tracking-[0.12em] text-muted/70">
+                  {t.chip}
+                </span>
+                <span className="font-display text-sm tracking-tight sm:text-base">{t.name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Calculator */}
-      <section className="border-y border-border-brand bg-secondary/60">
-        <div className="mx-auto max-w-6xl px-6 py-16 md:py-20">
+      <section className="border-b border-border-brand bg-secondary/40">
+        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 md:py-20">
           <CostCalculator />
         </div>
       </section>
 
       {/* The gap + stats */}
-      <section className="mx-auto max-w-6xl px-6 py-20">
+      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 md:py-20">
         <div className="grid gap-12 md:grid-cols-[1.1fr_0.9fr] md:items-end">
           <div>
-            <p className="eyebrow">The gap</p>
-            <h2 className="font-display mt-3 text-3xl md:text-4xl">
+            <p className="section-label">The gap</p>
+            <h2 className="font-display mt-3 text-3xl tracking-tight md:text-4xl">
               Every x402 provider is global.
               <br className="hidden sm:block" />
               None of them own Australia.
@@ -349,15 +365,15 @@ export default function Home() {
               no AUD rail. Milypay is the local layer for agents operating here.
             </p>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-px border border-border-brand bg-border-brand">
             {[
               ["74", "providers on pay.sh"],
               ["0", "serving Australia — until now"],
               ["1", "namespace: milysec/*"],
               ["AUD", "native settlement"],
             ].map(([stat, label]) => (
-              <div key={label} className="card-flat p-5">
-                <div className="text-3xl font-semibold tracking-tight text-fg">{stat}</div>
+              <div key={label} className="bg-card p-5">
+                <div className="font-display text-3xl tracking-tight text-fg">{stat}</div>
                 <div className="mt-1 text-sm text-muted">{label}</div>
               </div>
             ))}
@@ -366,11 +382,11 @@ export default function Home() {
       </section>
 
       {/* Services */}
-      <section id="services" className="border-y border-border-brand bg-secondary/40">
-        <div className="mx-auto max-w-6xl px-6 py-20">
+      <section id="services" className="border-y border-border-brand bg-secondary/30">
+        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 md:py-20">
           <div className="max-w-2xl">
-            <p className="eyebrow">Services</p>
-            <h2 className="font-display mt-3 text-3xl md:text-4xl">
+            <p className="section-label">Services</p>
+            <h2 className="font-display mt-3 text-3xl tracking-tight md:text-4xl">
               Australian data, priced per call — in AUDD.
             </h2>
             <p className="mt-4 leading-relaxed text-muted">
@@ -379,24 +395,27 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {SERVICES.map((s) => (
+          <div className="mt-12 grid gap-px border border-border-brand bg-border-brand sm:grid-cols-2 lg:grid-cols-3">
+            {SERVICES.map((s, i) => (
               <div
                 key={s.tag}
-                className="card-flat flex flex-col p-6 transition hover:border-fg/20"
+                className="flex flex-col bg-card p-6 transition-colors hover:bg-secondary/60"
               >
                 <div className="flex items-center justify-between gap-2">
-                  <code className="text-xs text-brand-purple">milysec/{s.tag}</code>
+                  <code className="font-mono text-[11px] text-brand-purple">milysec/{s.tag}</code>
+                  <span className="fig-label">FIG.{String(i + 1).padStart(2, "0")}</span>
+                </div>
+                <div className="mt-3 flex items-start justify-between gap-2">
+                  <h3 className="font-display text-lg tracking-tight">{s.title}</h3>
                   {s.soon && (
-                    <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted">
+                    <span className="shrink-0 border border-border-brand px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wide text-muted">
                       Soon
                     </span>
                   )}
                 </div>
-                <h3 className="mt-3 text-lg font-semibold tracking-tight">{s.title}</h3>
                 <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">{s.desc}</p>
                 <div
-                  className={`mt-5 border-t border-border-brand pt-4 text-sm font-medium ${
+                  className={`mt-5 border-t border-border-brand pt-4 font-mono text-xs tracking-wide ${
                     s.soon ? "text-muted" : "text-brand-green"
                   }`}
                 >
@@ -408,12 +427,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* How it works — split like Decal */}
-      <section id="how" className="mx-auto max-w-6xl px-6 py-20">
+      {/* How it works */}
+      <section id="how" className="mx-auto max-w-6xl px-4 py-16 sm:px-6 md:py-20">
         <div className="grid items-center gap-12 lg:grid-cols-2">
           <div>
-            <p className="eyebrow">How it works</p>
-            <h2 className="font-display mt-3 text-3xl md:text-4xl">
+            <p className="section-label">How it works</p>
+            <h2 className="font-display mt-3 text-3xl tracking-tight md:text-4xl">
               Same request for agents.
               <br />
               Lower friction for builders.
@@ -422,14 +441,17 @@ export default function Home() {
               x402 turns HTTP 402 into a payment rail. The agent pays, the data returns,
               in one round-trip.
             </p>
-            <ol className="mt-10 space-y-6">
+            <ol className="mt-10 space-y-0 border border-border-brand">
               {STEPS.map((step) => (
-                <li key={step.n} className="flex gap-4">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-cta text-xs font-semibold text-cta-fg">
-                    {step.n.replace("0", "")}
+                <li
+                  key={step.n}
+                  className="flex gap-4 border-b border-border-brand p-5 last:border-b-0"
+                >
+                  <span className="font-mono text-xs font-medium tracking-[0.14em] text-brand-green">
+                    {step.n}
                   </span>
                   <div>
-                    <h3 className="font-semibold tracking-tight">{step.title}</h3>
+                    <h3 className="font-display tracking-tight">{step.title}</h3>
                     <p className="mt-1 text-sm leading-relaxed text-muted">{step.desc}</p>
                   </div>
                 </li>
@@ -441,33 +463,33 @@ export default function Home() {
       </section>
 
       {/* Why AUDD */}
-      <section id="audd" className="border-y border-border-brand bg-secondary/40">
-        <div className="mx-auto max-w-6xl px-6 py-20">
+      <section id="audd" className="border-y border-border-brand bg-secondary/30">
+        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 md:py-20">
           <div className="max-w-2xl">
-            <p className="eyebrow">Why AUDD</p>
-            <h2 className="font-display mt-3 text-3xl md:text-4xl">
+            <p className="section-label">Why AUDD</p>
+            <h2 className="font-display mt-3 text-3xl tracking-tight md:text-4xl">
               The first AUD-native currency for agentic payments.
             </h2>
             <p className="mt-4 leading-relaxed text-muted">
               x402 today runs on USDC — Australian builders bridge through USD and eat the FX.
-              Milypay settles in <span className="text-fg font-medium">AUDD</span>: 1:1
+              Milypay settles in <span className="font-medium text-fg">AUDD</span>: 1:1
               AUD-backed, regulated, and programmable.
             </p>
           </div>
 
-          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-12 grid gap-px border border-border-brand bg-border-brand sm:grid-cols-2 lg:grid-cols-4">
             {WHY_AUDD.map((w) => (
-              <div key={w.title} className="card-flat p-6">
-                <h3 className="text-base font-semibold leading-snug tracking-tight">{w.title}</h3>
+              <div key={w.title} className="bg-card p-6">
+                <h3 className="font-display text-base leading-snug tracking-tight">{w.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted">{w.desc}</p>
               </div>
             ))}
           </div>
 
-          <div className="mt-6 grid gap-6 rounded-2xl border border-border-brand bg-card p-8 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-px grid gap-6 border border-border-brand bg-card p-8 sm:grid-cols-2 lg:grid-cols-4">
             {ECOSYSTEM.map((e) => (
               <div key={e.label}>
-                <div className="text-3xl font-semibold tracking-tight">{e.stat}</div>
+                <div className="font-display text-3xl tracking-tight">{e.stat}</div>
                 <div className="mt-1 text-sm leading-relaxed text-muted">{e.label}</div>
               </div>
             ))}
@@ -482,11 +504,11 @@ export default function Home() {
       </section>
 
       {/* Provider onboarding */}
-      <section className="mx-auto max-w-6xl px-6 py-16">
-        <div className="flex flex-col items-start justify-between gap-8 rounded-2xl border border-border-brand bg-cream p-8 md:flex-row md:items-center md:p-10">
+      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+        <div className="flex flex-col items-start justify-between gap-8 border border-border-brand bg-cream p-8 md:flex-row md:items-center md:p-10">
           <div className="max-w-xl">
-            <p className="eyebrow">For API providers</p>
-            <h2 className="font-display mt-2 text-2xl md:text-3xl">
+            <p className="section-label">For API providers</p>
+            <h2 className="font-display mt-2 text-2xl tracking-tight md:text-3xl">
               List your Australian API. Accept AUDD from agents in under 10 minutes.
             </h2>
             <p className="mt-3 leading-relaxed text-muted">
@@ -496,17 +518,18 @@ export default function Home() {
           </div>
           <Link href="/contact?topic=provider" className="btn-primary shrink-0">
             List your API
+            <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
       </section>
 
       {/* Developers */}
-      <section id="developers" className="border-y border-border-brand bg-secondary/40">
-        <div className="mx-auto max-w-6xl px-6 py-20">
+      <section id="developers" className="border-y border-border-brand bg-secondary/30">
+        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 md:py-20">
           <div className="grid gap-12 md:grid-cols-[1fr_1.05fr] md:items-center">
             <div>
-              <p className="eyebrow">For developers</p>
-              <h2 className="font-display mt-3 text-3xl md:text-4xl">
+              <p className="section-label">For developers</p>
+              <h2 className="font-display mt-3 text-3xl tracking-tight md:text-4xl">
                 If your agent can make an HTTP request, it can pay.
               </h2>
               <p className="mt-5 leading-relaxed text-muted">
@@ -519,7 +542,7 @@ export default function Home() {
                   href="https://pay.sh"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn-primary"
+                  className="btn-mono-solid"
                 >
                   Find us on pay.sh
                 </a>
@@ -527,19 +550,21 @@ export default function Home() {
                   href="https://x402.org"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn-secondary"
+                  className="btn-mono"
                 >
                   Read the x402 spec
                 </a>
               </div>
             </div>
 
-            <div className="card-flat overflow-hidden">
+            <div className="lab-panel overflow-hidden">
               <div className="flex items-center gap-2 border-b border-border-brand px-4 py-3">
-                <span className="h-2.5 w-2.5 rounded-full bg-border-brand" />
-                <span className="h-2.5 w-2.5 rounded-full bg-brand-green-bright" />
-                <span className="h-2.5 w-2.5 rounded-full bg-border-brand" />
-                <span className="ml-2 text-xs text-muted">agent ↔ milypay</span>
+                <span className="h-2 w-2 rounded-full bg-border-brand" />
+                <span className="h-2 w-2 rounded-full bg-brand-green" />
+                <span className="h-2 w-2 rounded-full bg-border-brand" />
+                <span className="ml-2 font-mono text-[10px] uppercase tracking-[0.14em] text-muted">
+                  agent ↔ milypay
+                </span>
               </div>
               <pre className="overflow-x-auto bg-bg p-5 text-[13px] leading-relaxed">
                 <code>
@@ -567,17 +592,17 @@ x-402-pay-to:   milypay.sol
           </div>
 
           <div className="mt-16">
-            <h3 className="font-display text-2xl">Four ways to integrate</h3>
+            <h3 className="font-display text-2xl tracking-tight">Four ways to integrate</h3>
             <p className="mt-2 text-sm text-muted">
               CLI, SDK, MCP, or raw API — every path settles in AUD on x402.
             </p>
-            <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-8 grid gap-px border border-border-brand bg-border-brand md:grid-cols-2 lg:grid-cols-4">
               {ACCESS.map((a) => (
-                <div key={a.tag} className="card-flat flex flex-col p-6">
-                  <span className="inline-flex w-fit items-center rounded-full bg-secondary px-2.5 py-1 text-xs font-semibold text-fg">
+                <div key={a.tag} className="flex flex-col bg-card p-6">
+                  <span className="inline-flex w-fit items-center border border-border-brand bg-secondary px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-fg">
                     {a.tag}
                   </span>
-                  <h4 className="mt-4 text-lg font-semibold tracking-tight">{a.title}</h4>
+                  <h4 className="mt-4 font-display text-lg tracking-tight">{a.title}</h4>
                   <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">{a.desc}</p>
                   <div className="mt-4">
                     <CodeBlock code={a.code} />
@@ -590,10 +615,10 @@ x-402-pay-to:   milypay.sol
       </section>
 
       {/* For agents */}
-      <section id="for-agents" className="mx-auto max-w-6xl px-6 py-20">
+      <section id="for-agents" className="mx-auto max-w-6xl px-4 py-16 sm:px-6 md:py-20">
         <div className="max-w-2xl">
-          <p className="eyebrow">For your agent</p>
-          <h2 className="font-display mt-3 text-3xl md:text-4xl">
+          <p className="section-label">For your agent</p>
+          <h2 className="font-display mt-3 text-3xl tracking-tight md:text-4xl">
             Hand it to your agent.
           </h2>
           <p className="mt-4 leading-relaxed text-muted">
@@ -603,14 +628,14 @@ x-402-pay-to:   milypay.sol
         </div>
         <div className="mt-10 grid gap-6 md:grid-cols-2">
           <div>
-            <h3 className="text-lg font-semibold tracking-tight">
+            <h3 className="font-display text-lg tracking-tight">
               Paste into your agent&rsquo;s instructions
             </h3>
             <p className="mb-3 mt-1 text-sm text-muted">Full capability list.</p>
             <CodeBlock code={AGENT_SYSTEM_PROMPT} plain />
           </div>
           <div>
-            <h3 className="text-lg font-semibold tracking-tight">Or just say this</h3>
+            <h3 className="font-display text-lg tracking-tight">Or just say this</h3>
             <p className="mb-3 mt-1 text-sm text-muted">For agents that can browse the web.</p>
             <CodeBlock code={AGENT_ONELINER} plain />
           </div>
@@ -618,15 +643,15 @@ x-402-pay-to:   milypay.sol
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="border-y border-border-brand bg-secondary/40">
-        <div className="mx-auto max-w-6xl px-6 py-20">
+      <section id="faq" className="border-y border-border-brand bg-secondary/30">
+        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 md:py-20">
           <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_JSONLD) }}
           />
           <div className="max-w-2xl">
-            <p className="eyebrow">FAQ</p>
-            <h2 className="font-display mt-3 text-3xl md:text-4xl">
+            <p className="section-label">FAQ</p>
+            <h2 className="font-display mt-3 text-3xl tracking-tight md:text-4xl">
               Questions agents and builders ask.
             </h2>
             <p className="mt-4 leading-relaxed text-muted">
@@ -635,10 +660,10 @@ x-402-pay-to:   milypay.sol
             </p>
           </div>
 
-          <div className="mt-12 grid gap-4 md:grid-cols-2">
+          <div className="mt-12 grid gap-px border border-border-brand bg-border-brand md:grid-cols-2">
             {FAQ.map((f) => (
-              <div key={f.q} className="card-flat p-6">
-                <h3 className="text-base font-semibold leading-snug tracking-tight">{f.q}</h3>
+              <div key={f.q} className="bg-card p-6">
+                <h3 className="font-display text-base leading-snug tracking-tight">{f.q}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted">{f.a}</p>
               </div>
             ))}
@@ -646,25 +671,26 @@ x-402-pay-to:   milypay.sol
         </div>
       </section>
 
-      {/* Dark closing CTA — Decal pattern */}
-      <section className="px-6 py-16 md:py-24">
-        <div className="mx-auto max-w-6xl overflow-hidden rounded-[28px] bg-cta px-8 py-14 text-center text-cta-fg md:px-16 md:py-20">
-          <h2 className="font-display mx-auto max-w-2xl text-3xl md:text-5xl md:leading-[1.1]">
+      {/* Closing CTA — quote band */}
+      <section className="px-4 py-16 sm:px-6 md:py-24">
+        <div className="quote-band mx-auto max-w-6xl px-8 py-14 text-center md:px-16 md:py-20">
+          <h2 className="font-display mx-auto max-w-2xl text-3xl tracking-tight md:text-5xl md:leading-[1.1]">
             What if your agent paid for Australia in AUD?
           </h2>
-          <p className="mx-auto mt-5 max-w-lg text-base leading-relaxed text-white/65">
+          <p className="mx-auto mt-5 max-w-lg text-base leading-relaxed text-slate-900/70">
             Ship agents that understand Australia — and pay for what they use, settled in AUDD.
           </p>
           <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
             <Link
               href="/demo"
-              className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-sm font-medium text-cta transition hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-slate-950 px-5 py-3 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-white transition hover:bg-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950/40"
             >
               Try it live
+              <ArrowRight className="h-3.5 w-3.5" />
             </Link>
             <Link
               href="/contact?topic=general"
-              className="inline-flex items-center justify-center rounded-full bg-white/10 px-6 py-3 text-sm font-medium text-white transition hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+              className="inline-flex items-center justify-center gap-2 rounded-md border border-slate-950/20 bg-transparent px-5 py-3 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-slate-950 transition hover:bg-slate-950/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950/30"
             >
               Talk to us
             </Link>

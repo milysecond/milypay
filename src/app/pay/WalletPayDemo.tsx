@@ -135,13 +135,13 @@ function PayInner() {
             value={abn}
             onChange={(e) => setAbn(e.target.value)}
             placeholder="e.g. 33051775556"
-            className="flex-1 rounded-full border border-border-brand bg-card px-5 py-3 text-fg outline-none placeholder:text-muted/50 focus:border-brand-green"
+            className="flex-1 rounded-md border border-border-brand bg-card px-5 py-3 text-fg outline-none placeholder:text-muted/50 focus:border-brand-green"
           />
           <button
             type="button"
             onClick={payAndCall}
             disabled={loading || !wallet.connected}
-            className="rounded-full bg-brand-green px-6 py-3 text-sm font-semibold text-bg transition hover:opacity-90 disabled:opacity-40"
+            className="btn-primary disabled:opacity-40"
           >
             {loading ? "Paying…" : wallet.connected ? "Pay & look up" : "Connect wallet"}
           </button>

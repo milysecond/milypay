@@ -52,7 +52,7 @@ function StatusBadge({ status }: { status: string | null }) {
   const active = status?.toLowerCase() === "active";
   return (
     <span
-      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
+      className={`inline-flex items-center border px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wide ${
         active ? "border-brand-green/40 text-brand-green" : "border-border-brand text-muted"
       }`}
     >
@@ -113,14 +113,14 @@ export default function DemoClient() {
   return (
     <div className="mx-auto max-w-3xl px-6 pb-24">
       {/* mode tabs */}
-      <div className="inline-flex rounded-full border border-border-brand bg-card p-1">
+      <div className="inline-flex border border-border-brand bg-card p-1 gap-1">
         {MODES.map((m) => (
           <button
             key={m.key}
             type="button"
             onClick={() => setMode(m.key)}
-            className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
-              mode === m.key ? "bg-brand-green text-bg" : "text-muted hover:text-fg"
+            className={`rounded-md px-4 py-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.1em] transition-colors ${
+              mode === m.key ? "bg-brand-green text-cta-fg" : "text-muted hover:bg-secondary hover:text-fg"
             }`}
           >
             {m.label}
@@ -141,7 +141,7 @@ export default function DemoClient() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={MODES.find((m) => m.key === mode)?.placeholder}
-            className="w-full rounded-full border border-border-brand bg-card px-5 py-3 pr-11 text-fg outline-none placeholder:text-muted/50 focus:border-brand-green"
+            className="w-full rounded-md border border-border-brand bg-card px-5 py-3 pr-11 text-fg outline-none placeholder:text-muted/50 focus:border-brand-green"
           />
           {query && (
             <button
@@ -159,7 +159,7 @@ export default function DemoClient() {
         <button
           type="submit"
           disabled={loading || !query.trim()}
-          className="rounded-full bg-brand-green px-6 py-3 text-sm font-semibold text-bg transition hover:opacity-90 disabled:opacity-40"
+          className="btn-primary disabled:opacity-40"
         >
           {loading ? "Looking up..." : "Look up"}
         </button>

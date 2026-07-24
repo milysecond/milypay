@@ -194,7 +194,7 @@ export default function StablesPage() {
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Link
               href="/contact?topic=stablecoin"
-              className="rounded-full bg-brand-green px-6 py-3 text-sm font-semibold text-bg transition hover:opacity-90"
+              className="btn-primary"
             >
               Talk to us
             </Link>

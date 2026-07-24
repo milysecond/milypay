@@ -75,7 +75,7 @@ export default function WeatherDemo() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Australian address for the forecast"
-            className="w-full rounded-full border border-border-brand bg-card px-5 py-3 pr-11 text-fg outline-none placeholder:text-muted/50 focus:border-brand-green"
+            className="w-full rounded-md border border-border-brand bg-card px-5 py-3 pr-11 text-fg outline-none placeholder:text-muted/50 focus:border-brand-green"
           />
           {query && (
             <button
@@ -93,7 +93,7 @@ export default function WeatherDemo() {
         <button
           type="submit"
           disabled={loading || query.trim().length < 2}
-          className="rounded-full bg-brand-green px-6 py-3 text-sm font-semibold text-bg transition hover:opacity-90 disabled:opacity-40"
+          className="btn-primary disabled:opacity-40"
         >
           {loading ? "Loading..." : "Forecast"}
         </button>

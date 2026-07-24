@@ -74,7 +74,7 @@ export default function SuperDemo() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Super fund ABN, e.g. 65714394898"
-            className="w-full rounded-full border border-border-brand bg-card px-5 py-3 pr-11 text-fg outline-none placeholder:text-muted/50 focus:border-brand-green"
+            className="w-full rounded-md border border-border-brand bg-card px-5 py-3 pr-11 text-fg outline-none placeholder:text-muted/50 focus:border-brand-green"
           />
           {query && (
             <button
@@ -92,7 +92,7 @@ export default function SuperDemo() {
         <button
           type="submit"
           disabled={loading || !query.trim()}
-          className="rounded-full bg-brand-green px-6 py-3 text-sm font-semibold text-bg transition hover:opacity-90 disabled:opacity-40"
+          className="btn-primary disabled:opacity-40"
         >
           {loading ? "Looking up..." : "Look up"}
         </button>
@@ -128,7 +128,7 @@ export default function SuperDemo() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h3 className="font-display text-2xl tracking-tight">{fund.fundName || "Unknown fund"}</h3>
               <span
-                className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
+                className={`inline-flex items-center border px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wide ${
                   fund.abnStatus?.toLowerCase() === "active"
                     ? "border-brand-green/40 text-brand-green"
                     : "border-border-brand text-muted"

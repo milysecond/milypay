@@ -24,10 +24,10 @@ export default function CostCalculator() {
   }, [calls]);
 
   return (
-    <div className="card overflow-hidden">
+    <div className="lab-panel overflow-hidden">
       <div className="border-b border-border-brand px-6 py-5 sm:px-8">
-        <p className="eyebrow">Estimate agent spend</p>
-        <h2 className="font-display mt-1 text-2xl sm:text-3xl">
+        <p className="section-label">Estimate agent spend</p>
+        <h2 className="font-display mt-2 text-2xl tracking-tight sm:text-3xl">
           What does per-call Australia cost?
         </h2>
         <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted">
@@ -53,31 +53,31 @@ export default function CostCalculator() {
             step={1000}
             value={calls}
             onChange={(e) => setCalls(Number(e.target.value))}
-            className="mt-4 w-full accent-[var(--cta)]"
+            className="mt-4 w-full"
             aria-valuemin={1000}
             aria-valuemax={500000}
             aria-valuenow={calls}
           />
-          <div className="mt-2 flex justify-between text-xs text-muted">
+          <div className="mt-2 flex justify-between font-mono text-xs text-muted">
             <span>1k</span>
             <span>250k</span>
             <span>500k</span>
           </div>
 
           <div className="mt-8 space-y-3">
-            <div className="flex items-center justify-between rounded-xl bg-secondary px-4 py-3 text-sm">
+            <div className="flex items-center justify-between border border-border-brand bg-secondary px-4 py-3 text-sm">
               <span className="text-muted">Legacy stack (keys + FX + seats)</span>
               <span className="font-medium tabular-nums text-fg">
                 {formatAud(math.traditional)}
               </span>
             </div>
-            <div className="flex items-center justify-between rounded-xl bg-secondary px-4 py-3 text-sm">
+            <div className="flex items-center justify-between border border-border-brand bg-secondary px-4 py-3 text-sm">
               <span className="text-muted">Milypay metered (AUDD)</span>
               <span className="font-medium tabular-nums text-brand-green">
                 {formatAud(math.milypay)}
               </span>
             </div>
-            <div className="flex items-center justify-between rounded-xl border border-border-brand bg-cream px-4 py-3 text-sm">
+            <div className="flex items-center justify-between border border-brand-green/30 bg-cream px-4 py-3 text-sm">
               <span className="font-medium text-fg">You keep</span>
               <span className="font-semibold tabular-nums text-fg">
                 {formatAud(math.saved)}
@@ -89,21 +89,29 @@ export default function CostCalculator() {
           </div>
         </div>
 
-        <div className="flex flex-col justify-between rounded-2xl bg-cta p-6 text-cta-fg sm:p-7">
+        <div className="quote-band flex flex-col justify-between p-6 sm:p-7">
           <div>
-            <p className="text-sm text-white/60">Monthly Milypay spend</p>
-            <p className="font-display mt-2 text-4xl tabular-nums sm:text-5xl">
+            <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-slate-900/55">
+              Monthly Milypay spend
+            </p>
+            <p className="font-display mt-2 text-4xl tabular-nums tracking-tight text-slate-950 sm:text-5xl">
               {formatAud(math.milypay)}
             </p>
-            <p className="mt-3 text-sm leading-relaxed text-white/65">
+            <p className="mt-3 text-sm leading-relaxed text-slate-900/65">
               Settled per request in AUDD. Demo endpoints on milypay.xyz stay free to try;
               production traffic on api.milypay.xyz pays via x402.
             </p>
           </div>
           <div className="mt-8 flex flex-wrap gap-2 text-xs">
-            <span className="rounded-full bg-white/10 px-3 py-1.5">No API keys</span>
-            <span className="rounded-full bg-white/10 px-3 py-1.5">No FX bridge</span>
-            <span className="rounded-full bg-white/10 px-3 py-1.5">AUD-native</span>
+            <span className="border border-slate-950/15 bg-slate-950/5 px-3 py-1.5 font-mono text-[10px] uppercase tracking-wide text-slate-950">
+              No API keys
+            </span>
+            <span className="border border-slate-950/15 bg-slate-950/5 px-3 py-1.5 font-mono text-[10px] uppercase tracking-wide text-slate-950">
+              No FX bridge
+            </span>
+            <span className="border border-slate-950/15 bg-slate-950/5 px-3 py-1.5 font-mono text-[10px] uppercase tracking-wide text-slate-950">
+              AUD-native
+            </span>
           </div>
         </div>
       </div>

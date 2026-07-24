@@ -32,7 +32,7 @@ function StatusBadge({ status }: { status: string }) {
   const ok = status.toLowerCase() === "registered";
   return (
     <span
-      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
+      className={`inline-flex items-center border px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wide ${
         ok ? "border-brand-green/40 text-brand-green" : "border-border-brand text-muted"
       }`}
     >
@@ -121,14 +121,14 @@ export default function CompanyDemo({ initialAcn }: { initialAcn?: string | null
 
   return (
     <div className="mx-auto max-w-3xl px-6 pb-24">
-      <div className="inline-flex rounded-full border border-border-brand bg-card p-1">
+      <div className="inline-flex gap-1 border border-border-brand bg-card p-1">
         {(["acn", "name"] as Mode[]).map((m) => (
           <button
             key={m}
             type="button"
             onClick={() => setMode(m)}
-            className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
-              mode === m ? "bg-brand-green text-bg" : "text-muted hover:text-fg"
+            className={`rounded-md px-4 py-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.1em] transition-colors ${
+              mode === m ? "bg-brand-green text-cta-fg" : "text-muted hover:bg-secondary hover:text-fg"
             }`}
           >
             {m === "acn" ? "ACN" : "Company name"}
@@ -148,14 +148,14 @@ export default function CompanyDemo({ initialAcn }: { initialAcn?: string | null
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={mode === "acn" ? "e.g. 000014675" : "e.g. Woolworths Group"}
-            className="w-full rounded-full border border-border-brand bg-card px-5 py-3 pr-11 text-fg outline-none placeholder:text-muted/50 focus:border-brand-green"
+            className="w-full rounded-md border border-border-brand bg-card px-5 py-3 pr-11 text-fg outline-none placeholder:text-muted/50 focus:border-brand-green focus-visible:ring-2 focus-visible:ring-brand-green/30"
           />
           {query && (
             <button
               type="button"
               onClick={() => setQuery("")}
               aria-label="Clear"
-              className="absolute right-3 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-full text-muted transition hover:bg-border-brand hover:text-fg"
+              className="absolute right-3 top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-md text-muted transition hover:bg-secondary hover:text-fg"
             >
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
                 <path d="M6 6l12 12M18 6L6 18" />
@@ -166,7 +166,7 @@ export default function CompanyDemo({ initialAcn }: { initialAcn?: string | null
         <button
           type="submit"
           disabled={loading || !query.trim()}
-          className="rounded-full bg-brand-green px-6 py-3 text-sm font-semibold text-bg transition hover:opacity-90 disabled:opacity-40"
+          className="btn-primary disabled:opacity-40"
         >
           {loading ? "Looking up..." : "Look up"}
         </button>
