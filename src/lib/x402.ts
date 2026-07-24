@@ -250,7 +250,9 @@ export async function withX402(
   // 2. Serve the resource.
   const res = await handler();
 
-  // 3. Settle on-chain and attach the settlement receipt.
+  // 3. Settle only on success. Failed upstream (4xx/5xx) must not charge the agent.
+  if (!res.ok) return res;
+
   try {
     const sr = await fetch(`${FACILITATOR}/settle`, {
       method: "POST",

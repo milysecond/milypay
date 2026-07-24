@@ -13,7 +13,8 @@ Machine-readable x402 discovery manifest: https://milypay.xyz/.well-known/x402
 Services live under the `milysec/*` namespace on Pay.sh:
 
 - Business identity (`milysec/au-business`): ABN/ACN lookup and name search, from the ABR. Live.
-- Company register (`milysec/au-company`): ASIC company lookup by ACN or name - status, type, class, registration dates, former names. Live.
+- Company register (`milysec/au-company`): ASIC company lookup by ACN or name - status, type, class, registration dates, former names. Live name availability and live ACN validation. Live.
+- Company extract (`milysec/au-company-report`): Official ASIC company extract (directors, office, share capital) via Business API DSP. Live.
 - Address (`milysec/au-address`): validate, search, and geocode any Australian address from G-NAF (16.9M). Live.
 - Super funds (`milysec/au-super`): verify any super fund by ABN - name, status, type, USIs. Live.
 - Weather (`milysec/au-weather`): current conditions and forecast for any Australian address or coordinate (BOM ACCESS-G via Open-Meteo). Live.
