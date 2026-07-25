@@ -28,6 +28,17 @@
 4. After deploy: validate **Duplicate without user-selected canonical** if it appears for www URLs.
 5. Verification already in metadata: `AXY9Pei5H-GIw4Vyn1CV_OQPBxl0X0rwSIAAmqaVzHo` (+ HTML file rewrite `/googleb787913ba29840de.html`).
 
+## Google Analytics (GA4)
+
+| Field | Value |
+|-------|-------|
+| Account | MILYSEC (`accounts/384896008`) |
+| Property | `properties/546984952` (`milypay.xyz`) |
+| Measurement ID | `G-356WE6KS4T` |
+| Tag | `src/app/layout.tsx` via `next/script` gtag.js |
+
+Registry: `~/.openclaw/workspace/ga-measurement-ids.md`
+
 ## Cloudflare
 
 - Enable **Always Use HTTPS** and **Automatic HTTPS Rewrites** on the zone (middleware is backup).
