@@ -1,8 +1,12 @@
-allowBuilds:
-  bigint-buffer: true
-  bufferutil: true
-  esbuild: true
-  sharp: true
-  unrs-resolver: true
-  utf-8-validate: true
-  workerd: true
+packages:
+  - "."
+
+# Allow native builds used by Solana / OpenNext toolchain
+onlyBuiltDependencies:
+  - bigint-buffer
+  - bufferutil
+  - esbuild
+  - sharp
+  - unrs-resolver
+  - utf-8-validate
+  - workerd
