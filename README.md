@@ -13,11 +13,11 @@ Milypay is the x402 service provider built for Australia. AI agents get pay-per-
 ## SDK
 
 ```bash
-npm i @milypay/sdk
+npm i milypay-sdk
 ```
 
 ```ts
-import { Milypay } from "@milypay/sdk";
+import { Milypay } from "milypay-sdk";
 const au = new Milypay({ host: "demo" });
 await au.business.abn("51824753556");
 ```

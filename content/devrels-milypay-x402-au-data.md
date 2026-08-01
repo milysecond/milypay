@@ -14,7 +14,7 @@ Agents that operate in Australia still hit a wall: government data is fragmented
 | Free demo | `https://milypay.xyz/api/*` (throttled) |
 | CLI | `npx milypay abn 51824753556` |
 | MCP | `npx milypay mcp` |
-| SDK | `npm i @milypay/sdk` |
+| SDK | `npm i milypay-sdk` |
 
 ## Claude / Cursor (60s)
 
@@ -45,6 +45,6 @@ Successful paid calls return `$receipt` with Solana signature + Solscan URL when
 - https://milypay.xyz/quickstart
 - https://milypay.xyz/agents.md
 - https://milypay.xyz/status
-- npm: `milypay`, `@milypay/sdk`
+- npm: `milypay`, `milypay-sdk`
 
 *Draft for DevRels / Telegraph — not published.*
