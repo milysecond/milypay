@@ -15,7 +15,7 @@
 - pay.sh provider YAML scaffold in `pay.sh/milypay.yaml`
 
 ### SDK
-- `@milypay/sdk` TypeScript client (`packages/sdk`)
+- `milypay-sdk` (unscoped; `@milypay` org TBD) TypeScript client (`packages/sdk`)
 
 ## 0.1.0 — 2026-08-01
 

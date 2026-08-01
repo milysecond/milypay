@@ -1,13 +1,16 @@
-# @milypay/sdk
+# milypay-sdk
+
+> Also planned as `@milypay/sdk` once the npm org exists.
+
 
 TypeScript client for [Milypay](https://milypay.xyz) — Australian data over x402.
 
 ```bash
-npm i @milypay/sdk
+npm i milypay-sdk
 ```
 
 ```ts
-import { Milypay } from "@milypay/sdk";
+import { Milypay } from "milypay-sdk";
 
 // Free demo host (rate-limited)
 const demo = new Milypay({ host: "demo" });

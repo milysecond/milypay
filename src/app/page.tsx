@@ -123,7 +123,7 @@ const ACCESS = [
     tag: "SDK",
     title: "TypeScript & Python",
     desc: "Drop-in x402 client. Wrap fetch, get auto-paid responses — no manual payment plumbing.",
-    code: 'import { Milypay } from "@milypay/sdk";\nconst au = new Milypay({ wallet });\nawait au.business.abn("55695484756");',
+    code: 'import { Milypay } from "milypay-sdk";\nconst au = new Milypay({ wallet });\nawait au.business.abn("55695484756");',
   },
   {
     tag: "MCP",
