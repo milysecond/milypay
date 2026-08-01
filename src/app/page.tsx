@@ -116,8 +116,8 @@ const ACCESS = [
   {
     tag: "CLI",
     title: "Command line",
-    desc: "Hit any endpoint from your terminal. The pay.sh CLI handles the 402 challenge and wallet approval.",
-    code: "npx pay.sh call milysec/au-business/abn 51824753556",
+    desc: "Hit any endpoint from your terminal. Free demo by default; paid API with MILYPAY_PRIVATE_KEY.",
+    code: "npx milypay abn 51824753556",
   },
   {
     tag: "SDK",
@@ -179,7 +179,7 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: "How do AI agents pay for Australian data on Milypay?",
-    a: "Agents use the x402 protocol. An agent requests an endpoint, receives an HTTP 402 Payment Required response with the price in AUDD, approves the micropayment from an x402-aware wallet, and the data returns in the same round-trip. It works through the Pay.sh CLI, an SDK, the MCP server, or raw HTTP.",
+    a: "Agents use the x402 protocol. An agent requests an endpoint, receives an HTTP 402 Payment Required response with the price in AUDD, approves the micropayment from an x402-aware wallet, and the data returns in the same round-trip. It works through the Milypay CLI, an SDK, the Pay.sh MCP server, or raw HTTP.",
   },
   {
     q: "What is x402?",

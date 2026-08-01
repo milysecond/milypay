@@ -18,7 +18,7 @@ This is the long-form reference for language models and agents. For the short ve
 2. The first response is HTTP 402 Payment Required. The PAYMENT-REQUIRED header carries a base64 x402 challenge with the price, asset (AUDD), network (solana), and pay-to address.
 3. Approve the micropayment from an x402-aware wallet or client. The request is retried with a PAYMENT-SIGNATURE header, the facilitator verifies and settles in AUDD, and the data returns in the same round-trip.
 
-No accounts, no keys. Any x402-aware client, the Pay.sh CLI, an SDK, or the MCP server can transact. Prices below are per call, in AUDD.
+No accounts, no keys. Any x402-aware client, the Milypay CLI, an SDK, or the Pay.sh MCP server can transact. Prices below are per call, in AUDD.
 
 ## Endpoints
 
@@ -121,7 +121,7 @@ Milypay is AUD-stablecoin-agnostic. On Solana it accepts AUDD, AUDM, and dAUD fo
 
 ## Ways to integrate
 
-- CLI: npx pay.sh call milysec/au-business/abn 51824753556
+- CLI: npx milypay abn 51824753556
 - SDK: a drop-in x402 client for TypeScript and Python that wraps fetch and handles the 402 retry and AUD settlement.
 - MCP: add the Pay.sh MCP server to Claude, ChatGPT, Cursor, or any Model Context Protocol client; agents discover, price, and call services as tools.
 - Raw HTTP 402: any x402-aware client speaks directly to the endpoint.
