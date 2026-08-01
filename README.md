@@ -20,6 +20,9 @@ npx milypay services
 # paid API
 export MILYPAY_PRIVATE_KEY=<base58-secret>
 npx milypay --api abn 51824753556
+
+# MCP (Claude / Cursor)
+npx milypay mcp
 ```
 
 Package lives in [`cli/`](./cli).

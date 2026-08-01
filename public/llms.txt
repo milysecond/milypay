@@ -29,7 +29,7 @@ Base URL: https://api.milypay.xyz . More Australian services are on the roadmap.
 2. Receive `HTTP 402 Payment Required` with the price, asset (AUDD), network (solana), and pay-to address.
 3. Approve the micropayment from an x402-aware wallet or client. The data returns in the same round-trip.
 
-No accounts, no keys. Any x402-aware client, the Milypay CLI, SDK, or Pay.sh MCP server can transact.
+No accounts, no keys. Any x402-aware client, the Milypay CLI, SDK, or Milypay MCP server (`npx milypay mcp`) can transact.
 
 ## Settlement currency
 
@@ -52,7 +52,7 @@ Q: What is Milypay?
 A: Milypay is the x402 service provider for the Australian market. It gives AI agents pay-per-call access to Australian data - business identity, company register, addresses, super funds, weather, and postage - settled in AUDD, the regulated AUD-native stablecoin, with no API keys and no signup. A Milysec company.
 
 Q: How do AI agents pay for Australian data on Milypay?
-A: Agents use the x402 protocol. An agent requests an endpoint, receives HTTP 402 Payment Required with the price in AUDD, approves the micropayment from an x402-aware wallet, and the data returns in the same round-trip. Works via the Milypay CLI, SDK, Pay.sh MCP, or raw HTTP.
+A: Agents use the x402 protocol. An agent requests an endpoint, receives HTTP 402 Payment Required with the price in AUDD, approves the micropayment from an x402-aware wallet, and the data returns in the same round-trip. Works via the Milypay CLI, SDK, Milypay MCP, or raw HTTP.
 
 Q: Do I need an API key or account?
 A: No. Milypay has no accounts, no API keys, and no signup. Any x402-aware client pays per call and receives the data back.
@@ -61,10 +61,10 @@ Q: What is AUDD and why does Milypay settle in it?
 A: AUDD is a 1:1 AUD-backed, AFSL-regulated stablecoin live on Solana. Milypay settles in AUDD so Australian agents avoid the USD foreign-exchange round-trip that USDC-based x402 services require.
 
 Q: How do I give my AI agent access to Australian data?
-A: Point your agent at https://milypay.xyz/agents.md, or add the Pay.sh MCP server to Claude, ChatGPT, Cursor, or any MCP-compatible client. The agent can then discover, price, and call every Milypay service.
+A: Point your agent at https://milypay.xyz/agents.md, or add the Milypay MCP server (`npx milypay mcp`) to Claude, ChatGPT, Cursor, or any MCP-compatible client. The agent can then discover, price, and call every Milypay service.
 
 Q: Which AI tools and agents work with Milypay?
-A: Any agent or assistant that can make an HTTP request: Claude, ChatGPT, Cursor, and any Model Context Protocol client via the Pay.sh MCP server.
+A: Any agent or assistant that can make an HTTP request: Claude, ChatGPT, Cursor, and any Model Context Protocol client via the Milypay MCP server (`npx milypay mcp`).
 
 ## Integrate or list an API
 

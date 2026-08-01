@@ -1,7 +1,7 @@
 {
   "name": "milypay",
-  "version": "0.1.0",
-  "description": "CLI for Milypay — Australian data over x402. Free demo host or paid API with a Solana wallet.",
+  "version": "0.2.0",
+  "description": "CLI + MCP for Milypay — Australian data over x402",
   "license": "MIT",
   "author": "Milysec",
   "homepage": "https://milypay.xyz",
@@ -21,6 +21,7 @@
     "abn",
     "asic",
     "cli",
+    "mcp",
     "audd",
     "agent"
   ],
@@ -42,9 +43,11 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
     "@solana/web3.js": "^1.98.4",
     "bs58": "^6.0.0",
-    "x402-solana": "^2.0.4"
+    "x402-solana": "^2.0.4",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/node": "^20.17.0",

@@ -74,3 +74,33 @@ Optional: `SOLANA_RPC_URL` / `HELIUS_RPC_URL`.
 - Manifest: https://milypay.xyz/.well-known/x402
 
 A [Milysec](https://milysec.com) company.
+
+## MCP server
+
+```bash
+npx milypay mcp
+```
+
+Claude Desktop / Cursor (`mcp.json`):
+
+```json
+{
+  "mcpServers": {
+    "milypay": {
+      "command": "npx",
+      "args": ["-y", "milypay", "mcp"],
+      "env": {
+        "MILYPAY_HOST": "demo"
+      }
+    }
+  }
+}
+```
+
+| Env | Meaning |
+|-----|---------|
+| `MILYPAY_HOST=demo` | Free host (default when no wallet) |
+| `MILYPAY_HOST=api` | Paid `api.milypay.xyz` |
+| `MILYPAY_PRIVATE_KEY` | Solana secret for x402 payments |
+
+**Tools:** `list_services`, `lookup_abn`, `lookup_acn`, `search_business`, `lookup_company`, `search_company`, `company_report`, `address_validate`, `address_search`, `address_geocode`, `lookup_super`, `weather`, `lookup_bsb`, `search_bsb`, `postage`, `call`, `whoami`
