@@ -1,0 +1,57 @@
+{
+  "name": "milypay",
+  "version": "0.1.0",
+  "description": "CLI for Milypay — Australian data over x402. Free demo host or paid API with a Solana wallet.",
+  "license": "MIT",
+  "author": "Milysec",
+  "homepage": "https://milypay.xyz",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/metasal1/milypay.git",
+    "directory": "cli"
+  },
+  "bugs": {
+    "url": "https://github.com/metasal1/milypay/issues"
+  },
+  "keywords": [
+    "milypay",
+    "x402",
+    "solana",
+    "australia",
+    "abn",
+    "asic",
+    "cli",
+    "audd",
+    "agent"
+  ],
+  "type": "module",
+  "bin": {
+    "milypay": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --target node18 --clean --sourcemap",
+    "dev": "tsup src/index.ts --format esm --target node18 --watch",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@solana/web3.js": "^1.98.4",
+    "bs58": "^6.0.0",
+    "x402-solana": "^2.0.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.0",
+    "tsup": "^8.5.0",
+    "typescript": "^5.8.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

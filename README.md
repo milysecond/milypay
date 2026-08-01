@@ -8,6 +8,21 @@ Milypay is the x402 service provider built for Australia. AI agents get pay-per-
 - API: https://api.milypay.xyz
 - Live demo: https://milypay.xyz/demo
 - For agents: https://milypay.xyz/agents.md
+- CLI: `npx milypay` (see [`cli/`](./cli))
+
+## CLI
+
+```bash
+# free demo (rate-limited)
+npx milypay abn 51824753556
+npx milypay services
+
+# paid API
+export MILYPAY_PRIVATE_KEY=<base58-secret>
+npx milypay --api abn 51824753556
+```
+
+Package lives in [`cli/`](./cli).
 
 ## Services
 

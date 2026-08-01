@@ -16,11 +16,12 @@ curl https://api.milypay.xyz/au-business/abn/51824753556
 
 ### CLI
 
-Call any endpoint from your terminal. The Pay.sh CLI handles the 402 challenge and wallet approval for you.
+Call any endpoint from your terminal with the Milypay CLI.
 
-- Zero setup beyond a funded wallet
-- Works with every `milysec/*` service
-- `npx pay.sh call milysec/au-business/abn 51824753556`
+- Free demo host by default (rate-limited)
+- Paid API: `export MILYPAY_PRIVATE_KEY=…` then `npx milypay --api …`
+- `npx milypay abn 51824753556`
+- `npx milypay services`
 
 ### MCP (Model Context Protocol)
 
