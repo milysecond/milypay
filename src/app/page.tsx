@@ -128,8 +128,8 @@ const ACCESS = [
   {
     tag: "MCP",
     title: "Model Context Protocol",
-    desc: "Expose Milypay to any agent via the pay.sh MCP server. Discover, price, and pay as tools.",
-    code: '// claude / cursor mcp config\n{ "pay": { "command": "npx", "args": ["pay.sh", "mcp"] } }',
+    desc: "First-party MCP server. Typed tools for ABN, ASIC, address, weather, BSB — drop into Claude or Cursor.",
+    code: '// claude / cursor mcp config\n{ "milypay": { "command": "npx", "args": ["-y", "milypay", "mcp"], "env": { "MILYPAY_HOST": "demo" } } }',
   },
   {
     tag: "API",
@@ -179,7 +179,7 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: "How do AI agents pay for Australian data on Milypay?",
-    a: "Agents use the x402 protocol. An agent requests an endpoint, receives an HTTP 402 Payment Required response with the price in AUDD, approves the micropayment from an x402-aware wallet, and the data returns in the same round-trip. It works through the Milypay CLI, an SDK, the Pay.sh MCP server, or raw HTTP.",
+    a: "Agents use the x402 protocol. An agent requests an endpoint, receives an HTTP 402 Payment Required response with the price in AUDD, approves the micropayment from an x402-aware wallet, and the data returns in the same round-trip. It works through the Milypay CLI, an SDK, the Milypay MCP server, or raw HTTP.",
   },
   {
     q: "What is x402?",
@@ -195,7 +195,7 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: "How do I give my AI agent access to Australian data?",
-    a: "Point your agent at https://milypay.xyz/agents.md, or add the Pay.sh MCP server to Claude, ChatGPT, Cursor, or any MCP-compatible client. The agent can then discover, price, and call every Milypay service. You can also paste the ready-made Milypay prompt from the home page.",
+    a: "Point your agent at https://milypay.xyz/agents.md, or add the Milypay MCP server to Claude, ChatGPT, Cursor, or any MCP-compatible client. The agent can then discover, price, and call every Milypay service. You can also paste the ready-made Milypay prompt from the home page.",
   },
   {
     q: "What Australian data does Milypay provide?",
@@ -203,7 +203,7 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: "Which AI tools and agents work with Milypay?",
-    a: "Any agent or assistant that can make an HTTP request: Claude, ChatGPT, Cursor, and any Model Context Protocol client via the Pay.sh MCP server. If your agent can call a URL, it can use Milypay.",
+    a: "Any agent or assistant that can make an HTTP request: Claude, ChatGPT, Cursor, and any Model Context Protocol client via the Milypay MCP server. If your agent can call a URL, it can use Milypay.",
   },
 ];
 

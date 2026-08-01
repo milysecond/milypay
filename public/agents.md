@@ -25,11 +25,29 @@ Call any endpoint from your terminal with the Milypay CLI.
 
 ### MCP (Model Context Protocol)
 
-Expose Milypay to any agent through the Pay.sh MCP server. Agents discover, price, and pay for Australian data as tools.
+First-party Milypay MCP server. Agents get typed tools for every Australian data endpoint.
 
-- Drop-in for Claude, Cursor, and other MCP clients
-- Tools are auto-priced in AUD
-- Discovery and payment handled by the gateway
+```bash
+npx milypay mcp
+```
+
+Claude / Cursor config:
+
+```json
+{
+  "mcpServers": {
+    "milypay": {
+      "command": "npx",
+      "args": ["-y", "milypay", "mcp"],
+      "env": { "MILYPAY_HOST": "demo" }
+    }
+  }
+}
+```
+
+- Free demo host by default (`MILYPAY_HOST=demo`)
+- Paid API: set `MILYPAY_PRIVATE_KEY` and `MILYPAY_HOST=api`
+- Tools: lookup_abn, lookup_company, address_*, weather, bsb, postage, …
 
 ### SDK
 

@@ -2,8 +2,9 @@
 import { API_BASE, DEMO_BASE, DOCS, SERVICES } from "./services.js";
 import { getJson, type ClientOptions, type HostMode } from "./client.js";
 import { loadWallet, walletHelp } from "./wallet.js";
+import { startMcpServer } from "./mcp.js";
 
-const VERSION = "0.1.0";
+const VERSION = "0.2.0";
 
 type Args = {
   _: string[];
@@ -60,6 +61,7 @@ Usage:
   milypay <command> [args] [flags]
 
 Commands:
+  mcp                              Start MCP server (stdio) for Claude/Cursor
   services                         List endpoints + prices
   call <path>                      Raw path, e.g. /au-business/abn/51824753556
   abn <abn>                        Business by ABN
@@ -77,6 +79,18 @@ Commands:
   postage --country <cc> --weight <kg>
   whoami                           Show configured wallet
   help                             This help
+
+MCP (Claude / Cursor):
+  {
+    "mcpServers": {
+      "milypay": {
+        "command": "npx",
+        "args": ["-y", "milypay", "mcp"],
+        "env": { "MILYPAY_HOST": "demo" }
+      }
+    }
+  }
+  Paid: set MILYPAY_PRIVATE_KEY and MILYPAY_HOST=api
 
 Flags:
   --demo          Force free host (${DEMO_BASE})
@@ -230,7 +244,24 @@ async function cmdPostage(rest: string[], args: Args) {
 }
 
 async function main() {
-  const args = parseArgs(process.argv.slice(2));
+  // MCP takes over stdio — handle before any other stdout writes
+  const rawArgv = process.argv.slice(2);
+  if (rawArgv[0] === "mcp") {
+    // Optional host flags before attach
+    for (let i = 1; i < rawArgv.length; i++) {
+      if (rawArgv[i] === "--demo") process.env.MILYPAY_HOST = "demo";
+      else if (rawArgv[i] === "--api") process.env.MILYPAY_HOST = "api";
+      else if ((rawArgv[i] === "--base" || rawArgv[i] === "--base-url") && rawArgv[i + 1]) {
+        process.env.MILYPAY_BASE_URL = rawArgv[++i];
+      } else if (rawArgv[i] === "--rpc" && rawArgv[i + 1]) {
+        process.env.SOLANA_RPC_URL = rawArgv[++i];
+      }
+    }
+    await startMcpServer();
+    return;
+  }
+
+  const args = parseArgs(rawArgv);
   if (args.version) {
     print(VERSION, false);
     return;
