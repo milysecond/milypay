@@ -1,0 +1,87 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  cli:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cli
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: cli/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - name: CLI smoke
+        run: |
+          node dist/index.js --version
+          node dist/index.js --demo --quiet abn 51824753556 | grep -q AUSTRALIAN
+      - name: MCP smoke
+        run: |
+          python3 - <<'PY'
+          import json, subprocess, select, time
+          proc = subprocess.Popen(
+              ["node", "dist/index.js", "mcp", "--demo"],
+              stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+          )
+          def send(m):
+              proc.stdin.write(json.dumps(m)+"\n"); proc.stdin.flush()
+          def read(timeout=20):
+              end=time.time()+timeout
+              while time.time()<end:
+                  r,_,_=select.select([proc.stdout],[],[],0.5)
+                  if not r: continue
+                  line=proc.stdout.readline()
+                  if line:
+                      return json.loads(line)
+              raise TimeoutError("no mcp message")
+          send({"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"ci","version":"0"}}})
+          init=read()
+          assert init["result"]["serverInfo"]["name"]=="milypay"
+          send({"jsonrpc":"2.0","method":"notifications/initialized"})
+          send({"jsonrpc":"2.0","id":2,"method":"tools/list"})
+          tools=read()
+          names=[t["name"] for t in tools["result"]["tools"]]
+          assert "lookup_abn" in names and len(names)>=10
+          send({"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"lookup_abn","arguments":{"abn":"51824753556"}}})
+          call=read(30)
+          text=call["result"]["content"][0]["text"]
+          assert "51824753556" in text
+          proc.terminate()
+          print("mcp ok", len(names), "tools")
+          PY
+
+  sdk:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/sdk
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm install
+      - run: npm run build
+
+  site-typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile || pnpm install
+      - run: pnpm exec tsc --noEmit

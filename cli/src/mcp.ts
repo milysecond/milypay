@@ -13,7 +13,7 @@ import { getJson, type ClientOptions, type HostMode } from "./client.js";
 import { DOCS, SERVICES } from "./services.js";
 import { loadWallet } from "./wallet.js";
 
-const VERSION = "0.2.0";
+import { VERSION } from "./version.js";
 
 function hostFromEnv(): HostMode {
   const h = (process.env.MILYPAY_HOST || "auto").toLowerCase();

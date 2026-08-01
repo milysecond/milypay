@@ -10,6 +10,18 @@ Milypay is the x402 service provider built for Australia. AI agents get pay-per-
 - For agents: https://milypay.xyz/agents.md
 - CLI: `npx milypay` (see [`cli/`](./cli))
 
+## SDK
+
+```bash
+npm i @milypay/sdk
+```
+
+```ts
+import { Milypay } from "@milypay/sdk";
+const au = new Milypay({ host: "demo" });
+await au.business.abn("51824753556");
+```
+
 ## CLI
 
 ```bash
@@ -37,7 +49,7 @@ Package lives in [`cli/`](./cli).
 | `au-super` | Super Fund Lookup (ATO) | Live |
 | `au-weather` | Open-Meteo (BOM ACCESS-G), by address or coordinate | Live |
 | `au-postage` | Australia Post (PAC), parcel rates between postcodes | Live |
-| `au-tracking` | Australia Post Shipping & Tracking | Pending merchant key |
+| ~~`au-tracking`~~ | Australia Post Shipping & Tracking | Hidden until merchant key |
 
 ### Examples
 
@@ -112,3 +124,9 @@ x402 settlement (when enabled): `X402_ENABLED=true`, `PAY_TO_WALLET`, `AUDD_MINT
 ## License
 
 Proprietary. (c) Milysec Pty Ltd.
+
+
+## Status
+
+- Live: https://milypay.xyz/status
+- JSON: https://milypay.xyz/api/status?deep=1
