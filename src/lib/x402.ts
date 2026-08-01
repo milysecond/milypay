@@ -16,6 +16,7 @@
 
 import { NextResponse } from "next/server";
 import { isThrottled } from "./throttle";
+import { apiError } from "./errors";
 
 const FACILITATOR = process.env.PAYAI_FACILITATOR || "https://facilitator.payai.network";
 const NETWORK = process.env.X402_NETWORK || "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp";
@@ -117,20 +118,19 @@ function paymentRequired(req: Request, price: string, description: string): Next
   const symbols = acceptedAssets()
     .map((a) => a.symbol)
     .join(" / ");
-  return new NextResponse(
-    JSON.stringify({
-      error: "Payment Required",
+  return apiError(
+    402,
+    "payment_required",
+    "Payment Required",
+    {
       price: `${price} ${symbols}`,
       description,
-      brand: "Milypay",
-    }),
-    {
-      status: 402,
-      headers: {
-        "content-type": "application/json",
-        "PAYMENT-REQUIRED": b64encode(challenge(req, price, description)),
-      },
+      accepts: acceptedAssets().map((a) => a.symbol),
+      payTo: process.env.PAY_TO_WALLET || undefined,
+      network: NETWORK,
+      facilitator: FACILITATOR,
     },
+    { "PAYMENT-REQUIRED": b64encode(challenge(req, price, description)) },
   );
 }
 
@@ -185,23 +185,26 @@ export async function withX402(
   // A service that costs us money upstream (alwaysPaid) must NEVER be served free.
   // If payments are off, refuse rather than fall through to the free path.
   if (opts.alwaysPaid && !enabled()) {
-    return NextResponse.json({ error: "This service is temporarily unavailable." }, { status: 503 });
+    return apiError(503, "service_unavailable", "This service is temporarily unavailable.");
   }
   if (!enabled() || !paidHost) {
     if (await isThrottled(req)) {
-      return NextResponse.json(
-        { error: "Rate limit exceeded. Slow down, or use api.milypay.xyz with x402 payment." },
-        { status: 429, headers: { "retry-after": "60" } },
+      return apiError(
+        429,
+        "rate_limited",
+        "Rate limit exceeded. Slow down, or use api.milypay.xyz with x402 payment.",
+        { retryAfterSeconds: 60 },
+        { "retry-after": "60" },
       );
     }
     return handler();
   }
 
   if (!process.env.PAY_TO_WALLET) {
-    return NextResponse.json({ error: "Payment not configured" }, { status: 503 });
+    return apiError(503, "payment_not_configured", "Payment not configured");
   }
   if (allRequirements(opts.price).length === 0) {
-    return NextResponse.json({ error: "No settlement assets configured" }, { status: 503 });
+    return apiError(503, "payment_not_configured", "No settlement assets configured");
   }
 
   const sig = req.headers.get("PAYMENT-SIGNATURE");
@@ -244,7 +247,7 @@ export async function withX402(
       if (!ok) return paymentRequired(req, opts.price, opts.description);
     }
   } catch {
-    return NextResponse.json({ error: "Verification unavailable" }, { status: 502 });
+    return apiError(502, "verification_unavailable", "Verification unavailable");
   }
 
   // 2. Serve the resource.
@@ -259,12 +262,71 @@ export async function withX402(
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ paymentPayload: payload, paymentRequirements: reqs }),
     });
-    const settlement = await sr.json();
+    const settlement = (await sr.json()) as Record<string, unknown>;
+    const receipt = buildReceipt(settlement, reqs);
     res.headers.set("PAYMENT-RESPONSE", b64encode(settlement));
+    if (receipt.signature) {
+      res.headers.set("X-Milypay-Tx", receipt.signature);
+      res.headers.set("X-Milypay-Explorer", receipt.explorerUrl || "");
+    }
+    // Attach receipt into JSON bodies for agent convenience
+    try {
+      const ct = res.headers.get("content-type") || "";
+      if (ct.includes("application/json")) {
+        const body = await res.clone().json();
+        if (body && typeof body === "object" && !Array.isArray(body)) {
+          const enriched = NextResponse.json(
+            { ...(body as object), $receipt: receipt },
+            { status: res.status, headers: res.headers },
+          );
+          return enriched;
+        }
+      }
+    } catch {
+      /* leave original body */
+    }
   } catch {
     // Resource already served; settlement issues are logged, not surfaced to the agent.
     console.error("x402 settle failed");
   }
 
   return res;
+}
+
+function buildReceipt(
+  settlement: Record<string, unknown>,
+  reqs: PaymentRequirements,
+): {
+  signature?: string;
+  explorerUrl?: string;
+  network: string;
+  asset: string;
+  amount: string;
+  payTo: string;
+  brand: "Milypay";
+} {
+  let sig: string | undefined;
+  if (typeof settlement.transaction === "string") sig = settlement.transaction;
+  else if (typeof settlement.signature === "string") sig = settlement.signature;
+  else if (typeof settlement.txHash === "string") sig = settlement.txHash;
+  else if (
+    settlement.transaction &&
+    typeof settlement.transaction === "object" &&
+    typeof (settlement.transaction as { signature?: string }).signature === "string"
+  ) {
+    sig = (settlement.transaction as { signature: string }).signature;
+  }
+  const network = reqs.network || NETWORK;
+  const explorerUrl = sig
+    ? `https://solscan.io/tx/${sig}${network.includes("devnet") ? "?cluster=devnet" : ""}`
+    : undefined;
+  return {
+    signature: typeof sig === "string" ? sig : undefined,
+    explorerUrl,
+    network,
+    asset: reqs.asset,
+    amount: reqs.amount,
+    payTo: reqs.payTo,
+    brand: "Milypay",
+  };
 }

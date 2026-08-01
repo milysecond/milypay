@@ -1,0 +1,29 @@
+{
+  "name": "milypay-demo-video",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "remotion compositions src/index.ts",
+    "render": "remotion render src/index.ts MilypayDemo out/milypay-demo.mp4",
+    "render:vertical": "remotion render src/index.ts MilypayDemoVertical out/milypay-demo-9x16.mp4"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "private": "true",
+  "dependencies": {
+    "@remotion/cli": "^4.0.503",
+    "@remotion/renderer": "^4.0.503",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "remotion": "^4.0.503"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "typescript": "^5.8.3"
+  }
+}

@@ -1,0 +1,165 @@
+# yaml-language-server: $schema=https://pay.sh/docs-assets/provider.schema.json
+# Milypay paywall — proxy to api.milypay.xyz for pay-skills catalog discovery.
+# Run: pay --sandbox gate api pay.sh/milypay.yaml
+# Publish: open PR to pay-skills registry with this provider (namespace milysec).
+name: milypay
+subdomain: milypay
+title: "Milypay — Australian data for agents"
+description: "Pay-per-call Australian government and commercial data over x402. ABN, ASIC, G-NAF addresses, super funds, weather, BSB, postage. Settles in AUDD/USDC on Solana. A Milysec company."
+category: data
+version: v1
+homepage: https://milypay.xyz
+documentation: https://milypay.xyz/agents.md
+
+routing:
+  type: proxy
+  url: https://api.milypay.xyz/
+
+operator:
+  currencies:
+    usd: ["USDC", "USDT"]
+    aud: ["AUDD", "AUDM"]
+  network: mainnet
+  fee_payer: true
+
+endpoints:
+  - method: GET
+    path: "au-business/abn/{abn}"
+    description: "ABR business by ABN"
+    metering:
+      dimensions:
+        - direction: usage
+          unit: requests
+          scale: 1
+          tiers:
+            - price_usd: 0.002
+  - method: GET
+    path: "au-business/acn/{acn}"
+    description: "ABR business by ACN"
+    metering:
+      dimensions:
+        - direction: usage
+          unit: requests
+          scale: 1
+          tiers:
+            - price_usd: 0.002
+  - method: GET
+    path: "au-business/search"
+    description: "ABN name search"
+    metering:
+      dimensions:
+        - direction: usage
+          unit: requests
+          scale: 1
+          tiers:
+            - price_usd: 0.004
+  - method: GET
+    path: "au-company/acn/{acn}"
+    description: "ASIC company by ACN (open data)"
+    metering:
+      dimensions:
+        - direction: usage
+          unit: requests
+          scale: 1
+          tiers:
+            - price_usd: 0.002
+  - method: GET
+    path: "au-company/search"
+    description: "ASIC company name search"
+    metering:
+      dimensions:
+        - direction: usage
+          unit: requests
+          scale: 1
+          tiers:
+            - price_usd: 0.004
+  - method: GET
+    path: "au-company-report"
+    description: "Official ASIC company extract (paid DSP)"
+    metering:
+      dimensions:
+        - direction: usage
+          unit: requests
+          scale: 1
+          tiers:
+            - price_usd: 12.0
+  - method: GET
+    path: "au-address/validate"
+    description: "Validate Australian address (G-NAF)"
+    metering:
+      dimensions:
+        - direction: usage
+          unit: requests
+          scale: 1
+          tiers:
+            - price_usd: 0.004
+  - method: GET
+    path: "au-address/search"
+    description: "Address autocomplete (G-NAF)"
+    metering:
+      dimensions:
+        - direction: usage
+          unit: requests
+          scale: 1
+          tiers:
+            - price_usd: 0.004
+  - method: GET
+    path: "au-address/geocode"
+    description: "Geocode Australian address"
+    metering:
+      dimensions:
+        - direction: usage
+          unit: requests
+          scale: 1
+          tiers:
+            - price_usd: 0.004
+  - method: GET
+    path: "au-super/abn/{abn}"
+    description: "Super fund by ABN (ATO)"
+    metering:
+      dimensions:
+        - direction: usage
+          unit: requests
+          scale: 1
+          tiers:
+            - price_usd: 0.002
+  - method: GET
+    path: "au-weather"
+    description: "Weather for AU address or lat/lng"
+    metering:
+      dimensions:
+        - direction: usage
+          unit: requests
+          scale: 1
+          tiers:
+            - price_usd: 0.001
+  - method: GET
+    path: "au-bsb/{bsb}"
+    description: "BSB lookup (AusPayNet)"
+    metering:
+      dimensions:
+        - direction: usage
+          unit: requests
+          scale: 1
+          tiers:
+            - price_usd: 0.002
+  - method: GET
+    path: "au-bsb/search"
+    description: "Search BSBs"
+    metering:
+      dimensions:
+        - direction: usage
+          unit: requests
+          scale: 1
+          tiers:
+            - price_usd: 0.004
+  - method: GET
+    path: "au-postage"
+    description: "Australia Post parcel rates"
+    metering:
+      dimensions:
+        - direction: usage
+          unit: requests
+          scale: 1
+          tiers:
+            - price_usd: 0.002

@@ -3,15 +3,16 @@ import type { MetadataRoute } from "next";
 const BASE = "https://milypay.xyz";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const lastModified = new Date("2026-07-22");
+  const lastModified = new Date();
   return [
     { url: `${BASE}/`, lastModified, changeFrequency: "weekly", priority: 1 },
     { url: `${BASE}/demo`, lastModified, changeFrequency: "weekly", priority: 0.9 },
     { url: `${BASE}/docs`, lastModified, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${BASE}/quickstart`, lastModified, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${BASE}/status`, lastModified, changeFrequency: "daily", priority: 0.7 },
     { url: `${BASE}/pay`, lastModified, changeFrequency: "weekly", priority: 0.7 },
     { url: `${BASE}/stables`, lastModified, changeFrequency: "weekly", priority: 0.8 },
     { url: `${BASE}/contact`, lastModified, changeFrequency: "monthly", priority: 0.5 },
-    // Machine-readable agent references, surfaced for AI crawlers.
     { url: `${BASE}/agents.md`, lastModified, changeFrequency: "weekly", priority: 0.9 },
     { url: `${BASE}/llms.txt`, lastModified, changeFrequency: "weekly", priority: 0.8 },
     { url: `${BASE}/llms-full.txt`, lastModified, changeFrequency: "weekly", priority: 0.8 },
