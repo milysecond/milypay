@@ -26,7 +26,7 @@ type StatusPayload = {
 async function loadStatus(): Promise<StatusPayload> {
   try {
     const base = process.env.NEXT_PUBLIC_SITE_URL || "https://milypay.xyz";
-    const res = await fetch(`${base}/api/status?deep=1`, {
+    const res = await fetch(`${base}/api/status`, {
       next: { revalidate: 30 },
       headers: { accept: "application/json" },
     });
@@ -48,7 +48,7 @@ export default async function StatusPage() {
         <p className="section-label">Status</p>
         <h1 className="font-display mt-3 text-4xl tracking-tight text-fg">Milypay status</h1>
         <p className="mt-4 text-muted">
-          Public health for Australian data endpoints and x402 settlement. Deep probe refreshes
+          Public health for Australian data endpoints and x402 settlement. Health snapshot refreshes
           about every 30s.
         </p>
 
@@ -137,9 +137,13 @@ export default async function StatusPage() {
         </section>
 
         <p className="mt-10 text-sm text-muted">
-          JSON:{" "}
+          Deep probes:{" "}
           <Link href="/api/status?deep=1" className="text-brand-green hover:underline">
             /api/status?deep=1
+          </Link>
+          {" · "}JSON:{" "}
+          <Link href="/api/status" className="text-brand-green hover:underline">
+            /api/status
           </Link>
           {" · "}
           <Link href="/agents.md" className="text-brand-green hover:underline">
