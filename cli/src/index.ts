@@ -3,8 +3,7 @@ import { API_BASE, DEMO_BASE, DOCS, SERVICES } from "./services.js";
 import { getJson, type ClientOptions, type HostMode } from "./client.js";
 import { loadWallet, walletHelp } from "./wallet.js";
 import { startMcpServer } from "./mcp.js";
-
-const VERSION = "0.2.0";
+import { VERSION } from "./version.js";
 
 type Args = {
   _: string[];

@@ -32,6 +32,8 @@ const NAV = [
   { href: "/demo", label: "Demo" },
   { href: "/stables", label: "AUD Stables" },
   { href: "/docs", label: "Docs" },
+  { href: "/quickstart", label: "Quickstart" },
+  { href: "/status", label: "Status" },
   { href: "/#faq", label: "FAQ" },
 ];
 
