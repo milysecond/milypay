@@ -3,7 +3,11 @@ import { bapiEnvFromRequest, businessApiReadiness } from "@/lib/businessapi";
 
 export const dynamic = "force-dynamic";
 
-const RPC = process.env.SOLANA_RPC_URL || "https://solana-rpc.publicnode.com";
+// Prefer configured Helius/worker RPC; public node often blocks CF egress.
+const RPC =
+  process.env.SOLANA_RPC_URL ||
+  process.env.HELIUS_RPC_URL ||
+  "https://viviyan-bkj12u-fast-mainnet.helius-rpc.com";
 const USDC = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
 const AUDD = "AUDDttiEpCydTm7joUMbYddm72jAWXZnCpPZtDoxqBSw";
 const PAYER = "CJnsfwWEif4G1mWsJWkjoWSuRpoPoCQHWsQdgzEFDufC";
@@ -28,10 +32,18 @@ type Probe = {
   error?: string;
 };
 
+function soft<T>(p: Promise<T>, fallback: T, ms = 8_000): Promise<T> {
+  return Promise.race([
+    p.catch(() => fallback),
+    new Promise<T>((resolve) => setTimeout(() => resolve(fallback), ms)),
+  ]);
+}
+
 async function tokenBalance(owner: string, mint: string): Promise<number> {
   const res = await fetch(RPC, {
     method: "POST",
     headers: { "content-type": "application/json" },
+    signal: AbortSignal.timeout(7_000),
     body: JSON.stringify({
       jsonrpc: "2.0",
       id: 1,
@@ -39,6 +51,7 @@ async function tokenBalance(owner: string, mint: string): Promise<number> {
       params: [owner, { mint }, { encoding: "jsonParsed" }],
     }),
   });
+  if (!res.ok) return -1;
   const d = (await res.json()) as {
     result?: {
       value?: {
@@ -53,19 +66,15 @@ async function tokenBalance(owner: string, mint: string): Promise<number> {
 }
 
 async function probe(path: string, id: string): Promise<Probe> {
-  const base =
-    process.env.STATUS_PROBE_BASE ||
-    // Prefer apex free demo paths for non-destructive checks
-    "https://milypay.xyz/api";
+  const base = process.env.STATUS_PROBE_BASE || "https://milypay.xyz/api";
   const url = `${base.replace(/\/$/, "")}${path}`;
   const t0 = Date.now();
   try {
     const res = await fetch(url, {
       headers: { accept: "application/json", "user-agent": "milypay-status/1.0" },
-      signal: AbortSignal.timeout(12_000),
+      signal: AbortSignal.timeout(10_000),
     });
     const ms = Date.now() - t0;
-    // 200 = healthy; 402 on api host also means route is up
     const ok = res.status === 200 || res.status === 402;
     return { id, ok, status: res.status, ms };
   } catch (e) {
@@ -81,23 +90,24 @@ async function probe(path: string, id: string): Promise<Probe> {
 export async function GET(req: Request) {
   const payTo = process.env.PAY_TO_WALLET || "";
   const environment = bapiEnvFromRequest(req);
-  const url = new URL(req.url);
-  const deep = url.searchParams.get("deep") === "1";
+  const deep = new URL(req.url).searchParams.get("deep") === "1";
 
   try {
+    const fallbackBapi = {
+      configured: Boolean(
+        environment === "test"
+          ? process.env.BAPI_TEST_SECRET_KEY || process.env.BAPI_SECRET_KEY
+          : process.env.BAPI_SECRET_KEY,
+      ),
+      paidOk: false,
+      environment,
+      message: "readiness probe timed out or failed",
+    };
+
     const [floatUsdc, receivedAudd, bapi, probes] = await Promise.all([
-      tokenBalance(PAYER, USDC),
-      payTo ? tokenBalance(payTo, AUDD) : Promise.resolve(0),
-      businessApiReadiness({ environment }).catch(() => ({
-        configured: Boolean(
-          environment === "test"
-            ? process.env.BAPI_TEST_SECRET_KEY || process.env.BAPI_SECRET_KEY
-            : process.env.BAPI_SECRET_KEY,
-        ),
-        paidOk: false,
-        environment,
-        message: "readiness probe failed",
-      })),
+      soft(tokenBalance(PAYER, USDC), -1),
+      payTo ? soft(tokenBalance(payTo, AUDD), -1) : Promise.resolve(0),
+      soft(businessApiReadiness({ environment }), fallbackBapi, 6_000),
       deep
         ? Promise.all([
             probe("/au-business/abn/51824753556", "au-business"),
@@ -125,6 +135,7 @@ export async function GET(req: Request) {
           site: "https://milypay.xyz",
           api: "https://api.milypay.xyz",
         },
+        payTo: payTo || undefined,
         float: { usdc: floatUsdc },
         receiving: { audd: receivedAudd },
         businessapi: {
@@ -139,7 +150,7 @@ export async function GET(req: Request) {
       },
       {
         headers: {
-          "Cache-Control": "public, max-age=30",
+          "Cache-Control": "public, max-age=15",
           "Access-Control-Allow-Origin": "*",
         },
       },
