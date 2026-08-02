@@ -299,6 +299,8 @@ function buildReceipt(
 ): {
   signature?: string;
   explorerUrl?: string;
+    /** @deprecated alias — same as explorerUrl */
+    solNewUrl?: string;
   network: string;
   asset: string;
   amount: string;
@@ -318,11 +320,12 @@ function buildReceipt(
   }
   const network = reqs.network || NETWORK;
   const explorerUrl = sig
-    ? `https://solscan.io/tx/${sig}${network.includes("devnet") ? "?cluster=devnet" : ""}`
+    ? `https://sol.new/receipt/${sig}`
     : undefined;
   return {
     signature: typeof sig === "string" ? sig : undefined,
     explorerUrl,
+    solNewUrl: explorerUrl,
     network,
     asset: reqs.asset,
     amount: reqs.amount,

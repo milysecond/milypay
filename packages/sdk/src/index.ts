@@ -63,7 +63,7 @@ function parseReceipt(header: string | null): PaymentReceipt | undefined {
       undefined;
     const network = typeof raw.network === "string" ? raw.network : "solana";
     const explorerUrl = sig
-      ? `https://solscan.io/tx/${sig}${String(network).includes("devnet") ? "?cluster=devnet" : ""}`
+      ? `https://sol.new/receipt/${sig}`
       : undefined;
     return {
       raw,

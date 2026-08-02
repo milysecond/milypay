@@ -21,3 +21,6 @@
 
 - Initial `milypay` CLI on npm
 - Demo + paid x402 call paths
+
+## Unreleased
+- Payment `$receipt.explorerUrl` → https://sol.new/receipt/<sig>
