@@ -144,6 +144,8 @@ export const metadata: Metadata = {
     title: "Milypay - Agent payments & Australian data on x402",
     description:
       "Pay-per-call Australian data and AUD-settled micropayments for AI agents, on the x402 rail.",
+    creator: "@1milysec",
+    site: "@1milysec",
   },
   verification: {
     google: "AXY9Pei5H-GIw4Vyn1CV_OQPBxl0X0rwSIAAmqaVzHo",
