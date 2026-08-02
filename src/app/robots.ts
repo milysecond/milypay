@@ -24,10 +24,14 @@ const AI_AGENTS = [
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
-      // Every named AI agent: full access.
-      ...AI_AGENTS.map((userAgent) => ({ userAgent, allow: "/" })),
-      // Everyone else: allow all, keep the POST-only form endpoint out of indexes.
-      { userAgent: "*", allow: "/", disallow: ["/api/"] },
+      // Every named AI agent: full access except ops.
+      ...AI_AGENTS.map((userAgent) => ({
+        userAgent,
+        allow: "/",
+        disallow: ["/ops", "/api/ops"],
+      })),
+      // Everyone else: allow all, keep API + ops out of indexes.
+      { userAgent: "*", allow: "/", disallow: ["/api/", "/ops"] },
     ],
     sitemap: "https://milypay.xyz/sitemap.xml",
     host: "https://milypay.xyz",
