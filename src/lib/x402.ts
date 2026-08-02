@@ -7,6 +7,7 @@
 // Config (Worker env / secrets):
 //   X402_ENABLED      "true" to enforce payment. Anything else = pass-through (dev/testing).
 //   PAYAI_FACILITATOR facilitator base URL (default https://facilitator.payai.network)
+//   PAYAI_API_KEY_ID / PAYAI_API_KEY_SECRET  optional paid-tier facilitator auth
 //   X402_NETWORK      CAIP-2 network id (default Solana mainnet)
 //   PAY_TO_WALLET     merchant Solana wallet that receives settlement
 //   AUDD_MINT         AUDD mint (default Novatti on Solana)
@@ -17,6 +18,7 @@
 import { NextResponse } from "next/server";
 import { isThrottled } from "./throttle";
 import { apiError } from "./errors";
+import { payaiAuthHeaders } from "./payai-auth";
 
 const FACILITATOR = process.env.PAYAI_FACILITATOR || "https://facilitator.payai.network";
 const NETWORK = process.env.X402_NETWORK || "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp";
@@ -221,9 +223,10 @@ export async function withX402(
 
   // 1. Verify the payment proof with the facilitator.
   try {
+    const auth = await payaiAuthHeaders();
     const vr = await fetch(`${FACILITATOR}/verify`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: { "content-type": "application/json", ...auth },
       body: JSON.stringify({ paymentPayload: payload, paymentRequirements: reqs }),
     });
     const verify = (await vr.json()) as { isValid?: boolean };
@@ -234,7 +237,7 @@ export async function withX402(
         if (alt.asset === reqs.asset) continue;
         const vr2 = await fetch(`${FACILITATOR}/verify`, {
           method: "POST",
-          headers: { "content-type": "application/json" },
+          headers: { "content-type": "application/json", ...auth },
           body: JSON.stringify({ paymentPayload: payload, paymentRequirements: alt }),
         });
         const v2 = (await vr2.json()) as { isValid?: boolean };
@@ -257,9 +260,10 @@ export async function withX402(
   if (!res.ok) return res;
 
   try {
+    const auth = await payaiAuthHeaders();
     const sr = await fetch(`${FACILITATOR}/settle`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: { "content-type": "application/json", ...auth },
       body: JSON.stringify({ paymentPayload: payload, paymentRequirements: reqs }),
     });
     const settlement = (await sr.json()) as Record<string, unknown>;
