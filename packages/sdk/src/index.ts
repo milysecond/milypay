@@ -229,6 +229,33 @@ export class Milypay {
     },
   };
 
+  abs = {
+    dataflows: (q?: string, limit?: number) => {
+      const qs = new URLSearchParams();
+      if (q) qs.set("q", q);
+      if (limit) qs.set("limit", String(limit));
+      const s = qs.toString();
+      return this.get(`/au-abs/dataflows${s ? `?${s}` : ""}`);
+    },
+    dataflow: (id: string) => this.get(`/au-abs/dataflow/${encodeURIComponent(id)}`),
+    data: (
+      dataflow: string,
+      opts?: { key?: string; startPeriod?: string; endPeriod?: string },
+    ) => {
+      const qs = new URLSearchParams();
+      if (opts?.key) qs.set("key", opts.key);
+      if (opts?.startPeriod) qs.set("startPeriod", opts.startPeriod);
+      if (opts?.endPeriod) qs.set("endPeriod", opts.endPeriod);
+      if (!opts?.key && !opts?.startPeriod) qs.set("startPeriod", "2020");
+      const s = qs.toString();
+      return this.get(`/au-abs/data/${encodeURIComponent(dataflow)}${s ? `?${s}` : ""}`);
+    },
+    cpi: (startPeriod?: string) =>
+      this.get(
+        `/au-abs/cpi${startPeriod ? `?startPeriod=${encodeURIComponent(startPeriod)}` : ""}`,
+      ),
+  };
+
   postage(input: {
     weight: number;
     from?: string;

@@ -146,6 +146,7 @@ export async function collectOpsData() {
       probe("/au-bsb/012-002", "bsb"),
       probe("/au-address/geocode?q=1%20bligh%20st%20sydney", "address"),
       probe("/au-weather?q=sydney", "weather"),
+      probe("/au-abs/cpi", "abs-cpi"),
     ]),
   ]);
 

@@ -86,6 +86,10 @@ const MANIFEST = {
     { method: "GET", path: "/au-postage?country={code}&weight={kg}", price: "0.002", description: "Australia Post international parcel rates and services." },
     { method: "GET", path: "/au-bsb/{bsb}", price: "0.002", description: "BSB lookup: bank name, branch, address, state, postcode, and supported payment methods (paper/electronic/high-value). 17,000+ BSBs from AusPayNet." },
     { method: "GET", path: "/au-bsb/search?q={query}", price: "0.004", description: "Search BSBs by bank name, branch name, or suburb." },
+    { method: "GET", path: "/au-abs/dataflows?q={query}", price: "0.002", description: "Search ABS SDMX dataflow catalogue (CPI, labour, ERP, census, …). Source: ABS Data API." },
+    { method: "GET", path: "/au-abs/dataflow/{id}", price: "0.002", description: "ABS dataflow structure/metadata by id (e.g. CPI, WPI, RT)." },
+    { method: "GET", path: "/au-abs/data/{dataflow}?key={key}&startPeriod={period}", price: "0.005", description: "Fetch ABS series observations (normalised JSON). Source: ABS Data API." },
+    { method: "GET", path: "/au-abs/cpi?startPeriod={period}", price: "0.003", description: "Headline All groups CPI index (Australia, quarterly) with latest/QoQ/YoY. Catalogue 6401.0." },
   ],
   attribution: ATTRIBUTION,
 };

@@ -163,3 +163,34 @@ endpoints:
           scale: 1
           tiers:
             - price_usd: 0.002
+
+  - method: GET
+    path: "au-abs/dataflows"
+    description: "ABS dataflow catalogue search"
+    metering:
+      dimensions:
+        - direction: usage
+          unit: requests
+          scale: 1
+          tiers:
+            - price_usd: 0.002
+  - method: GET
+    path: "au-abs/cpi"
+    description: "ABS headline CPI"
+    metering:
+      dimensions:
+        - direction: usage
+          unit: requests
+          scale: 1
+          tiers:
+            - price_usd: 0.003
+  - method: GET
+    path: "au-abs/data/{dataflow}"
+    description: "ABS series data"
+    metering:
+      dimensions:
+        - direction: usage
+          unit: requests
+          scale: 1
+          tiers:
+            - price_usd: 0.005
