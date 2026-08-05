@@ -6,7 +6,7 @@ import CodeBlock from "@/components/CodeBlock";
 export const metadata: Metadata = {
   title: "Docs | Milypay",
   description:
-    "Milypay API documentation: Australian business, company, address, super fund, and weather endpoints, with x402 (AUDD) payment details and examples.",
+    "Milypay API documentation: Australian business, company, address, super fund, weather, BSB, ABS statistics, and x402 (AUDD) payment details.",
   alternates: { canonical: "/docs" },
 };
 
@@ -19,6 +19,7 @@ const NAV = [
   { id: "super", label: "Super funds" },
   { id: "weather", label: "Weather" },
   { id: "postage", label: "Postage" },
+  { id: "abs", label: "ABS statistics" },
   { id: "markets", label: "Market data" },
   { id: "data", label: "Data & attribution" },
 ];
@@ -231,6 +232,57 @@ const SECTIONS: Section[] = [
     ],
   },
   {
+    id: "abs",
+    title: "ABS statistics",
+    namespace: "milysec/au-abs",
+    source: "Australian Bureau of Statistics (Data API / SDMX)",
+    blurb:
+      "Official ABS statistics via the SDMX Data API — 1,200+ dataflows including CPI, wages, population, census, and retail. No upstream API key. Attribution: ABS CC BY 4.0.",
+    endpoints: [
+      {
+        path: "GET /au-abs/dataflows?q={query}",
+        desc: "Search or list ABS SDMX dataflows. Optional limit (default 50).",
+        example: 'curl "https://api.milypay.xyz/au-abs/dataflows?q=CPI&limit=5"',
+        response: `{
+  "count": 4, "total": 4,
+  "dataflows": [
+    { "id": "CPI", "name": "Consumer Price Index (CPI)", "agency": "ABS", "version": "2.0.0" }
+  ]
+}`,
+      },
+      {
+        path: "GET /au-abs/dataflow/{id}",
+        desc: "Dataflow structure and metadata for an id such as CPI, WPI, or RT.",
+        example: "curl https://api.milypay.xyz/au-abs/dataflow/CPI",
+        response: `{ "dataflow": "CPI", "agency": "ABS", "raw": { "...": "SDMX structure" } }`,
+      },
+      {
+        path: "GET /au-abs/data/{dataflow}?key={key}&startPeriod={period}",
+        desc: "Fetch series observations, normalised to JSON. Prefer a series key and startPeriod.",
+        example:
+          'curl "https://api.milypay.xyz/au-abs/data/CPI?key=1.10001.10.50.Q&startPeriod=2020"',
+        response: `{
+  "dataflow": "CPI", "name": "Consumer Price Index (CPI)", "seriesCount": 1,
+  "series": [{
+    "key": "0:0:0:0:0",
+    "observations": [{ "period": "2026-Q2", "value": 102.31 }]
+  }]
+}`,
+      },
+      {
+        path: "GET /au-abs/cpi?startPeriod={period}",
+        desc: "Headline All groups CPI (Australia, quarterly) with latest index, QoQ and YoY % change. Catalogue 6401.0.",
+        example: 'curl "https://api.milypay.xyz/au-abs/cpi?startPeriod=2015"',
+        response: `{
+  "indicator": "CPI",
+  "latest": { "period": "2026-Q2", "value": 102.31 },
+  "changeQoQPercent": 0.6,
+  "changeYoYPercent": 3.94
+}`,
+      },
+    ],
+  },
+  {
     id: "markets",
     title: "Market data (third-party)",
     namespace: "milysec/markets",
@@ -294,8 +346,8 @@ export default function DocsPage() {
             <H id="overview">Milypay API</H>
             <p className="leading-relaxed text-muted">
               Pay-per-call Australian data for AI agents, settled in AUD stablecoins on the x402
-              rail. Five services: business identity, company register, address, super funds, and
-              weather. Responses are JSON. No API keys.
+              rail. Business identity, company register, address, super funds, weather, postage,
+              BSB, and ABS statistics. Responses are JSON. No API keys.
             </p>
             <div className="card p-5 text-sm">
               <p>
@@ -403,6 +455,18 @@ curl https://milypay.xyz/api/au-business/abn/33051775556`}
               </li>
               <li>Address: Incorporates G-NAF &copy; Geoscape Australia, open G-NAF licence. Per-call lookups only.</li>
               <li>Weather: Open-Meteo.com (CC BY 4.0), Australian model BOM ACCESS-G.</li>
+              <li>
+                Statistics: Australian Bureau of Statistics Data API (SDMX),{" "}
+                <a
+                  href="https://www.abs.gov.au/statistics/application-programming-interfaces-apis/data-api-user-guide"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-brand-green hover:underline"
+                >
+                  ABS Data API
+                </a>
+                . Licensed under Creative Commons Attribution 4.0 International.
+              </li>
             </ul>
             <p className="text-sm text-muted">
               Rate limits apply on the free host (per IP). Government data is provided as-is; verify

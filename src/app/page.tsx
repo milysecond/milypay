@@ -60,6 +60,12 @@ const SERVICES: {
     price: "from $0.002 / call",
   },
   {
+    tag: "au-abs",
+    title: "ABS statistics",
+    desc: "Australian Bureau of Statistics via SDMX — CPI, wages, population, census, retail and 1,200+ dataflows. Headline CPI with QoQ/YoY built in.",
+    price: "from $0.002 / call",
+  },
+  {
     tag: "au-tracking",
     title: "Parcel tracking",
     desc: "Track an Australia Post parcel by tracking number — status and full event history.",
@@ -128,7 +134,7 @@ const ACCESS = [
   {
     tag: "MCP",
     title: "Model Context Protocol",
-    desc: "First-party MCP server. Typed tools for ABN, ASIC, address, weather, BSB — drop into Claude or Cursor.",
+    desc: "First-party MCP server. Typed tools for ABN, ASIC, address, weather, BSB, ABS CPI — drop into Claude or Cursor.",
     code: '// claude / cursor mcp config\n{ "milypay": { "command": "npx", "args": ["-y", "milypay", "mcp"], "env": { "MILYPAY_HOST": "demo" } } }',
   },
   {
@@ -168,14 +174,18 @@ const AGENT_SYSTEM_PROMPT = `You can use Milypay, free Australian data APIs at h
 - Validate or geocode an address: /au-address/validate?q={address}
 - Weather for an address: /au-weather?q={address}
 - Postage between postcodes: /au-postage?from={from}&to={to}&weight={kg}
+- BSB lookup: /au-bsb/{bsb}
+- ABS dataflow search: /au-abs/dataflows?q={query}
+- ABS headline CPI: /au-abs/cpi
+- ABS series data: /au-abs/data/{dataflow}?key={key}&startPeriod={period}
 Full reference: https://milypay.xyz/agents.md`;
 
-const AGENT_ONELINER = `Use the Milypay APIs at https://api.milypay.xyz for Australian business, address, super fund, and weather data. Read https://milypay.xyz/agents.md first, then call the endpoints with a GET request and read the JSON.`;
+const AGENT_ONELINER = `Use the Milypay APIs at https://api.milypay.xyz for Australian business, address, super fund, weather, BSB, and ABS statistics data. Read https://milypay.xyz/agents.md first, then call the endpoints with a GET request and read the JSON.`;
 
 const FAQ: { q: string; a: string }[] = [
   {
     q: "What is Milypay?",
-    a: "Milypay is the x402 service provider for the Australian market. It gives AI agents pay-per-call access to Australian data — business identity, company register, addresses, super funds, weather, and postage — settled in AUDD, the regulated AUD-native stablecoin, with no API keys and no signup. Milypay is a Milysec company.",
+    a: "Milypay is the x402 service provider for the Australian market. It gives AI agents pay-per-call access to Australian data — business identity, company register, addresses, super funds, weather, postage, BSB, and ABS statistics — settled in AUDD, the regulated AUD-native stablecoin, with no API keys and no signup. Milypay is a Milysec company.",
   },
   {
     q: "How do AI agents pay for Australian data on Milypay?",
@@ -199,7 +209,7 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: "What Australian data does Milypay provide?",
-    a: "Business identity (ABN and ACN lookup from the ABR), ASIC company register lookups, address validation and geocoding (G-NAF, 16.9M addresses), super fund lookup, weather (BOM ACCESS-G via Open-Meteo), Australia Post postage rates, and BSB lookup (17,000+ BSBs from the AusPayNet directory). More Australian services are on the roadmap.",
+    a: "Business identity (ABN and ACN lookup from the ABR), ASIC company register lookups, address validation and geocoding (G-NAF, 16.9M addresses), super fund lookup, weather (BOM ACCESS-G via Open-Meteo), Australia Post postage rates, BSB lookup (17,000+ BSBs from AusPayNet), and ABS statistics (CPI, wages, population, census and 1,200+ SDMX dataflows). More Australian services are on the roadmap.",
   },
   {
     q: "Which AI tools and agents work with Milypay?",
