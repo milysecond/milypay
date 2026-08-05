@@ -338,6 +338,48 @@ async function main() {
       print({ address: w.address, source: w.source, api: API_BASE, demo: DEMO_BASE }, true);
       break;
     }
+    case "abs": {
+      const sub = String(args._[1] || "").toLowerCase();
+      if (sub === "dataflows" || sub === "search" || sub === "list") {
+        const q = args._.slice(2).join(" ");
+        const qs = q ? `?q=${encodeURIComponent(q)}` : "";
+        print(await getJson(`/au-abs/dataflows${qs}`, clientOpts(args)), args.json);
+        break;
+      }
+      if (sub === "dataflow" || sub === "meta") {
+        const id = String(args._[2] || "");
+        if (!id) throw new Error("Usage: milypay abs dataflow <id>");
+        print(await getJson(`/au-abs/dataflow/${encodeURIComponent(id)}`, clientOpts(args)), args.json);
+        break;
+      }
+      if (sub === "data") {
+        const flow = String(args._[2] || "");
+        if (!flow) throw new Error("Usage: milypay abs data <dataflow> [--key k] [--start period]");
+        // parse optional flags from remaining
+        let key = "";
+        let start = "";
+        const rest = args._.slice(3);
+        for (let i = 0; i < rest.length; i++) {
+          if (rest[i] === "--key") key = String(rest[++i] || "");
+          else if (rest[i] === "--start") start = String(rest[++i] || "");
+        }
+        const qs = new URLSearchParams();
+        if (key) qs.set("key", key);
+        if (start) qs.set("startPeriod", start);
+        if (!key && !start) qs.set("startPeriod", "2020");
+        const q = qs.toString();
+        print(await getJson(`/au-abs/data/${encodeURIComponent(flow)}${q ? `?${q}` : ""}`, clientOpts(args)), args.json);
+        break;
+      }
+      throw new Error("Usage: milypay abs dataflows|dataflow|data …");
+    }
+    case "cpi": {
+      const start = args._[1] ? String(args._[1]) : "";
+      const qs = start ? `?startPeriod=${encodeURIComponent(start)}` : "";
+      print(await getJson(`/au-abs/cpi${qs}`, clientOpts(args)), args.json);
+      break;
+    }
+
     default:
       throw new Error(`Unknown command: ${cmd}\n\n${usage()}`);
   }

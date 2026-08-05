@@ -130,3 +130,20 @@ Proprietary. (c) Milysec Pty Ltd.
 
 - Live: https://milypay.xyz/status
 - JSON: https://milypay.xyz/api/status?deep=1
+
+## ABS statistics
+
+Australian Bureau of Statistics via SDMX Data API (no upstream key).
+
+```
+GET /au-abs/dataflows?q=CPI
+GET /au-abs/dataflow/CPI
+GET /au-abs/data/CPI?key=1.10001.10.50.Q&startPeriod=2020
+GET /au-abs/cpi
+```
+
+CLI: `npx milypay cpi` · `npx milypay abs dataflows wage`
+MCP: `abs_cpi`, `abs_dataflows`, `abs_data`
+Prices: dataflows/meta $0.002 · data $0.005 · cpi $0.003
+Attribution: ABS CC BY 4.0
+

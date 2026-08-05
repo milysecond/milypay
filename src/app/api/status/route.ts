@@ -21,6 +21,7 @@ const SERVICES = [
   "au-weather",
   "au-bsb",
   "au-postage",
+  "au-abs",
   "markets",
 ] as const;
 

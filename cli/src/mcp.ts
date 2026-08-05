@@ -405,6 +405,71 @@ export async function startMcpServer(): Promise<void> {
     }),
   );
 
+
+  server.registerTool(
+    "abs_dataflows",
+    {
+      description: "Search or list ABS (Australian Bureau of Statistics) SDMX dataflows — CPI, wages, population, census, retail, etc.",
+      inputSchema: {
+        q: z.string().optional().describe("Search query e.g. CPI, wage, population"),
+        limit: z.number().int().min(1).max(200).optional(),
+      },
+    },
+    async ({ q, limit }) => {
+      const qs = new URLSearchParams();
+      if (q) qs.set("q", q);
+      if (limit) qs.set("limit", String(limit));
+      const path = `/au-abs/dataflows${qs.toString() ? `?${qs}` : ""}`;
+      return runJson(path);
+    },
+  );
+
+  server.registerTool(
+    "abs_dataflow",
+    {
+      description: "ABS dataflow structure/metadata by id (e.g. CPI, WPI, RT).",
+      inputSchema: { id: z.string().describe("Dataflow id e.g. CPI") },
+    },
+    async ({ id }) => runJson(`/au-abs/dataflow/${encodeURIComponent(id)}`),
+  );
+
+  server.registerTool(
+    "abs_data",
+    {
+      description: "Fetch ABS statistical series (normalised observations). Prefer a series key + startPeriod.",
+      inputSchema: {
+        dataflow: z.string().describe("e.g. CPI"),
+        key: z.string().optional().describe("SDMX key e.g. 1.10001.10.50.Q"),
+        startPeriod: z.string().optional().describe("e.g. 2020 or 2020-Q1"),
+        endPeriod: z.string().optional(),
+      },
+    },
+    async ({ dataflow, key, startPeriod, endPeriod }) => {
+      const qs = new URLSearchParams();
+      if (key) qs.set("key", key);
+      if (startPeriod) qs.set("startPeriod", startPeriod);
+      if (endPeriod) qs.set("endPeriod", endPeriod);
+      if (!key && !startPeriod) qs.set("startPeriod", "2020");
+      const q = qs.toString();
+      return runJson(`/au-abs/data/${encodeURIComponent(dataflow)}${q ? `?${q}` : ""}`);
+    },
+  );
+
+  server.registerTool(
+    "abs_cpi",
+    {
+      description: "Headline Australian CPI (All groups, quarterly index) with latest value, QoQ and YoY % change. ABS cat. 6401.0.",
+      inputSchema: {
+        startPeriod: z.string().optional().describe("e.g. 2015"),
+      },
+    },
+    async ({ startPeriod }) => {
+      const qs = startPeriod ? `?startPeriod=${encodeURIComponent(startPeriod)}` : "";
+      return runJson(`/au-abs/cpi${qs}`);
+    },
+  );
+
+
   const transport = new StdioServerTransport();
   await server.connect(transport);
   // Keep process alive — transport owns stdio
