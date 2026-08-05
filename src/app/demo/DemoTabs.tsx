@@ -9,8 +9,17 @@ import SuperDemo from "./SuperDemo";
 import WeatherDemo from "./WeatherDemo";
 import PostageDemo from "./PostageDemo";
 import BsbDemo from "./BsbDemo";
+import AbsDemo from "./AbsDemo";
 
-type Service = "business" | "company" | "address" | "super" | "weather" | "postage" | "bsb";
+type Service =
+  | "business"
+  | "company"
+  | "address"
+  | "super"
+  | "weather"
+  | "postage"
+  | "bsb"
+  | "abs";
 
 const SERVICES: Service[] = [
   "business",
@@ -20,6 +29,7 @@ const SERVICES: Service[] = [
   "weather",
   "postage",
   "bsb",
+  "abs",
 ];
 
 function parseService(raw: string | null): Service {
@@ -36,7 +46,6 @@ function DemoTabsInner() {
   const acnParam = searchParams.get("acn");
   const [service, setService] = useState<Service>(() => parseService(tabParam));
 
-  // Keep local tab in sync when the URL changes (deeplink / back-forward).
   useEffect(() => {
     setService(parseService(tabParam));
   }, [tabParam]);
@@ -47,7 +56,6 @@ function DemoTabsInner() {
       const params = new URLSearchParams(searchParams.toString());
       if (key === "business") params.delete("tab");
       else params.set("tab", key);
-      // Drop ACN when leaving the company tab so the URL stays honest.
       if (key !== "company") params.delete("acn");
       const qs = params.toString();
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
@@ -85,12 +93,14 @@ function DemoTabsInner() {
           {tab("weather", "Weather")}
           {tab("postage", "Postage")}
           {tab("bsb", "BSB")}
+          {tab("abs", "ABS")}
         </div>
         <p className="mt-3 text-sm text-muted">
           {service === "business" && "Live milysec/au-business - real ATO data."}
           {service === "company" && (
             <>
-              Live milysec/au-company open data (3.9M companies), plus sandbox company extract demo via Business API test keys.{" "}
+              Live milysec/au-company open data (3.9M companies), plus sandbox company extract demo
+              via Business API test keys.{" "}
               <a
                 href="https://connectonline.asic.gov.au/RegistrySearch/faces/landing/SearchRegisters.jspx"
                 target="_blank"
@@ -105,8 +115,11 @@ function DemoTabsInner() {
           {service === "address" && "Live milysec/au-address - 16.9M addresses from G-NAF."}
           {service === "super" && "Live milysec/au-super - ATO Super Fund Lookup register."}
           {service === "weather" && "Live milysec/au-weather - forecast for any Australian address."}
-          {service === "postage" && "Live milysec/au-postage - Australia Post parcel rates between postcodes."}
+          {service === "postage" &&
+            "Live milysec/au-postage - Australia Post parcel rates between postcodes."}
           {service === "bsb" && "Live milysec/au-bsb - 17,000+ BSBs from the AusPayNet directory."}
+          {service === "abs" &&
+            "Live milysec/au-abs - Australian Bureau of Statistics (SDMX). CPI, wages, 1,200+ dataflows."}
         </p>
       </div>
       <div className="mt-6">
@@ -117,6 +130,7 @@ function DemoTabsInner() {
         {service === "weather" && <WeatherDemo />}
         {service === "postage" && <PostageDemo />}
         {service === "bsb" && <BsbDemo />}
+        {service === "abs" && <AbsDemo />}
       </div>
     </div>
   );
