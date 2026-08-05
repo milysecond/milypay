@@ -92,6 +92,31 @@ export const SERVICES: Service[] = [
     price: "0.004",
     description: "Search BSBs by bank/branch/suburb",
   },
+
+  {
+    id: "abs-dataflows",
+    path: "/au-abs/dataflows?q={query}",
+    price: "0.002",
+    description: "Search ABS dataflow catalogue",
+  },
+  {
+    id: "abs-dataflow",
+    path: "/au-abs/dataflow/{id}",
+    price: "0.002",
+    description: "ABS dataflow metadata",
+  },
+  {
+    id: "abs-data",
+    path: "/au-abs/data/{dataflow}?key={key}&startPeriod={period}",
+    price: "0.005",
+    description: "ABS series data (normalised)",
+  },
+  {
+    id: "abs-cpi",
+    path: "/au-abs/cpi",
+    price: "0.003",
+    description: "Headline CPI index + QoQ/YoY",
+  },
 ];
 
 export const DEMO_BASE = "https://milypay.xyz";
