@@ -123,6 +123,11 @@ export const SERVICES: Service[] = [
   { id: "transit-trips", path: "/au-transit/{region}/trip-updates", price: "0.003", description: "Trip updates / delays" },
   { id: "transit-alerts", path: "/au-transit/{region}/alerts", price: "0.002", description: "Service alerts" },
   { id: "transit-summary", path: "/au-transit/{region}/summary", price: "0.002", description: "Region feed summary" },
+
+  { id: "energy", path: "/au-energy", price: "0.001", description: "AU energy catalogue" },
+  { id: "energy-nem", path: "/au-energy/nem", price: "0.002", description: "NEM live all regions" },
+  { id: "energy-nem-region", path: "/au-energy/nem/{region}", price: "0.002", description: "NEM live one region" },
+  { id: "energy-notices", path: "/au-energy/notices", price: "0.002", description: "AEMO market notices" },
 ];
 
 export const DEMO_BASE = "https://milypay.xyz";

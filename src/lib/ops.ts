@@ -148,6 +148,7 @@ export async function collectOpsData() {
       probe("/au-weather?q=sydney", "weather"),
       probe("/au-abs/cpi", "abs-cpi"),
       probe("/au-transit/seq/summary", "transit-seq"),
+      probe("/au-energy/nem", "energy-nem"),
     ]),
   ]);
 

@@ -257,6 +257,17 @@ export class Milypay {
   };
 
 
+
+  energy = {
+    catalogue: () => this.get(`/au-energy`),
+    nem: () => this.get(`/au-energy/nem`),
+    nemRegion: (region: string) => this.get(`/au-energy/nem/${encodeURIComponent(region)}`),
+    notices: (limit?: number) => {
+      const q = limit != null ? `?limit=${limit}` : "";
+      return this.get(`/au-energy/notices${q}`);
+    },
+  };
+
   transit = {
     regions: () => this.get(`/au-transit/regions`),
     vehicles: (region: string, opts?: { routeId?: string; limit?: number }) => {
