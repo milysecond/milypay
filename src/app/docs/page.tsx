@@ -21,6 +21,7 @@ const NAV = [
   { id: "weather", label: "Weather" },
   { id: "postage", label: "Postage" },
   { id: "abs", label: "ABS statistics" },
+  { id: "transit", label: "Public transport" },
   { id: "markets", label: "Market data" },
   { id: "data", label: "Data & attribution" },
 ];
@@ -297,6 +298,48 @@ const SECTIONS: Section[] = [
       },
     ],
   },
+
+  {
+    id: "transit",
+    title: "Public transport",
+    namespace: "milysec/au-transit",
+    source: "GTFS-Realtime (Translink SEQ, Adelaide Metro)",
+    blurb:
+      "Live vehicles, trip delays/ETAs, and service alerts decoded from open GTFS-RT feeds. Phase 1: QLD SEQ + SA (no upstream key). NSW/VIC planned after free developer keys.",
+    endpoints: [
+      {
+        path: "GET /au-transit/regions",
+        desc: "Live and planned Australian transit regions.",
+        example: "curl https://api.milypay.xyz/au-transit/regions",
+        response: `{ "live": [{ "id": "seq", "name": "South East Queensland", "operator": "Translink" }] }`,
+      },
+      {
+        path: "GET /au-transit/{region}/vehicles?limit=&routeId=",
+        desc: "Live vehicle positions. region=seq|sa.",
+        example: 'curl "https://api.milypay.xyz/au-transit/seq/vehicles?limit=10"',
+        response: `{ "count": 10, "vehicles": [{ "routeId": "589-4838", "lat": -27.72, "lon": 153.08 }] }`,
+      },
+      {
+        path: "GET /au-transit/{region}/trip-updates",
+        desc: "Delays and stop ETAs for active trips.",
+        example: 'curl "https://api.milypay.xyz/au-transit/sa/trip-updates?limit=10"',
+        response: `{ "tripUpdates": [{ "routeId": "...", "stopTimeUpdates": [{ "arrivalDelaySec": 120 }] }] }`,
+      },
+      {
+        path: "GET /au-transit/{region}/alerts",
+        desc: "Service alerts and disruptions.",
+        example: "curl https://api.milypay.xyz/au-transit/seq/alerts",
+        response: `{ "alerts": [{ "header": "...", "description": "..." }] }`,
+      },
+      {
+        path: "GET /au-transit/{region}/summary",
+        desc: "Counts of vehicles, trip updates, and alerts plus a sample.",
+        example: "curl https://api.milypay.xyz/au-transit/seq/summary",
+        response: `{ "vehicles": 1455, "tripUpdates": 800, "alerts": 12 }`,
+      },
+    ],
+  },
+
   {
     id: "markets",
     title: "Market data (third-party)",
@@ -362,7 +405,7 @@ export default function DocsPage() {
             <p className="leading-relaxed text-muted">
               Pay-per-call Australian data for AI agents, settled in AUD stablecoins on the x402
               rail. Business identity, company register, address, super funds, weather, postage,
-              BSB, and ABS statistics. Responses are JSON. No API keys.
+              BSB, ABS statistics, and public transport. Responses are JSON. No API keys.
             </p>
             <div className="card p-5 text-sm">
               <p>

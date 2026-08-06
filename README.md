@@ -147,3 +147,26 @@ MCP: `abs_cpi`, `abs_dataflows`, `abs_data`
 Prices: dataflows/meta $0.002 · data $0.005 · cpi $0.003
 Attribution: ABS CC BY 4.0
 
+## Public transport (GTFS-Realtime)
+
+Live open feeds (no upstream key):
+
+| Region | Id | Operator |
+|--------|----|----------|
+| South East Queensland | `seq` | Translink |
+| Adelaide | `sa` | Adelaide Metro |
+
+```
+GET /au-transit/regions
+GET /au-transit/seq/vehicles?limit=20
+GET /au-transit/seq/trip-updates?routeId=
+GET /au-transit/sa/alerts
+GET /au-transit/seq/summary
+```
+
+CLI: `npx milypay transit seq vehicles --limit 10`
+MCP: `transit_vehicles`, `transit_trip_updates`, `transit_alerts`, `transit_summary`, `transit_regions`
+Prices: regions $0.001 · summary/alerts $0.002 · vehicles/trips $0.003
+
+Planned (need free developer keys): NSW (TfNSW), VIC (PTV).
+

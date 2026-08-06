@@ -41,7 +41,8 @@ cli/dist/
 cli/node_modules/
 next-env.d.ts
 npm-debug.log*
+packages/sdk/dist/
+packages/sdk/node_modules/
+vendor/**/node_modules/
 yarn-debug.log*
 yarn-error.log*
-packages/sdk/node_modules/
-packages/sdk/dist/

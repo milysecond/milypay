@@ -380,6 +380,47 @@ async function main() {
       break;
     }
 
+    case "transit": {
+      const sub = String(args._[1] || "").toLowerCase();
+      if (sub === "regions" || sub === "list") {
+        print(await getJson(`/au-transit/regions`, clientOpts(args)), args.json);
+        break;
+      }
+      const region = sub;
+      const feedRaw = String(args._[2] || "summary").toLowerCase();
+      const feed =
+        feedRaw === "trips" || feedRaw === "trip" || feedRaw === "trip-updates"
+          ? "trip-updates"
+          : feedRaw === "vehicle" || feedRaw === "vehicles"
+            ? "vehicles"
+            : feedRaw === "alert" || feedRaw === "alerts"
+              ? "alerts"
+              : feedRaw === "summary"
+                ? "summary"
+                : feedRaw;
+      if (!region) throw new Error("Usage: milypay transit regions | transit <seq|sa> vehicles|trips|alerts|summary");
+      // optional --route --stop --limit from remaining
+      let route = "";
+      let stop = "";
+      let limit = "";
+      const rest = args._.slice(3);
+      for (let i = 0; i < rest.length; i++) {
+        if (rest[i] === "--route") route = String(rest[++i] || "");
+        else if (rest[i] === "--stop") stop = String(rest[++i] || "");
+        else if (rest[i] === "--limit") limit = String(rest[++i] || "");
+      }
+      const qs = new URLSearchParams();
+      if (route) qs.set("routeId", route);
+      if (stop) qs.set("stopId", stop);
+      if (limit) qs.set("limit", limit);
+      const q = qs.toString();
+      print(
+        await getJson(`/au-transit/${encodeURIComponent(region)}/${feed}${q ? `?${q}` : ""}`, clientOpts(args)),
+        args.json,
+      );
+      break;
+    }
+
     default:
       throw new Error(`Unknown command: ${cmd}\n\n${usage()}`);
   }

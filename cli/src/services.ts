@@ -117,6 +117,12 @@ export const SERVICES: Service[] = [
     price: "0.003",
     description: "Headline CPI index + QoQ/YoY",
   },
+
+  { id: "transit-regions", path: "/au-transit/regions", price: "0.001", description: "AU transit regions" },
+  { id: "transit-vehicles", path: "/au-transit/{region}/vehicles", price: "0.003", description: "Live vehicles (GTFS-RT)" },
+  { id: "transit-trips", path: "/au-transit/{region}/trip-updates", price: "0.003", description: "Trip updates / delays" },
+  { id: "transit-alerts", path: "/au-transit/{region}/alerts", price: "0.002", description: "Service alerts" },
+  { id: "transit-summary", path: "/au-transit/{region}/summary", price: "0.002", description: "Region feed summary" },
 ];
 
 export const DEMO_BASE = "https://milypay.xyz";
