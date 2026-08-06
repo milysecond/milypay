@@ -256,6 +256,37 @@ export class Milypay {
       ),
   };
 
+
+  transit = {
+    regions: () => this.get(`/au-transit/regions`),
+    vehicles: (region: string, opts?: { routeId?: string; limit?: number }) => {
+      const qs = new URLSearchParams();
+      if (opts?.routeId) qs.set("routeId", opts.routeId);
+      if (opts?.limit) qs.set("limit", String(opts.limit));
+      const s = qs.toString();
+      return this.get(`/au-transit/${encodeURIComponent(region)}/vehicles${s ? `?${s}` : ""}`);
+    },
+    tripUpdates: (
+      region: string,
+      opts?: { routeId?: string; stopId?: string; limit?: number },
+    ) => {
+      const qs = new URLSearchParams();
+      if (opts?.routeId) qs.set("routeId", opts.routeId);
+      if (opts?.stopId) qs.set("stopId", opts.stopId);
+      if (opts?.limit) qs.set("limit", String(opts.limit));
+      const s = qs.toString();
+      return this.get(`/au-transit/${encodeURIComponent(region)}/trip-updates${s ? `?${s}` : ""}`);
+    },
+    alerts: (region: string, opts?: { routeId?: string; limit?: number }) => {
+      const qs = new URLSearchParams();
+      if (opts?.routeId) qs.set("routeId", opts.routeId);
+      if (opts?.limit) qs.set("limit", String(opts.limit));
+      const s = qs.toString();
+      return this.get(`/au-transit/${encodeURIComponent(region)}/alerts${s ? `?${s}` : ""}`);
+    },
+    summary: (region: string) => this.get(`/au-transit/${encodeURIComponent(region)}/summary`),
+  };
+
   postage(input: {
     weight: number;
     from?: string;

@@ -470,6 +470,85 @@ export async function startMcpServer(): Promise<void> {
   );
 
 
+
+  server.registerTool(
+    "transit_regions",
+    {
+      description: "List Australian public transport regions available on Milypay (live GTFS-RT + planned).",
+      inputSchema: {},
+    },
+    async () => runJson("/au-transit/regions"),
+  );
+
+  server.registerTool(
+    "transit_vehicles",
+    {
+      description: "Live public transport vehicle positions (GTFS-RT). region=seq (QLD Translink) or sa (Adelaide).",
+      inputSchema: {
+        region: z.string().describe("seq or sa"),
+        routeId: z.string().optional(),
+        limit: z.number().int().min(1).max(200).optional(),
+      },
+    },
+    async ({ region, routeId, limit }) => {
+      const qs = new URLSearchParams();
+      if (routeId) qs.set("routeId", routeId);
+      if (limit) qs.set("limit", String(limit));
+      const q = qs.toString();
+      return runJson(`/au-transit/${encodeURIComponent(region)}/vehicles${q ? `?${q}` : ""}`);
+    },
+  );
+
+  server.registerTool(
+    "transit_trip_updates",
+    {
+      description: "Live trip delays and stop ETAs (GTFS-RT).",
+      inputSchema: {
+        region: z.string().describe("seq or sa"),
+        routeId: z.string().optional(),
+        stopId: z.string().optional(),
+        limit: z.number().int().min(1).max(150).optional(),
+      },
+    },
+    async ({ region, routeId, stopId, limit }) => {
+      const qs = new URLSearchParams();
+      if (routeId) qs.set("routeId", routeId);
+      if (stopId) qs.set("stopId", stopId);
+      if (limit) qs.set("limit", String(limit));
+      const q = qs.toString();
+      return runJson(`/au-transit/${encodeURIComponent(region)}/trip-updates${q ? `?${q}` : ""}`);
+    },
+  );
+
+  server.registerTool(
+    "transit_alerts",
+    {
+      description: "Public transport service alerts (GTFS-RT).",
+      inputSchema: {
+        region: z.string().describe("seq or sa"),
+        routeId: z.string().optional(),
+        limit: z.number().int().min(1).max(100).optional(),
+      },
+    },
+    async ({ region, routeId, limit }) => {
+      const qs = new URLSearchParams();
+      if (routeId) qs.set("routeId", routeId);
+      if (limit) qs.set("limit", String(limit));
+      const q = qs.toString();
+      return runJson(`/au-transit/${encodeURIComponent(region)}/alerts${q ? `?${q}` : ""}`);
+    },
+  );
+
+  server.registerTool(
+    "transit_summary",
+    {
+      description: "Summary counts of vehicles, trip updates, and alerts for a transit region.",
+      inputSchema: { region: z.string().describe("seq or sa") },
+    },
+    async ({ region }) => runJson(`/au-transit/${encodeURIComponent(region)}/summary`),
+  );
+
+
   const transport = new StdioServerTransport();
   await server.connect(transport);
   // Keep process alive — transport owns stdio

@@ -60,6 +60,12 @@ const SERVICES: {
     price: "from $0.002 / call",
   },
   {
+    tag: "au-transit",
+    title: "Public transport",
+    desc: "Live GTFS-Realtime vehicles, delays, and alerts — Translink SEQ and Adelaide Metro today. NSW/VIC when keys land.",
+    price: "from $0.001 / call",
+  },
+  {
     tag: "au-abs",
     title: "ABS statistics",
     desc: "Australian Bureau of Statistics via SDMX — CPI, wages, population, census, retail and 1,200+ dataflows. Headline CPI with QoQ/YoY built in.",
@@ -178,6 +184,8 @@ const AGENT_SYSTEM_PROMPT = `You can use Milypay, free Australian data APIs at h
 - ABS dataflow search: /au-abs/dataflows?q={query}
 - ABS headline CPI: /au-abs/cpi
 - ABS series data: /au-abs/data/{dataflow}?key={key}&startPeriod={period}
+- Transit vehicles: /au-transit/seq/vehicles
+- Transit alerts: /au-transit/sa/alerts
 Full reference: https://milypay.xyz/agents.md`;
 
 const AGENT_ONELINER = `Use the Milypay APIs at https://api.milypay.xyz for Australian business, address, super fund, weather, BSB, and ABS statistics data. Read https://milypay.xyz/agents.md first, then call the endpoints with a GET request and read the JSON.`;
@@ -185,7 +193,7 @@ const AGENT_ONELINER = `Use the Milypay APIs at https://api.milypay.xyz for Aust
 const FAQ: { q: string; a: string }[] = [
   {
     q: "What is Milypay?",
-    a: "Milypay is the x402 service provider for the Australian market. It gives AI agents pay-per-call access to Australian data — business identity, company register, addresses, super funds, weather, postage, BSB, and ABS statistics — settled in AUDD, the regulated AUD-native stablecoin, with no API keys and no signup. Milypay is a Milysec company.",
+    a: "Milypay is the x402 service provider for the Australian market. It gives AI agents pay-per-call access to Australian data — business identity, company register, addresses, super funds, weather, postage, BSB, ABS statistics, and public transport — settled in AUDD, the regulated AUD-native stablecoin, with no API keys and no signup. Milypay is a Milysec company.",
   },
   {
     q: "How do AI agents pay for Australian data on Milypay?",
@@ -209,7 +217,7 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: "What Australian data does Milypay provide?",
-    a: "Business identity (ABN and ACN lookup from the ABR), ASIC company register lookups, address validation and geocoding (G-NAF, 16.9M addresses), super fund lookup, weather (BOM ACCESS-G via Open-Meteo), Australia Post postage rates, BSB lookup (17,000+ BSBs from AusPayNet), and ABS statistics (CPI, wages, population, census and 1,200+ SDMX dataflows). More Australian services are on the roadmap.",
+    a: "Business identity (ABN and ACN lookup from the ABR), ASIC company register lookups, address validation and geocoding (G-NAF, 16.9M addresses), super fund lookup, weather (BOM ACCESS-G via Open-Meteo), Australia Post postage rates, BSB lookup (17,000+ BSBs from AusPayNet), ABS statistics (CPI, wages, population, census and 1,200+ SDMX dataflows), and live public transport (QLD/SA GTFS-RT). More Australian services are on the roadmap.",
   },
   {
     q: "Which AI tools and agents work with Milypay?",
