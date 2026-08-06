@@ -171,3 +171,22 @@ Prices: regions $0.001 · summary/alerts $0.002 · vehicles/trips $0.003
 Live VIC: `/au-transit/vic/vehicles?mode=metro|tram|bus|vline` (default metro). Header KeyId via Worker secret.
 Live NSW: `/au-transit/nsw/vehicles?mode=buses|sydneytrains|metro|nswtrains|ferries|lightrail`
 
+## Energy (AEMO NEM)
+
+Live wholesale electricity — no upstream key:
+
+```
+GET /au-energy
+GET /au-energy/nem
+GET /au-energy/nem/NSW1
+GET /au-energy/nem/VIC
+GET /au-energy/notices?limit=10
+```
+
+CLI: `npx milypay nem` · `npx milypay nem vic` · `npx milypay energy notices`
+MCP: `energy_nem` · `energy_nem_region` · `energy_notices`
+Prices: catalogue $0.001 · nem/notices $0.002
+
+Wholesale spot $/MWh (not retail). Regions: NSW1 QLD1 SA1 TAS1 VIC1.
+Source: AEMO ELEC_NEM_SUMMARY.
+

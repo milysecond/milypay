@@ -549,6 +549,38 @@ export async function startMcpServer(): Promise<void> {
   );
 
 
+
+  server.registerTool(
+    "energy_nem",
+    {
+      description: "Live Australian NEM wholesale electricity price and demand for all regions (AEMO). Returns $/MWh spot, demand MW, generation, interconnectors.",
+      inputSchema: {},
+    },
+    async () => runJson("/au-energy/nem"),
+  );
+
+  server.registerTool(
+    "energy_nem_region",
+    {
+      description: "Live NEM snapshot for one region. region=NSW1|QLD1|SA1|TAS1|VIC1 (or NSW/QLD/SA/TAS/VIC).",
+      inputSchema: { region: z.string().describe("NSW1, VIC1, QLD1, SA1, TAS1") },
+    },
+    async ({ region }) => runJson(`/au-energy/nem/${encodeURIComponent(region)}`),
+  );
+
+  server.registerTool(
+    "energy_notices",
+    {
+      description: "Recent AEMO National Electricity Market notices (non-conformance, outages, etc).",
+      inputSchema: { limit: z.number().int().min(1).max(50).optional() },
+    },
+    async ({ limit }) => {
+      const q = limit ? `?limit=${limit}` : "";
+      return runJson(`/au-energy/notices${q}`);
+    },
+  );
+
+
   const transport = new StdioServerTransport();
   await server.connect(transport);
   // Keep process alive — transport owns stdio
