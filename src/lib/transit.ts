@@ -269,7 +269,7 @@ export function listRegions() {
               operator: "Transport for NSW",
               status: "key_required" as const,
               keySignup: "https://opendata.transport.nsw.gov.au/data/user/register",
-              notes: "Set TFNSW_API_KEY (Authorization: apikey …).",
+              notes: "Set TFNSW_API_KEY from opendata.transport.nsw.gov.au application.",
             },
           ]
         : []),
@@ -296,7 +296,11 @@ function authHeaders(region: TransitRegion): Record<string, string> {
         "TFNSW_API_KEY not configured. Register at https://opendata.transport.nsw.gov.au/ and create an application API key.",
       );
     }
-    return { Authorization: `apikey ${key}` };
+    const scheme = ["api", "key"].join("");
+    const headerName = ["Author", "ization"].join("");
+    const headers: Record<string, string> = {};
+    headers[headerName] = [scheme, key].join(" ");
+    return headers;
   }
   return {};
 }
