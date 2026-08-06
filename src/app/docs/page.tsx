@@ -15,6 +15,7 @@ const NAV = [
   { id: "payments", label: "Payments (x402)" },
   { id: "business", label: "Business identity" },
   { id: "company", label: "Company register" },
+  { id: "company-report", label: "ASIC extract" },
   { id: "address", label: "Address" },
   { id: "super", label: "Super funds" },
   { id: "weather", label: "Weather" },
@@ -112,16 +113,30 @@ const SECTIONS: Section[] = [
     namespace: "milysec/au-company-report",
     source: "ASIC via Business API (DSP)",
     blurb:
-      "Official company extract (directors, office, share capital). Free gov open data does not include officeholders; this is the only Business API use case.",
+      "Official company extract PDF (directors, officeholders, share capital, registered office). Free gov open data does not include officeholders — this is the paid DSP product. Demo host = Business API sandbox (free, watermarked). api.milypay.xyz = live extract, always $12 via x402.",
     endpoints: [
       {
-        path: "GET /au-company-report?acn={acn}",
-        desc: "Order a company extract by ACN. Always paid ($12). Also accepts POST with JSON body.",
-        example: "curl https://api.milypay.xyz/au-company-report?acn=000014675",
+        path: "GET /au-company-report?acn={acn}&type=current|historical",
+        desc: "Order an ASIC company extract by ACN. Returns JSON metadata + pdfBase64. Live host always charged $12; website demos use sandbox.",
+        example: 'curl "https://api.milypay.xyz/au-company-report?acn=000014675&type=current"',
         response: `{
   "acn": "000014675",
-  "extract": { /* Business API order / document payload */ }
+  "type": "current",
+  "requestId": 30679,
+  "status": "finished",
+  "environment": "live",
+  "demo": false,
+  "pdfBase64": "JVBERi0xLjcK...",
+  "pdfBytes": 48210,
+  "attribution": "Source: ASIC company extract ordered via Business API (DSP)"
 }`,
+      },
+      {
+        path: "POST /au-company-report",
+        desc: "Same as GET with JSON body { \"acn\": \"000014675\", \"type\": \"current\" }.",
+        example:
+          `curl -X POST https://api.milypay.xyz/au-company-report -H 'content-type: application/json' -d '{"acn":"000014675","type":"current"}'`,
+        response: `{ "acn": "000014675", "status": "finished", "pdfBase64": "..." }`,
       },
     ],
   },
@@ -451,7 +466,16 @@ curl https://milypay.xyz/api/au-business/abn/33051775556`}
                 >
                   about the registers
                 </a>
-                ).
+                ). Official company extracts (directors / officeholders) are ordered via{" "}
+                <a
+                  href="https://businessapi.com.au"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-brand-green hover:underline"
+                >
+                  Business API
+                </a>{" "}
+                DSP at <code className="text-fg">/au-company-report</code> ($12 live).
               </li>
               <li>Address: Incorporates G-NAF &copy; Geoscape Australia, open G-NAF licence. Per-call lookups only.</li>
               <li>Weather: Open-Meteo.com (CC BY 4.0), Australian model BOM ACCESS-G.</li>

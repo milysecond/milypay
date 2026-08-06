@@ -290,10 +290,12 @@ export default function CompanyDemo({ initialAcn }: { initialAcn?: string | null
                   onClick={() => void orderExtract(company.acn)}
                   className="btn-primary disabled:opacity-40"
                 >
-                  {extractLoading ? "Ordering extract..." : "Demo company extract (sandbox)"}
+                  {extractLoading ? "Ordering extract..." : "Get ASIC company extract (sandbox)"}
                 </button>
                 <p className="text-xs text-muted">
-                  Uses Business API test keys on this site. Not a live ASIC order. Agents pay for live extracts on api.milypay.xyz.
+                  Official extract via <code className="text-fg">/au-company-report</code>. This
+                  site uses Business API <strong>test</strong> keys (free sandbox PDF). Live
+                  extracts: <code className="text-fg">api.milypay.xyz</code> · $12 · x402.
                 </p>
               </div>
               {extractError && (

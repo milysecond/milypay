@@ -135,6 +135,27 @@ Solana, via the PayAI x402 facilitator.
 - x402 specification: https://x402.org
 - Parent company: https://milysec.com
 
+
+### ASIC company extract (`/au-company-report`)
+
+Official ASIC extract PDF via Business API DSP (directors, officeholders, share capital).
+
+| Host | Behaviour | Price |
+|------|-----------|-------|
+| `milypay.xyz` | Business API **sandbox** (demo PDF) | free / throttled |
+| `api.milypay.xyz` | **Live** extract | **$12** x402 (always paid) |
+
+```bash
+# sandbox demo
+curl "https://milypay.xyz/api/au-company-report?acn=000014675&type=current"
+
+# live paid
+npx milypay --api company-report 000014675
+```
+
+Response includes `pdfBase64`, `pdfBytes`, `requestId`, `status`.
+MCP tool: `company_report`.
+
 ## ABS statistics
 
 Australian Bureau of Statistics via SDMX Data API (no upstream key).
