@@ -193,5 +193,6 @@ CLI: `npx milypay transit seq vehicles --limit 10`
 MCP: `transit_vehicles`, `transit_trip_updates`, `transit_alerts`, `transit_summary`, `transit_regions`
 Prices: regions $0.001 · summary/alerts $0.002 · vehicles/trips $0.003
 
-Planned (need free developer keys): NSW (TfNSW), VIC (PTV).
+Live VIC: `/au-transit/vic/vehicles?mode=metro|tram|bus|vline` (default metro). Header KeyId via Worker secret.
+Planned: NSW (TfNSW API key).
 
