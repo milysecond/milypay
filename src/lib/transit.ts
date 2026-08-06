@@ -1,13 +1,13 @@
 /**
- * Australian public transport — GTFS-Realtime (Phase 1: open feeds, no keys).
+ * Australian public transport — GTFS-Realtime.
  *
- * Regions:
- *   seq — Translink SEQ (QLD)  https://gtfsrt.api.translink.com.au
- *   sa  — Adelaide Metro       https://gtfs.adelaidemetro.com.au
+ * Live:
+ *   seq — Translink SEQ (QLD) — open
+ *   sa  — Adelaide Metro — open (may be blocked from some edges)
+ *   vic — Transport Victoria — KeyId header (VIC_GTFS_KEY_ID)
  *
- * Phase 2 (needs free developer keys — not wired yet):
- *   nsw — Transport for NSW Open Data
- *   vic — PTV / Transport Victoria
+ * Planned:
+ *   nsw — Transport for NSW (TFNSW_API_KEY)
  */
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -59,18 +59,36 @@ type GtfsEntity = {
   };
 };
 
-export type TransitRegionId = "seq" | "sa";
+export type TransitRegionId = "seq" | "sa" | "vic";
+export type VicMode = "metro" | "tram" | "bus" | "vline";
+
+type FeedSet = { vehicles: string; tripUpdates: string; alerts: string };
 
 export type TransitRegion = {
   id: TransitRegionId;
   name: string;
   state: string;
   operator: string;
-  feeds: { vehicles: string; tripUpdates: string; alerts: string };
+  /** Single feed set (seq/sa) */
+  feeds?: FeedSet;
+  /** Mode-split feeds (vic) */
+  modes?: Record<VicMode, FeedSet>;
   attribution: string;
   status: "live" | "key_required";
+  auth?: "vic_keyid";
   keySignup?: string;
 };
+
+const VIC_BASE = "https://api.opendata.transport.vic.gov.au/opendata/public-transport/gtfs/realtime/v1";
+
+function vicFeeds(mode: VicMode): FeedSet {
+  const base = `${VIC_BASE}/${mode}`;
+  return {
+    vehicles: `${base}/vehicle-positions`,
+    tripUpdates: `${base}/trip-updates`,
+    alerts: `${base}/service-alerts`,
+  };
+}
 
 export const REGIONS: TransitRegion[] = [
   {
@@ -99,9 +117,30 @@ export const REGIONS: TransitRegion[] = [
     attribution: "Source: Adelaide Metro GTFS-Realtime open feeds.",
     status: "live",
   },
+  {
+    id: "vic",
+    name: "Victoria",
+    state: "VIC",
+    operator: "Transport Victoria / PTV",
+    modes: {
+      metro: vicFeeds("metro"),
+      tram: vicFeeds("tram"),
+      bus: vicFeeds("bus"),
+      vline: {
+        vehicles: `${VIC_BASE}/vline/vehicle-positions`,
+        tripUpdates: `${VIC_BASE}/vline/trip-updates`,
+        // V/Line has no separate alerts path in openapi list — reuse metro alerts as network-wide often empty
+        alerts: `${VIC_BASE}/metro/service-alerts`,
+      },
+    },
+    attribution:
+      "Source: Department of Transport and Planning Victoria GTFS-Realtime (opendata.transport.vic.gov.au).",
+    status: "live",
+    auth: "vic_keyid",
+    keySignup: "https://opendata.transport.vic.gov.au/user/me/api-tokens",
+  },
 ];
 
-/** Planned regions — documented for agents; not live until keys configured. */
 export const PLANNED_REGIONS = [
   {
     id: "nsw",
@@ -111,16 +150,6 @@ export const PLANNED_REGIONS = [
     status: "key_required" as const,
     keySignup: "https://opendata.transport.nsw.gov.au/data/user/register",
     portal: "https://opendata.transport.nsw.gov.au/",
-  },
-  {
-    id: "vic",
-    name: "Victoria",
-    state: "VIC",
-    operator: "PTV / Transport Victoria",
-    status: "key_required" as const,
-    keySignup: "https://opendata.transport.vic.gov.au/",
-    portal: "https://opendata.transport.vic.gov.au/dataset/gtfs-realtime",
-    notes: "Also legacy PTV Timetable API (dev id + key).",
   },
 ];
 
@@ -156,19 +185,71 @@ export function getRegion(id: string): TransitRegion | null {
 }
 
 export function listRegions() {
+  const vicReady = Boolean(process.env.VIC_GTFS_KEY_ID?.trim());
   return {
-    live: REGIONS.map(({ feeds: _f, ...r }) => r),
-    planned: PLANNED_REGIONS,
-    attribution: "GTFS-Realtime feeds from Australian open data portals. Phase 1: QLD SEQ + SA Adelaide (no API key).",
+    live: REGIONS.filter((r) => r.id !== "vic" || vicReady).map(({ feeds: _f, modes: _m, ...r }) => ({
+      ...r,
+      modes: r.id === "vic" ? (["metro", "tram", "bus", "vline"] as VicMode[]) : undefined,
+      keyConfigured: r.auth === "vic_keyid" ? vicReady : true,
+    })),
+    planned: [
+      ...PLANNED_REGIONS,
+      ...(!vicReady
+        ? [
+            {
+              id: "vic",
+              name: "Victoria",
+              state: "VIC",
+              operator: "Transport Victoria",
+              status: "key_required" as const,
+              keySignup: "https://opendata.transport.vic.gov.au/",
+              notes: "Set VIC_GTFS_KEY_ID (portal odata_api_keys / KeyId header).",
+            },
+          ]
+        : []),
+    ],
+    attribution:
+      "GTFS-Realtime from Australian open data. Live: QLD SEQ, SA Adelaide, VIC (KeyId). NSW planned.",
   };
 }
 
-async function fetchFeed(url: string): Promise<GtfsFeed> {
+function authHeaders(region: TransitRegion): Record<string, string> {
+  if (region.auth === "vic_keyid") {
+    const key = process.env.VIC_GTFS_KEY_ID?.trim();
+    if (!key) {
+      throw new Error(
+        "VIC_GTFS_KEY_ID not configured. Create an API token at https://opendata.transport.vic.gov.au/ and use the odata KeyId (UUID), not the JWT.",
+      );
+    }
+    return { KeyId: key };
+  }
+  return {};
+}
+
+function resolveFeedUrls(
+  region: TransitRegion,
+  mode?: string,
+): { urls: FeedSet; modeLabel: string } {
+  if (region.feeds) {
+    return { urls: region.feeds, modeLabel: "all" };
+  }
+  if (region.modes) {
+    const m = (mode || "metro").toLowerCase() as VicMode;
+    if (!region.modes[m]) {
+      throw new Error(`Unknown VIC mode '${mode}'. Use metro|tram|bus|vline`);
+    }
+    return { urls: region.modes[m], modeLabel: m };
+  }
+  throw new Error(`Region ${region.id} has no feeds configured`);
+}
+
+async function fetchFeed(url: string, extraHeaders: Record<string, string> = {}): Promise<GtfsFeed> {
   const res = await fetch(url, {
     headers: {
       "User-Agent": UA,
       Accept: "application/x-protobuf, application/octet-stream, */*",
       "Accept-Encoding": "identity",
+      ...extraHeaders,
     },
     signal: AbortSignal.timeout(20_000),
     redirect: "follow",
@@ -181,7 +262,6 @@ async function fetchFeed(url: string): Promise<GtfsFeed> {
   if (buf.length < 4) {
     throw new Error(`Empty GTFS-RT body from ${url}`);
   }
-  // HTML / JSON error pages are not protobuf
   if (buf[0] === 0x3c /* < */ || buf[0] === 0x7b /* { */) {
     const head = new TextDecoder().decode(buf.slice(0, 120));
     throw new Error(`Upstream returned non-protobuf body from ${url}: ${head}`);
@@ -208,11 +288,12 @@ function matchStop(stopId: string | undefined, filter?: string): boolean {
 
 export async function getVehicles(
   regionId: string,
-  opts?: { limit?: number; routeId?: string },
+  opts?: { limit?: number; routeId?: string; mode?: string },
 ) {
   const region = getRegion(regionId);
-  if (!region) throw new Error(`Unknown region '${regionId}'. Use seq or sa.`);
-  const feed = await fetchFeed(region.feeds.vehicles);
+  if (!region) throw new Error(`Unknown region '${regionId}'. Use seq, sa, or vic.`);
+  const { urls, modeLabel } = resolveFeedUrls(region, opts?.mode);
+  const feed = await fetchFeed(urls.vehicles, authHeaders(region));
   const limit = Math.min(Math.max(opts?.limit ?? 50, 1), 200);
   const vehicles = [];
   for (const e of feed.entity || []) {
@@ -231,11 +312,13 @@ export async function getVehicles(
       stopId: v.stopId || null,
       label: v.vehicle?.label || v.vehicle?.id || null,
       timestamp: longToNumber(v.timestamp),
+      mode: modeLabel === "all" ? undefined : modeLabel,
     });
     if (vehicles.length >= limit) break;
   }
   return {
     region: region.id,
+    mode: modeLabel,
     type: "vehicles" as const,
     count: vehicles.length,
     feedTimestamp: longToNumber(feed.header?.timestamp),
@@ -246,11 +329,12 @@ export async function getVehicles(
 
 export async function getTripUpdates(
   regionId: string,
-  opts?: { limit?: number; routeId?: string; stopId?: string },
+  opts?: { limit?: number; routeId?: string; stopId?: string; mode?: string },
 ) {
   const region = getRegion(regionId);
-  if (!region) throw new Error(`Unknown region '${regionId}'. Use seq or sa.`);
-  const feed = await fetchFeed(region.feeds.tripUpdates);
+  if (!region) throw new Error(`Unknown region '${regionId}'. Use seq, sa, or vic.`);
+  const { urls, modeLabel } = resolveFeedUrls(region, opts?.mode);
+  const feed = await fetchFeed(urls.tripUpdates, authHeaders(region));
   const limit = Math.min(Math.max(opts?.limit ?? 40, 1), 150);
   const updates = [];
   for (const e of feed.entity || []) {
@@ -277,11 +361,13 @@ export async function getTripUpdates(
       vehicleLabel: tu.vehicle?.label || tu.vehicle?.id || null,
       timestamp: longToNumber(tu.timestamp),
       stopTimeUpdates: stops,
+      mode: modeLabel === "all" ? undefined : modeLabel,
     });
     if (updates.length >= limit) break;
   }
   return {
     region: region.id,
+    mode: modeLabel,
     type: "trip_updates" as const,
     count: updates.length,
     feedTimestamp: longToNumber(feed.header?.timestamp),
@@ -290,10 +376,14 @@ export async function getTripUpdates(
   };
 }
 
-export async function getAlerts(regionId: string, opts?: { limit?: number; routeId?: string }) {
+export async function getAlerts(
+  regionId: string,
+  opts?: { limit?: number; routeId?: string; mode?: string },
+) {
   const region = getRegion(regionId);
-  if (!region) throw new Error(`Unknown region '${regionId}'. Use seq or sa.`);
-  const feed = await fetchFeed(region.feeds.alerts);
+  if (!region) throw new Error(`Unknown region '${regionId}'. Use seq, sa, or vic.`);
+  const { urls, modeLabel } = resolveFeedUrls(region, opts?.mode);
+  const feed = await fetchFeed(urls.alerts, authHeaders(region));
   const limit = Math.min(Math.max(opts?.limit ?? 30, 1), 100);
   const alerts = [];
   for (const e of feed.entity || []) {
@@ -316,11 +406,13 @@ export async function getAlerts(regionId: string, opts?: { limit?: number; route
         start: longToNumber(p.start),
         end: longToNumber(p.end),
       })),
+      mode: modeLabel === "all" ? undefined : modeLabel,
     });
     if (alerts.length >= limit) break;
   }
   return {
     region: region.id,
+    mode: modeLabel,
     type: "alerts" as const,
     count: alerts.length,
     feedTimestamp: longToNumber(feed.header?.timestamp),
@@ -329,13 +421,57 @@ export async function getAlerts(regionId: string, opts?: { limit?: number; route
   };
 }
 
-export async function getSummary(regionId: string) {
+export async function getSummary(regionId: string, opts?: { mode?: string }) {
   const region = getRegion(regionId);
-  if (!region) throw new Error(`Unknown region '${regionId}'. Use seq or sa.`);
+  if (!region) throw new Error(`Unknown region '${regionId}'. Use seq, sa, or vic.`);
+
+  // VIC mode=all fans out to each mode without recursive typing issues
+  if (region.id === "vic" && (opts?.mode || "metro").toLowerCase() === "all" && region.modes) {
+    const modes = Object.keys(region.modes) as VicMode[];
+    const parts: {
+      mode: VicMode;
+      ok: boolean;
+      vehicles?: number;
+      tripUpdates?: number;
+      alerts?: number;
+      error?: string;
+    }[] = [];
+    for (const m of modes) {
+      try {
+        const s = await getSummarySingle(region, m);
+        parts.push({
+          mode: m,
+          ok: true,
+          vehicles: s.vehicles,
+          tripUpdates: s.tripUpdates,
+          alerts: s.alerts,
+        });
+      } catch (e) {
+        parts.push({
+          mode: m,
+          ok: false,
+          error: e instanceof Error ? e.message : "failed",
+        });
+      }
+    }
+    return {
+      region: "vic",
+      mode: "all",
+      modes: parts,
+      attribution: region.attribution,
+    };
+  }
+
+  return getSummarySingle(region, opts?.mode);
+}
+
+async function getSummarySingle(region: TransitRegion, mode?: string) {
+  const { urls, modeLabel } = resolveFeedUrls(region, mode);
+  const headers = authHeaders(region);
   const [vFeed, tFeed, aFeed] = await Promise.all([
-    fetchFeed(region.feeds.vehicles),
-    fetchFeed(region.feeds.tripUpdates),
-    fetchFeed(region.feeds.alerts),
+    fetchFeed(urls.vehicles, headers),
+    fetchFeed(urls.tripUpdates, headers),
+    fetchFeed(urls.alerts, headers),
   ]);
   const vehicleEntities = (vFeed.entity || []).filter((e) => e.vehicle);
   const tripEntities = (tFeed.entity || []).filter((e) => e.tripUpdate);
@@ -345,6 +481,7 @@ export async function getSummary(regionId: string) {
   const a0 = alertEntities[0]?.alert;
   return {
     region: region.id,
+    mode: modeLabel,
     name: region.name,
     state: region.state,
     operator: region.operator,

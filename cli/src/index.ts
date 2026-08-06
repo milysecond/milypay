@@ -403,16 +403,19 @@ async function main() {
       let route = "";
       let stop = "";
       let limit = "";
+      let mode = "";
       const rest = args._.slice(3);
       for (let i = 0; i < rest.length; i++) {
         if (rest[i] === "--route") route = String(rest[++i] || "");
         else if (rest[i] === "--stop") stop = String(rest[++i] || "");
         else if (rest[i] === "--limit") limit = String(rest[++i] || "");
+        else if (rest[i] === "--mode") mode = String(rest[++i] || "");
       }
       const qs = new URLSearchParams();
       if (route) qs.set("routeId", route);
       if (stop) qs.set("stopId", stop);
       if (limit) qs.set("limit", limit);
+      if (mode) qs.set("mode", mode);
       const q = qs.toString();
       print(
         await getJson(`/au-transit/${encodeURIComponent(region)}/${feed}${q ? `?${q}` : ""}`, clientOpts(args)),
