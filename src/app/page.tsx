@@ -62,7 +62,7 @@ const SERVICES: {
   {
     tag: "au-transit",
     title: "Public transport",
-    desc: "Live GTFS-Realtime vehicles, delays, and alerts — Translink SEQ, Adelaide Metro, and Victoria (metro/tram/bus/V/Line). NSW next.",
+    desc: "Live GTFS-Realtime vehicles, delays, and alerts — Translink SEQ, Adelaide Metro, Victoria, and NSW (buses/trains/metro/ferries/light rail).",
     price: "from $0.001 / call",
   },
   {
