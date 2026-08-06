@@ -22,6 +22,7 @@ const NAV = [
   { id: "postage", label: "Postage" },
   { id: "abs", label: "ABS statistics" },
   { id: "transit", label: "Public transport" },
+  { id: "energy", label: "Energy (NEM)" },
   { id: "markets", label: "Market data" },
   { id: "data", label: "Data & attribution" },
 ];
@@ -336,6 +337,42 @@ const SECTIONS: Section[] = [
         desc: "Counts of vehicles, trip updates, and alerts plus a sample.",
         example: "curl https://api.milypay.xyz/au-transit/seq/summary",
         response: `{ "vehicles": 1455, "tripUpdates": 800, "alerts": 12 }`,
+      },
+    ],
+  },
+
+
+  {
+    id: "energy",
+    title: "Energy (NEM)",
+    namespace: "milysec/au-energy",
+    source: "AEMO NEM ELEC_NEM_SUMMARY (no API key)",
+    blurb:
+      "Live National Electricity Market wholesale spot prices ($/MWh), demand, generation, FCAS and interconnectors for NSW1, QLD1, SA1, TAS1, VIC1. Not retail tariffs. Gas and water planned.",
+    endpoints: [
+      {
+        path: "GET /au-energy",
+        desc: "Energy products catalogue.",
+        example: "curl https://api.milypay.xyz/au-energy",
+        response: `{ "products": [{ "id": "nem", "regions": ["NSW1","VIC1"] }] }`,
+      },
+      {
+        path: "GET /au-energy/nem",
+        desc: "All NEM regions live snapshot.",
+        example: "curl https://api.milypay.xyz/au-energy/nem",
+        response: `{ "regions": [{ "regionId": "NSW1", "priceAudPerMwh": 50.84, "totalDemandMw": 10113 }] }`,
+      },
+      {
+        path: "GET /au-energy/nem/{region}",
+        desc: "One region. Accepts NSW1 or NSW, VIC1 or VIC, etc.",
+        example: 'curl "https://api.milypay.xyz/au-energy/nem/VIC"',
+        response: `{ "regionId": "VIC1", "priceAudPerMwh": 141.37, "fcas": { "raiseReg": 0.42 } }`,
+      },
+      {
+        path: "GET /au-energy/notices",
+        desc: "Recent AEMO market notices.",
+        example: "curl https://api.milypay.xyz/au-energy/notices",
+        response: `{ "notices": [{ "type": "NON-CONFORMANCE", "reference": "..." }] }`,
       },
     ],
   },

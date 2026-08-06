@@ -424,6 +424,23 @@ async function main() {
       break;
     }
 
+    case "energy":
+    case "nem": {
+      const sub = String(args._[1] || "").toLowerCase();
+      if (sub === "notices" || sub === "notice") {
+        const lim = args._[2] != null ? String(args._[2]) : "";
+        const q = lim ? `?limit=${encodeURIComponent(lim)}` : "";
+        print(await getJson(`/au-energy/notices${q}`, clientOpts(args)), args.json);
+        break;
+      }
+      if (!sub || sub === "all" || sub === "summary") {
+        print(await getJson(`/au-energy/nem`, clientOpts(args)), args.json);
+        break;
+      }
+      print(await getJson(`/au-energy/nem/${encodeURIComponent(sub)}`, clientOpts(args)), args.json);
+      break;
+    }
+
     default:
       throw new Error(`Unknown command: ${cmd}\n\n${usage()}`);
   }

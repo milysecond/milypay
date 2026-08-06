@@ -66,6 +66,12 @@ const SERVICES: {
     price: "from $0.001 / call",
   },
   {
+    tag: "au-energy",
+    title: "Energy (NEM)",
+    desc: "Live wholesale electricity prices and demand across the National Electricity Market — NSW, QLD, SA, TAS, VIC. AEMO data, agent-ready JSON.",
+    price: "from $0.001 / call",
+  },
+  {
     tag: "au-abs",
     title: "ABS statistics",
     desc: "Australian Bureau of Statistics via SDMX — CPI, wages, population, census, retail and 1,200+ dataflows. Headline CPI with QoQ/YoY built in.",
@@ -186,6 +192,8 @@ const AGENT_SYSTEM_PROMPT = `You can use Milypay, free Australian data APIs at h
 - ABS series data: /au-abs/data/{dataflow}?key={key}&startPeriod={period}
 - Transit vehicles: /au-transit/seq/vehicles
 - Transit alerts: /au-transit/sa/alerts
+- NEM electricity: /au-energy/nem
+- NEM region: /au-energy/nem/NSW1
 Full reference: https://milypay.xyz/agents.md`;
 
 const AGENT_ONELINER = `Use the Milypay APIs at https://api.milypay.xyz for Australian business, address, super fund, weather, BSB, and ABS statistics data. Read https://milypay.xyz/agents.md first, then call the endpoints with a GET request and read the JSON.`;
@@ -217,7 +225,7 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: "What Australian data does Milypay provide?",
-    a: "Business identity (ABN and ACN lookup from the ABR), ASIC company register lookups, address validation and geocoding (G-NAF, 16.9M addresses), super fund lookup, weather (BOM ACCESS-G via Open-Meteo), Australia Post postage rates, BSB lookup (17,000+ BSBs from AusPayNet), ABS statistics (CPI, wages, population, census and 1,200+ SDMX dataflows), and live public transport (QLD/SA GTFS-RT). More Australian services are on the roadmap.",
+    a: "Business identity (ABN and ACN lookup from the ABR), ASIC company register lookups, address validation and geocoding (G-NAF, 16.9M addresses), super fund lookup, weather (BOM ACCESS-G via Open-Meteo), Australia Post postage rates, BSB lookup (17,000+ BSBs from AusPayNet), ABS statistics (CPI, wages, population, census and 1,200+ SDMX dataflows), live public transport (QLD/SA/VIC/NSW GTFS-RT), and NEM wholesale electricity prices. More Australian services are on the roadmap.",
   },
   {
     q: "Which AI tools and agents work with Milypay?",
