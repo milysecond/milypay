@@ -125,11 +125,15 @@ export const REGIONS: TransitRegion[] = [
     modes: {
       metro: vicFeeds("metro"),
       tram: vicFeeds("tram"),
-      bus: vicFeeds("bus"),
+      bus: {
+        vehicles: `${VIC_BASE}/bus/vehicle-positions`,
+        tripUpdates: `${VIC_BASE}/bus/trip-updates`,
+        // Bus openapi has no service-alerts feed — reuse metro network alerts
+        alerts: `${VIC_BASE}/metro/service-alerts`,
+      },
       vline: {
         vehicles: `${VIC_BASE}/vline/vehicle-positions`,
         tripUpdates: `${VIC_BASE}/vline/trip-updates`,
-        // V/Line has no separate alerts path in openapi list — reuse metro alerts as network-wide often empty
         alerts: `${VIC_BASE}/metro/service-alerts`,
       },
     },
@@ -468,11 +472,19 @@ export async function getSummary(regionId: string, opts?: { mode?: string }) {
 async function getSummarySingle(region: TransitRegion, mode?: string) {
   const { urls, modeLabel } = resolveFeedUrls(region, mode);
   const headers = authHeaders(region);
-  const [vFeed, tFeed, aFeed] = await Promise.all([
+  const results = await Promise.allSettled([
     fetchFeed(urls.vehicles, headers),
     fetchFeed(urls.tripUpdates, headers),
     fetchFeed(urls.alerts, headers),
   ]);
+  const vFeed = results[0].status === "fulfilled" ? results[0].value : { entity: [] as GtfsEntity[] };
+  const tFeed = results[1].status === "fulfilled" ? results[1].value : { entity: [] as GtfsEntity[] };
+  const aFeed = results[2].status === "fulfilled" ? results[2].value : { entity: [] as GtfsEntity[] };
+  if (results[0].status === "rejected" && results[1].status === "rejected") {
+    throw results[0].reason instanceof Error
+      ? results[0].reason
+      : new Error("vehicles and trip-updates failed");
+  }
   const vehicleEntities = (vFeed.entity || []).filter((e) => e.vehicle);
   const tripEntities = (tFeed.entity || []).filter((e) => e.tripUpdate);
   const alertEntities = (aFeed.entity || []).filter((e) => e.alert);
