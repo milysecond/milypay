@@ -52,7 +52,7 @@ GET /au-company/search?name={name}&limit={n} - price 0.004
 
 ### au-company-report - Official ASIC company extract
 
-GET /au-company-report?acn={acn} - price 12.00
+GET /au-company-report?acn={acn}&type=current|historical - price 12.00 (live). Returns pdfBase64. Demo host = sandbox free.
 POST /au-company-report - price 12.00 (JSON body: {"acn":"000014675"})
   Official ASIC company extract (directors, office, share capital, charges where available).
   Not available from free ASIC open data or ABR. Ordered via Business API DSP. Always paid.
