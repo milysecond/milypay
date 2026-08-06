@@ -165,15 +165,33 @@ export function listRegions() {
 
 async function fetchFeed(url: string): Promise<GtfsFeed> {
   const res = await fetch(url, {
-    headers: { "User-Agent": UA, Accept: "application/x-protobuf, application/octet-stream, */*" },
+    headers: {
+      "User-Agent": UA,
+      Accept: "application/x-protobuf, application/octet-stream, */*",
+      "Accept-Encoding": "identity",
+    },
     signal: AbortSignal.timeout(20_000),
+    redirect: "follow",
   });
   if (!res.ok) {
     const t = await res.text().catch(() => "");
     throw new Error(`Upstream GTFS-RT failed (${res.status}) ${url}: ${t.slice(0, 160)}`);
   }
   const buf = new Uint8Array(await res.arrayBuffer());
-  return GtfsRealtimeBindings.transit_realtime.FeedMessage.decode(buf);
+  if (buf.length < 4) {
+    throw new Error(`Empty GTFS-RT body from ${url}`);
+  }
+  // HTML / JSON error pages are not protobuf
+  if (buf[0] === 0x3c /* < */ || buf[0] === 0x7b /* { */) {
+    const head = new TextDecoder().decode(buf.slice(0, 120));
+    throw new Error(`Upstream returned non-protobuf body from ${url}: ${head}`);
+  }
+  try {
+    return GtfsRealtimeBindings.transit_realtime.FeedMessage.decode(buf);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "decode failed";
+    throw new Error(`GTFS-RT decode failed for ${url} (${buf.length} bytes): ${msg}`);
+  }
 }
 
 function matchRoute(routeId: string | undefined, filter?: string): boolean {
