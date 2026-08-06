@@ -90,6 +90,11 @@ const MANIFEST = {
     { method: "GET", path: "/au-abs/dataflow/{id}", price: "0.002", description: "ABS dataflow structure/metadata by id (e.g. CPI, WPI, RT)." },
     { method: "GET", path: "/au-abs/data/{dataflow}?key={key}&startPeriod={period}", price: "0.005", description: "Fetch ABS series observations (normalised JSON). Source: ABS Data API." },
     { method: "GET", path: "/au-abs/cpi?startPeriod={period}", price: "0.003", description: "Headline All groups CPI index (Australia, quarterly) with latest/QoQ/YoY. Catalogue 6401.0." },
+    { method: "GET", path: "/au-transit/regions", price: "0.001", description: "Australian public transport regions (live GTFS-RT + planned)." },
+    { method: "GET", path: "/au-transit/{region}/vehicles", price: "0.003", description: "Live vehicle positions (GTFS-RT). region=seq|sa. Optional routeId, limit." },
+    { method: "GET", path: "/au-transit/{region}/trip-updates", price: "0.003", description: "Live trip delays/ETAs (GTFS-RT). Optional routeId, stopId, limit." },
+    { method: "GET", path: "/au-transit/{region}/alerts", price: "0.002", description: "Service alerts (GTFS-RT)." },
+    { method: "GET", path: "/au-transit/{region}/summary", price: "0.002", description: "Feed health counts + sample for a region." },
   ],
   attribution: ATTRIBUTION,
 };

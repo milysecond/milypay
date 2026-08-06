@@ -1,6 +1,20 @@
 import type { NextConfig } from "next";
+import path from "path";
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ["gtfs-realtime-bindings", "protobufjs"],
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "gtfs-realtime-bindings": path.join(
+        __dirname,
+        "vendor/gtfs-realtime-bindings/gtfs-realtime.js",
+      ),
+      protobufjs: path.join(__dirname, "vendor/protobufjs"),
+      "protobufjs/minimal": path.join(__dirname, "vendor/protobufjs/minimal.js"),
+    };
+    return config;
+  },
   async redirects() {
     return [
       // Soft landings for common crawl junk / mistaken paths
