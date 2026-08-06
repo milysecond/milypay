@@ -5,9 +5,7 @@
  *   seq — Translink SEQ (QLD) — open
  *   sa  — Adelaide Metro — open (may be blocked from some edges)
  *   vic — Transport Victoria — KeyId header (VIC_GTFS_KEY_ID)
- *
- * Planned:
- *   nsw — Transport for NSW (TFNSW_API_KEY)
+ *   nsw — Transport for NSW — Authorization: apikey (TFNSW_API_KEY)
  */
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -59,8 +57,15 @@ type GtfsEntity = {
   };
 };
 
-export type TransitRegionId = "seq" | "sa" | "vic";
+export type TransitRegionId = "seq" | "sa" | "vic" | "nsw";
 export type VicMode = "metro" | "tram" | "bus" | "vline";
+export type NswMode =
+  | "buses"
+  | "sydneytrains"
+  | "metro"
+  | "nswtrains"
+  | "ferries"
+  | "lightrail";
 
 type FeedSet = { vehicles: string; tripUpdates: string; alerts: string };
 
@@ -71,11 +76,13 @@ export type TransitRegion = {
   operator: string;
   /** Single feed set (seq/sa) */
   feeds?: FeedSet;
-  /** Mode-split feeds (vic) */
-  modes?: Record<VicMode, FeedSet>;
+  /** Mode-split feeds (vic / nsw) */
+  modes?: Record<string, FeedSet>;
+  defaultMode?: string;
+  modeList?: string[];
   attribution: string;
   status: "live" | "key_required";
-  auth?: "vic_keyid";
+  auth?: "vic_keyid" | "tfnsw_apikey";
   keySignup?: string;
 };
 
@@ -122,6 +129,8 @@ export const REGIONS: TransitRegion[] = [
     name: "Victoria",
     state: "VIC",
     operator: "Transport Victoria / PTV",
+    defaultMode: "metro",
+    modeList: ["metro", "tram", "bus", "vline"],
     modes: {
       metro: vicFeeds("metro"),
       tram: vicFeeds("tram"),
@@ -143,19 +152,53 @@ export const REGIONS: TransitRegion[] = [
     auth: "vic_keyid",
     keySignup: "https://opendata.transport.vic.gov.au/user/me/api-tokens",
   },
-];
-
-export const PLANNED_REGIONS = [
   {
     id: "nsw",
     name: "New South Wales",
     state: "NSW",
     operator: "Transport for NSW",
-    status: "key_required" as const,
+    defaultMode: "buses",
+    modeList: ["buses", "sydneytrains", "metro", "nswtrains", "ferries", "lightrail"],
+    modes: {
+      buses: {
+        vehicles: "https://api.transport.nsw.gov.au/v1/gtfs/vehiclepos/buses",
+        tripUpdates: "https://api.transport.nsw.gov.au/v1/gtfs/realtime/buses",
+        alerts: "",
+      },
+      sydneytrains: {
+        vehicles: "https://api.transport.nsw.gov.au/v2/gtfs/vehiclepos/sydneytrains",
+        tripUpdates: "https://api.transport.nsw.gov.au/v2/gtfs/realtime/sydneytrains",
+        alerts: "",
+      },
+      metro: {
+        vehicles: "https://api.transport.nsw.gov.au/v1/gtfs/vehiclepos/metro",
+        tripUpdates: "https://api.transport.nsw.gov.au/v1/gtfs/realtime/metro",
+        alerts: "",
+      },
+      nswtrains: {
+        vehicles: "https://api.transport.nsw.gov.au/v1/gtfs/vehiclepos/nswtrains",
+        tripUpdates: "https://api.transport.nsw.gov.au/v1/gtfs/realtime/nswtrains",
+        alerts: "",
+      },
+      ferries: {
+        vehicles: "https://api.transport.nsw.gov.au/v1/gtfs/vehiclepos/ferries/sydneyferries",
+        tripUpdates: "https://api.transport.nsw.gov.au/v1/gtfs/realtime/ferries/sydneyferries",
+        alerts: "",
+      },
+      lightrail: {
+        vehicles: "https://api.transport.nsw.gov.au/v1/gtfs/vehiclepos/lightrail/cbdandsoutheast",
+        tripUpdates: "https://api.transport.nsw.gov.au/v1/gtfs/realtime/lightrail/cbdandsoutheast",
+        alerts: "",
+      },
+    },
+    attribution: "Source: Transport for NSW Open Data GTFS-Realtime (api.transport.nsw.gov.au).",
+    status: "live",
+    auth: "tfnsw_apikey",
     keySignup: "https://opendata.transport.nsw.gov.au/data/user/register",
-    portal: "https://opendata.transport.nsw.gov.au/",
   },
 ];
+
+export const PLANNED_REGIONS: { id: string; name: string; state: string; operator: string; status: "key_required"; keySignup?: string; portal?: string; notes?: string }[] = [];
 
 const UA = "Milypay/1.0 (+https://milypay.xyz; GTFS-RT proxy)";
 
@@ -190,11 +233,17 @@ export function getRegion(id: string): TransitRegion | null {
 
 export function listRegions() {
   const vicReady = Boolean(process.env.VIC_GTFS_KEY_ID?.trim());
+  const nswReady = Boolean(process.env.TFNSW_API_KEY?.trim());
   return {
-    live: REGIONS.filter((r) => r.id !== "vic" || vicReady).map(({ feeds: _f, modes: _m, ...r }) => ({
+    live: REGIONS.filter((r) => {
+      if (r.id === "vic") return vicReady;
+      if (r.id === "nsw") return nswReady;
+      return true;
+    }).map(({ feeds: _f, modes: _m, ...r }) => ({
       ...r,
-      modes: r.id === "vic" ? (["metro", "tram", "bus", "vline"] as VicMode[]) : undefined,
-      keyConfigured: r.auth === "vic_keyid" ? vicReady : true,
+      modes: r.modeList || (r.id === "vic" ? (["metro", "tram", "bus", "vline"] as string[]) : undefined),
+      keyConfigured:
+        r.auth === "vic_keyid" ? vicReady : r.auth === "tfnsw_apikey" ? nswReady : true,
     })),
     planned: [
       ...PLANNED_REGIONS,
@@ -207,13 +256,26 @@ export function listRegions() {
               operator: "Transport Victoria",
               status: "key_required" as const,
               keySignup: "https://opendata.transport.vic.gov.au/",
-              notes: "Set VIC_GTFS_KEY_ID (portal odata_api_keys / KeyId header).",
+              notes: "Set VIC_GTFS_KEY_ID (portal odata KeyId UUID).",
+            },
+          ]
+        : []),
+      ...(!nswReady
+        ? [
+            {
+              id: "nsw",
+              name: "New South Wales",
+              state: "NSW",
+              operator: "Transport for NSW",
+              status: "key_required" as const,
+              keySignup: "https://opendata.transport.nsw.gov.au/data/user/register",
+              notes: "Set TFNSW_API_KEY (Authorization: apikey …).",
             },
           ]
         : []),
     ],
     attribution:
-      "GTFS-Realtime from Australian open data. Live: QLD SEQ, SA Adelaide, VIC (KeyId). NSW planned.",
+      "GTFS-Realtime from Australian open data. Live: QLD SEQ, SA, VIC (KeyId), NSW (apikey).",
   };
 }
 
@@ -227,6 +289,15 @@ function authHeaders(region: TransitRegion): Record<string, string> {
     }
     return { KeyId: key };
   }
+  if (region.auth === "tfnsw_apikey") {
+    const key = process.env.TFNSW_API_KEY?.trim();
+    if (!key) {
+      throw new Error(
+        "TFNSW_API_KEY not configured. Register at https://opendata.transport.nsw.gov.au/ and create an application API key.",
+      );
+    }
+    return { Authorization: `apikey ${key}` };
+  }
   return {};
 }
 
@@ -238,9 +309,10 @@ function resolveFeedUrls(
     return { urls: region.feeds, modeLabel: "all" };
   }
   if (region.modes) {
-    const m = (mode || "metro").toLowerCase() as VicMode;
+    const m = (mode || region.defaultMode || "metro").toLowerCase();
     if (!region.modes[m]) {
-      throw new Error(`Unknown VIC mode '${mode}'. Use metro|tram|bus|vline`);
+      const allowed = Object.keys(region.modes).join("|");
+      throw new Error(`Unknown mode '${mode}' for ${region.id}. Use ${allowed}`);
     }
     return { urls: region.modes[m], modeLabel: m };
   }
@@ -295,7 +367,7 @@ export async function getVehicles(
   opts?: { limit?: number; routeId?: string; mode?: string },
 ) {
   const region = getRegion(regionId);
-  if (!region) throw new Error(`Unknown region '${regionId}'. Use seq, sa, or vic.`);
+  if (!region) throw new Error(`Unknown region '${regionId}'. Use seq, sa, vic, or nsw.`);
   const { urls, modeLabel } = resolveFeedUrls(region, opts?.mode);
   const feed = await fetchFeed(urls.vehicles, authHeaders(region));
   const limit = Math.min(Math.max(opts?.limit ?? 50, 1), 200);
@@ -336,7 +408,7 @@ export async function getTripUpdates(
   opts?: { limit?: number; routeId?: string; stopId?: string; mode?: string },
 ) {
   const region = getRegion(regionId);
-  if (!region) throw new Error(`Unknown region '${regionId}'. Use seq, sa, or vic.`);
+  if (!region) throw new Error(`Unknown region '${regionId}'. Use seq, sa, vic, or nsw.`);
   const { urls, modeLabel } = resolveFeedUrls(region, opts?.mode);
   const feed = await fetchFeed(urls.tripUpdates, authHeaders(region));
   const limit = Math.min(Math.max(opts?.limit ?? 40, 1), 150);
@@ -385,8 +457,20 @@ export async function getAlerts(
   opts?: { limit?: number; routeId?: string; mode?: string },
 ) {
   const region = getRegion(regionId);
-  if (!region) throw new Error(`Unknown region '${regionId}'. Use seq, sa, or vic.`);
+  if (!region) throw new Error(`Unknown region '${regionId}'. Use seq, sa, vic, or nsw.`);
   const { urls, modeLabel } = resolveFeedUrls(region, opts?.mode);
+  if (!urls.alerts) {
+    return {
+      region: region.id,
+      mode: modeLabel,
+      type: "alerts" as const,
+      count: 0,
+      feedTimestamp: null,
+      alerts: [],
+      note: "No alerts feed for this mode/region (or not entitled on this API key).",
+      attribution: region.attribution,
+    };
+  }
   const feed = await fetchFeed(urls.alerts, authHeaders(region));
   const limit = Math.min(Math.max(opts?.limit ?? 30, 1), 100);
   const alerts = [];
@@ -427,13 +511,13 @@ export async function getAlerts(
 
 export async function getSummary(regionId: string, opts?: { mode?: string }) {
   const region = getRegion(regionId);
-  if (!region) throw new Error(`Unknown region '${regionId}'. Use seq, sa, or vic.`);
+  if (!region) throw new Error(`Unknown region '${regionId}'. Use seq, sa, vic, or nsw.`);
 
-  // VIC mode=all fans out to each mode without recursive typing issues
-  if (region.id === "vic" && (opts?.mode || "metro").toLowerCase() === "all" && region.modes) {
-    const modes = Object.keys(region.modes) as VicMode[];
+  // mode=all fans out to each mode without recursive typing issues
+  if ((opts?.mode || "").toLowerCase() === "all" && region.modes) {
+    const modes = Object.keys(region.modes);
     const parts: {
-      mode: VicMode;
+      mode: string;
       ok: boolean;
       vehicles?: number;
       tripUpdates?: number;
@@ -459,7 +543,7 @@ export async function getSummary(regionId: string, opts?: { mode?: string }) {
       }
     }
     return {
-      region: "vic",
+      region: region.id,
       mode: "all",
       modes: parts,
       attribution: region.attribution,
@@ -472,14 +556,18 @@ export async function getSummary(regionId: string, opts?: { mode?: string }) {
 async function getSummarySingle(region: TransitRegion, mode?: string) {
   const { urls, modeLabel } = resolveFeedUrls(region, mode);
   const headers = authHeaders(region);
+  const emptyFeed: GtfsFeed = { entity: [], header: {} };
   const results = await Promise.allSettled([
     fetchFeed(urls.vehicles, headers),
     fetchFeed(urls.tripUpdates, headers),
-    fetchFeed(urls.alerts, headers),
+    urls.alerts ? fetchFeed(urls.alerts, headers) : Promise.resolve(emptyFeed),
   ]);
-  const vFeed = results[0].status === "fulfilled" ? results[0].value : { entity: [] as GtfsEntity[] };
-  const tFeed = results[1].status === "fulfilled" ? results[1].value : { entity: [] as GtfsEntity[] };
-  const aFeed = results[2].status === "fulfilled" ? results[2].value : { entity: [] as GtfsEntity[] };
+  const vFeed: GtfsFeed =
+    results[0].status === "fulfilled" ? results[0].value : emptyFeed;
+  const tFeed: GtfsFeed =
+    results[1].status === "fulfilled" ? results[1].value : emptyFeed;
+  const aFeed: GtfsFeed =
+    results[2].status === "fulfilled" ? results[2].value : emptyFeed;
   if (results[0].status === "rejected" && results[1].status === "rejected") {
     throw results[0].reason instanceof Error
       ? results[0].reason

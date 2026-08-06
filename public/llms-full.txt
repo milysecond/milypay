@@ -182,5 +182,5 @@ MCP: `transit_vehicles`, `transit_trip_updates`, `transit_alerts`, `transit_summ
 Prices: regions $0.001 · summary/alerts $0.002 · vehicles/trips $0.003
 
 Live VIC: `/au-transit/vic/vehicles?mode=metro|tram|bus|vline` (default metro). Header KeyId via Worker secret.
-Planned: NSW (TfNSW API key).
+Live NSW: `/au-transit/nsw/vehicles?mode=buses|sydneytrains|metro|nswtrains|ferries|lightrail`
 
