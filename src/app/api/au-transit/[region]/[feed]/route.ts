@@ -21,6 +21,7 @@ export async function GET(req: Request, { params }: Ctx) {
     url.searchParams.get("routeId") || url.searchParams.get("route") || undefined;
   const stopId =
     url.searchParams.get("stopId") || url.searchParams.get("stop") || undefined;
+  const mode = url.searchParams.get("mode") || undefined;
 
   const feedKey = feed.toLowerCase();
   const price =
@@ -30,7 +31,7 @@ export async function GET(req: Request, { params }: Ctx) {
     req,
     {
       price,
-      description: `AU transit ${region}/${feedKey}`,
+      description: `AU transit ${region}/${feedKey}${mode ? `/${mode}` : ""}`,
     },
     async () => {
       try {
@@ -39,19 +40,19 @@ export async function GET(req: Request, { params }: Ctx) {
           case "vehicles":
           case "vehicle":
           case "vehicle-positions":
-            data = await getVehicles(region, { limit, routeId });
+            data = await getVehicles(region, { limit, routeId, mode });
             break;
           case "trip-updates":
           case "trips":
           case "trip_updates":
-            data = await getTripUpdates(region, { limit, routeId, stopId });
+            data = await getTripUpdates(region, { limit, routeId, stopId, mode });
             break;
           case "alerts":
           case "service-alerts":
-            data = await getAlerts(region, { limit, routeId });
+            data = await getAlerts(region, { limit, routeId, mode });
             break;
           case "summary":
-            data = await getSummary(region);
+            data = await getSummary(region, { mode });
             break;
           default:
             return NextResponse.json(
