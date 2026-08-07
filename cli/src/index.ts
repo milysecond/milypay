@@ -398,7 +398,7 @@ async function main() {
               : feedRaw === "summary"
                 ? "summary"
                 : feedRaw;
-      if (!region) throw new Error("Usage: milypay transit regions | transit <seq|sa> vehicles|trips|alerts|summary");
+      if (!region) throw new Error("Usage: milypay transit regions | transit <seq|sa|vic|nsw> vehicles|trips|alerts|summary [--mode m]");
       // optional --route --stop --limit from remaining
       let route = "";
       let stop = "";

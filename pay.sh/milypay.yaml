@@ -194,3 +194,63 @@ endpoints:
           scale: 1
           tiers:
             - price_usd: 0.005
+  - method: GET
+    path: "au-energy/nem"
+    description: "AEMO NEM live wholesale prices all regions"
+    metering:
+      dimensions:
+        - direction: usage
+          unit: requests
+          scale: 1
+          tiers:
+            - price_usd: 0.002
+  - method: GET
+    path: "au-energy/nem/{region}"
+    description: "AEMO NEM live one region"
+    metering:
+      dimensions:
+        - direction: usage
+          unit: requests
+          scale: 1
+          tiers:
+            - price_usd: 0.002
+  - method: GET
+    path: "au-energy/notices"
+    description: "AEMO market notices"
+    metering:
+      dimensions:
+        - direction: usage
+          unit: requests
+          scale: 1
+          tiers:
+            - price_usd: 0.002
+  - method: GET
+    path: "au-transit/regions"
+    description: "AU transit regions catalogue"
+    metering:
+      dimensions:
+        - direction: usage
+          unit: requests
+          scale: 1
+          tiers:
+            - price_usd: 0.001
+  - method: GET
+    path: "au-transit/{region}/vehicles"
+    description: "GTFS-RT vehicle positions"
+    metering:
+      dimensions:
+        - direction: usage
+          unit: requests
+          scale: 1
+          tiers:
+            - price_usd: 0.003
+  - method: GET
+    path: "au-transit/{region}/summary"
+    description: "Transit feed summary counts"
+    metering:
+      dimensions:
+        - direction: usage
+          unit: requests
+          scale: 1
+          tiers:
+            - price_usd: 0.002
