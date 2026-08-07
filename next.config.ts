@@ -13,6 +13,7 @@ const nextConfig: NextConfig = {
       ),
       protobufjs: path.resolve(__dirname, "vendor/protobufjs"),
       "protobufjs/minimal": path.resolve(__dirname, "vendor/protobufjs/minimal.js"),
+      long: path.resolve(__dirname, "vendor/long/index.js"),
     };
     return config;
   },
