@@ -422,7 +422,7 @@ export default function DocsPage() {
     <main className="flex-1">
       <SiteHeader />
 
-      <div className="mx-auto max-w-6xl px-6 py-12 md:grid md:grid-cols-[180px_1fr] md:gap-12">
+      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 md:grid md:grid-cols-[180px_1fr] md:gap-12">
         {/* sidebar */}
         <aside className="mb-10 md:mb-0">
           <nav className="md:sticky md:top-24 flex flex-wrap gap-x-4 gap-y-2 text-sm md:flex-col md:gap-2">
@@ -503,17 +503,17 @@ curl https://milypay.xyz/api/au-business/abn/33051775556`}
                 <p className="leading-relaxed text-muted">{s.blurb}</p>
               </div>
               {s.endpoints.map((e) => (
-                <div key={e.path} className="card p-5 md:p-6">
-                  <code className="text-sm text-brand-green">{e.path}</code>
+                <div key={e.path} className="card min-w-0 overflow-hidden p-4 sm:p-5 md:p-6">
+                  <code className="block break-all text-[13px] leading-snug text-brand-green sm:text-sm">
+                    {e.path}
+                  </code>
                   <p className="mt-2 text-sm leading-relaxed text-muted">{e.desc}</p>
-                  <div className="mt-4 grid gap-3 lg:grid-cols-2">
-                    <div>
-                      <p className="mb-1.5 text-xs uppercase tracking-widest text-muted">Request</p>
-                      <CodeBlock code={e.example} />
+                  <div className="mt-4 grid min-w-0 gap-4 lg:grid-cols-2">
+                    <div className="min-w-0">
+                      <CodeBlock label="Request" code={e.example} />
                     </div>
-                    <div>
-                      <p className="mb-1.5 text-xs uppercase tracking-widest text-muted">Response</p>
-                      <CodeBlock code={e.response} />
+                    <div className="min-w-0">
+                      <CodeBlock label="Response" code={e.response} />
                     </div>
                   </div>
                 </div>
