@@ -306,7 +306,7 @@ const SECTIONS: Section[] = [
     namespace: "milysec/au-transit",
     source: "GTFS-Realtime (Translink SEQ, Adelaide Metro)",
     blurb:
-      "Live vehicles, trip delays/ETAs, and service alerts decoded from open GTFS-RT feeds. Phase 1: QLD SEQ + SA (no upstream key). NSW/VIC planned after free developer keys.",
+      "Live vehicles, trip delays/ETAs, and service alerts (GTFS-RT). Regions: `seq` (QLD Translink), `sa` (Adelaide Metro), `vic` (metro/tram/bus/vline), `nsw` (buses/sydneytrains/metro/nswtrains/ferries/lightrail).",
     endpoints: [
       {
         path: "GET /au-transit/regions",
