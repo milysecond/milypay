@@ -30,7 +30,7 @@ export default function NotFound() {
               <span className="h-3 w-3 rounded-full bg-muted/30" />
               <span className="ml-2 text-xs text-muted">agent &#8596; milypay</span>
             </div>
-            <pre className="overflow-x-auto p-5 text-[13px] leading-relaxed">
+            <pre className="max-w-full min-w-0 overflow-x-auto whitespace-pre-wrap break-words p-4 text-[12px] leading-relaxed [overflow-wrap:anywhere] sm:p-5 sm:text-[13px]">
               <code>
 {`$ curl https://milypay.xyz/this-page-does-not-exist
 

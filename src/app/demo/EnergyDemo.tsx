@@ -56,8 +56,8 @@ export default function EnergyDemo() {
             <p className="mt-4 font-mono text-xs text-muted">
               Settlement {data.settlementTime || "—"}
             </p>
-            <div className="mt-4 overflow-x-auto">
-              <table className="w-full text-left text-sm">
+            <div className="mt-4 max-w-full min-w-0 overflow-x-auto">
+              <table className="w-full min-w-[320px] text-left text-sm">
                 <thead className="font-mono text-[11px] uppercase tracking-wide text-muted">
                   <tr>
                     <th className="py-2 pr-4">Region</th>

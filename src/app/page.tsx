@@ -592,8 +592,8 @@ export default function Home() {
                   agent ↔ milypay
                 </span>
               </div>
-              <pre className="overflow-x-auto bg-bg p-5 text-[13px] leading-relaxed">
-                <code>
+              <pre className="max-w-full min-w-0 overflow-x-auto whitespace-pre-wrap break-words bg-bg p-4 text-[12px] leading-relaxed [overflow-wrap:anywhere] sm:p-5 sm:text-[13px]">
+                <code className="block min-w-0 font-mono">
 {`$ curl https://api.milypay.xyz/au-business/abn/51824753556
 
 `}<span className="text-brand-purple">HTTP/1.1 402 Payment Required</span>{`
