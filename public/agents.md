@@ -47,7 +47,7 @@ Claude / Cursor config:
 
 - Free demo host by default (`MILYPAY_HOST=demo`)
 - Paid API: set `MILYPAY_PRIVATE_KEY` and `MILYPAY_HOST=api`
-- Tools: lookup_abn, lookup_company, address_*, weather, bsb, postage, …
+- Tools: lookup_abn, lookup_company, address_*, weather, bsb, postage, abs_*, transit_*, energy_nem*, company_report, …
 
 ### SDK
 
@@ -87,10 +87,23 @@ All services live under the `milysec/*` namespace on Pay.sh.
 | `GET /au-postage?country={cc}&weight={kg}` | International parcel rates | $0.002 / call |
 | `GET /au-bsb/{bsb}` | BSB lookup: bank name, branch, address, state, postcode, services (P/E/H), merged/redirect flag | $0.002 / call |
 | `GET /au-bsb/search?q=` | Search BSBs by bank name, branch, or suburb | $0.004 / call |
+| `GET /au-abs/cpi` | Headline All groups CPI + QoQ/YoY | $0.003 / call |
+| `GET /au-abs/dataflows?q=` | Search 1,200+ ABS dataflows | $0.002 / call |
+| `GET /au-abs/data/{flow}` | ABS series (normalised observations) | $0.005 / call |
+| `GET /au-transit/regions` | Live + planned AU transit regions | $0.001 / call |
+| `GET /au-transit/{region}/vehicles` | GTFS-RT vehicles (`seq`/`sa`/`vic`/`nsw`, optional `?mode=`) | $0.003 / call |
+| `GET /au-transit/{region}/trip-updates` | Delays / stop ETAs | $0.003 / call |
+| `GET /au-transit/{region}/alerts` | Service alerts | $0.002 / call |
+| `GET /au-transit/{region}/summary` | Counts + sample | $0.002 / call |
+| `GET /au-energy/nem` | AEMO NEM wholesale price + demand (all regions) | $0.002 / call |
+| `GET /au-energy/nem/{region}` | One NEM region (NSW1/VIC1 or NSW/VIC) | $0.002 / call |
+| `GET /au-energy/notices` | AEMO market notices | $0.002 / call |
 
 BSB numbers can be supplied with or without the hyphen: `012-002` or `012002` both work.
 
-Base URL: `https://api.milypay.xyz`. More Australian services are on the roadmap.
+Transit regions: `seq` (QLD), `sa` (Adelaide), `vic` (metro|tram|bus|vline), `nsw` (buses|sydneytrains|metro|nswtrains|ferries|lightrail).
+
+Base URL: `https://api.milypay.xyz`.
 
 ## How payment works
 
@@ -174,27 +187,26 @@ Attribution: ABS CC BY 4.0
 
 ## Public transport (GTFS-Realtime)
 
-Live open feeds (no upstream key):
+Live GTFS-RT (QLD/SA open; VIC/NSW via configured portal keys):
 
-| Region | Id | Operator |
-|--------|----|----------|
-| South East Queensland | `seq` | Translink |
-| Adelaide | `sa` | Adelaide Metro |
+| Region | Id | Operator | Modes |
+|--------|----|----------|-------|
+| South East Queensland | `seq` | Translink | — |
+| Adelaide | `sa` | Adelaide Metro | — |
+| Victoria | `vic` | Transport Victoria | metro tram bus vline |
+| New South Wales | `nsw` | TfNSW | buses sydneytrains metro nswtrains ferries lightrail |
 
 ```
 GET /au-transit/regions
 GET /au-transit/seq/vehicles?limit=20
-GET /au-transit/seq/trip-updates?routeId=
+GET /au-transit/vic/summary?mode=tram
+GET /au-transit/nsw/vehicles?mode=sydneytrains&limit=10
 GET /au-transit/sa/alerts
-GET /au-transit/seq/summary
 ```
 
-CLI: `npx milypay transit seq vehicles --limit 10`
+CLI: `npx milypay transit seq vehicles --limit 10` · `npx milypay transit nsw summary --mode buses`
 MCP: `transit_vehicles`, `transit_trip_updates`, `transit_alerts`, `transit_summary`, `transit_regions`
 Prices: regions $0.001 · summary/alerts $0.002 · vehicles/trips $0.003
-
-Live VIC: `/au-transit/vic/vehicles?mode=metro|tram|bus|vline` (default metro). Header KeyId via Worker secret.
-Live NSW: `/au-transit/nsw/vehicles?mode=buses|sydneytrains|metro|nswtrains|ferries|lightrail`
 
 ## Energy (AEMO NEM)
 

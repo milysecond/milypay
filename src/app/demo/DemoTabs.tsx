@@ -10,6 +10,8 @@ import WeatherDemo from "./WeatherDemo";
 import PostageDemo from "./PostageDemo";
 import BsbDemo from "./BsbDemo";
 import AbsDemo from "./AbsDemo";
+import EnergyDemo from "./EnergyDemo";
+import TransitDemo from "./TransitDemo";
 
 type Service =
   | "business"
@@ -19,7 +21,9 @@ type Service =
   | "weather"
   | "postage"
   | "bsb"
-  | "abs";
+  | "abs"
+  | "energy"
+  | "transit";
 
 const SERVICES: Service[] = [
   "business",
@@ -30,6 +34,8 @@ const SERVICES: Service[] = [
   "postage",
   "bsb",
   "abs",
+  "energy",
+  "transit",
 ];
 
 function parseService(raw: string | null): Service {
@@ -63,7 +69,7 @@ function DemoTabsInner() {
     [pathname, router, searchParams],
   );
 
-  const tab = (key: Service, label: string, soon = false) => (
+  const tab = (key: Service, label: string) => (
     <button
       type="button"
       onClick={() => selectService(key)}
@@ -74,11 +80,6 @@ function DemoTabsInner() {
       }`}
     >
       {label}
-      {soon && (
-        <span className="ml-2 border border-border-brand px-1.5 py-0.5 text-[9px] uppercase tracking-wide text-muted">
-          soon
-        </span>
-      )}
     </button>
   );
 
@@ -86,40 +87,42 @@ function DemoTabsInner() {
     <div>
       <div className="mx-auto max-w-3xl px-6">
         <div className="inline-flex flex-wrap gap-1 border border-border-brand bg-card p-1">
-          {tab("business", "Business (ABN)")}
-          {tab("company", "Company (ASIC)")}
-          {tab("address", "Address (G-NAF)")}
-          {tab("super", "Super Fund")}
+          {tab("business", "Business")}
+          {tab("company", "Company")}
+          {tab("address", "Address")}
+          {tab("super", "Super")}
           {tab("weather", "Weather")}
           {tab("postage", "Postage")}
           {tab("bsb", "BSB")}
           {tab("abs", "ABS")}
+          {tab("energy", "Energy")}
+          {tab("transit", "Transit")}
         </div>
         <p className="mt-3 text-sm text-muted">
-          {service === "business" && "Live milysec/au-business - real ATO data."}
+          {service === "business" && "Live milysec/au-business — real ATO data."}
           {service === "company" && (
             <>
-              Live milysec/au-company open data (3.9M companies), plus sandbox company extract demo
-              via Business API test keys.{" "}
+              Live milysec/au-company open data, plus sandbox ASIC extract.{" "}
               <a
                 href="https://connectonline.asic.gov.au/RegistrySearch/faces/landing/SearchRegisters.jspx"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-medium text-brand-green hover:underline"
               >
-                Official ASIC company search
+                Official ASIC search
               </a>
               .
             </>
           )}
-          {service === "address" && "Live milysec/au-address - 16.9M addresses from G-NAF."}
-          {service === "super" && "Live milysec/au-super - ATO Super Fund Lookup register."}
-          {service === "weather" && "Live milysec/au-weather - forecast for any Australian address."}
-          {service === "postage" &&
-            "Live milysec/au-postage - Australia Post parcel rates between postcodes."}
-          {service === "bsb" && "Live milysec/au-bsb - 17,000+ BSBs from the AusPayNet directory."}
-          {service === "abs" &&
-            "Live milysec/au-abs - Australian Bureau of Statistics (SDMX). CPI, wages, 1,200+ dataflows."}
+          {service === "address" && "Live milysec/au-address — 16.9M G-NAF addresses."}
+          {service === "super" && "Live milysec/au-super — ATO Super Fund Lookup."}
+          {service === "weather" && "Live milysec/au-weather — Australian forecast."}
+          {service === "postage" && "Live milysec/au-postage — Australia Post rates."}
+          {service === "bsb" && "Live milysec/au-bsb — AusPayNet BSB directory."}
+          {service === "abs" && "Live milysec/au-abs — ABS SDMX statistics."}
+          {service === "energy" && "Live milysec/au-energy — AEMO NEM wholesale $/MWh."}
+          {service === "transit" &&
+            "Live milysec/au-transit — GTFS-RT vehicles/trips/alerts (QLD/SA/VIC/NSW)."}
         </p>
       </div>
       <div className="mt-6">
@@ -131,6 +134,8 @@ function DemoTabsInner() {
         {service === "postage" && <PostageDemo />}
         {service === "bsb" && <BsbDemo />}
         {service === "abs" && <AbsDemo />}
+        {service === "energy" && <EnergyDemo />}
+        {service === "transit" && <TransitDemo />}
       </div>
     </div>
   );
