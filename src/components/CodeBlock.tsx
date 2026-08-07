@@ -9,8 +9,8 @@ function renderLine(line: string, key: number): ReactNode {
   const trimmed = line.trimStart();
   if (trimmed.startsWith("//") || trimmed.startsWith("#")) {
     return (
-      <div key={key} className="text-muted">
-        {line || " "}
+      <div key={key} className="break-words [overflow-wrap:anywhere] text-muted">
+        {line || "\u00a0"}
       </div>
     );
   }
@@ -27,11 +27,22 @@ function renderLine(line: string, key: number): ReactNode {
   }
   if (last < line.length) out.push(line.slice(last));
   return (
-    <div key={key}>{out.length ? out : " "}</div>
+    <div key={key} className="break-words [overflow-wrap:anywhere]">
+      {out.length ? out : "\u00a0"}
+    </div>
   );
 }
 
-export default function CodeBlock({ code, plain = false }: { code: string; plain?: boolean }) {
+export default function CodeBlock({
+  code,
+  plain = false,
+  label,
+}: {
+  code: string;
+  plain?: boolean;
+  /** Optional caption above the block (e.g. Request / Response) */
+  label?: string;
+}) {
   const [copied, setCopied] = useState(false);
 
   async function copy() {
@@ -45,36 +56,55 @@ export default function CodeBlock({ code, plain = false }: { code: string; plain
   }
 
   return (
-    <div className="group/code relative">
+    <div className="group/code relative min-w-0 max-w-full">
+      {label ? (
+        <p className="mb-1.5 text-xs uppercase tracking-widest text-muted">{label}</p>
+      ) : null}
       <button
         type="button"
         onClick={copy}
         aria-label="Copy code"
-        className="absolute right-2 top-2 z-10 flex min-h-8 min-w-8 items-center gap-1 rounded-md border border-border-brand bg-card px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-muted opacity-0 transition hover:text-fg group-hover/code:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fg/30"
+        className="absolute right-2 top-2 z-10 flex min-h-9 min-w-9 items-center justify-center gap-1 rounded-md border border-border-brand bg-card/95 px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-muted shadow-sm backdrop-blur transition hover:text-fg focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fg/30 sm:opacity-0 sm:group-hover/code:opacity-100"
       >
         {copied ? (
           <>
-            <svg viewBox="0 0 24 24" className="h-3 w-3 text-brand-green" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              viewBox="0 0 24 24"
+              className="h-3.5 w-3.5 text-brand-green"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2.5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M5 13l4 4L19 7" />
             </svg>
-            Copied
+            <span className="hidden xs:inline sm:inline">Copied</span>
           </>
         ) : (
           <>
-            <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              viewBox="0 0 24 24"
+              className="h-3.5 w-3.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <rect x="9" y="9" width="11" height="11" rx="2" />
               <path d="M5 15V5a2 2 0 0 1 2-2h10" />
             </svg>
-            Copy
+            <span className="hidden sm:inline">Copy</span>
           </>
         )}
       </button>
       <pre
-        className={`rounded-lg border border-border-brand bg-bg p-3 pr-14 text-[11px] leading-relaxed ${
-          plain ? "whitespace-pre-wrap break-words" : "overflow-x-auto"
+        className={`max-w-full min-w-0 overflow-x-auto whitespace-pre-wrap break-words rounded-lg border border-border-brand bg-bg p-3 pr-12 text-[11px] leading-relaxed [overflow-wrap:anywhere] sm:p-4 sm:pr-14 sm:text-[12px] ${
+          plain ? "" : ""
         }`}
       >
-        <code>
+        <code className="block min-w-0 max-w-full font-mono">
           {plain
             ? code
             : code.split("\n").map((line, idx) => renderLine(line, idx))}

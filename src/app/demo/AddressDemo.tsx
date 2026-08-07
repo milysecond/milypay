@@ -101,7 +101,7 @@ export default function AddressDemo() {
       </div>
 
       {lastPath && (
-        <div className="mt-6 overflow-x-auto rounded-lg border border-border-brand bg-bg p-3 font-mono text-xs text-muted">
+        <div className="mt-6 max-w-full min-w-0 overflow-x-auto whitespace-pre-wrap break-words rounded-lg border border-border-brand bg-bg p-3 font-mono text-[11px] leading-relaxed text-muted [overflow-wrap:anywhere] sm:text-xs">
           <span className="text-brand-green">GET</span> https://milypay.xyz{lastPath}
         </div>
       )}
