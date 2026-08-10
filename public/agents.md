@@ -246,3 +246,8 @@ MCP: `lookup_phone`
 Price: **$0.05** / call
 
 Does **not** return caller name or person identity for anonymous x402 wallets.
+
+## Networks
+
+- **Solana (default):** x402 via PayAI — USDC / USDT / AUDD / AUDM / dAUD
+- **Tempo (optional scaffold):** CAIP-2 `eip155:4217` pathUSD / USDC.e when `TEMPO_X402=true` + `TEMPO_PAY_TO` set. Facilitator support required for settle. Prefer **MPP** for Tempo-native agents — see repo `docs/TEMPO.md`.

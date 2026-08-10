@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { bapiEnvFromRequest, businessApiReadiness } from "@/lib/businessapi";
+import { paymentRailsStatus } from "@/lib/x402";
 
 export const dynamic = "force-dynamic";
 
@@ -135,6 +136,7 @@ export async function GET(req: Request) {
         services: [...SERVICES],
         pending: ["au-tracking"],
         x402: process.env.X402_ENABLED === "true",
+        payments: paymentRailsStatus(),
         hosts: {
           site: "https://milypay.xyz",
           api: "https://api.milypay.xyz",
