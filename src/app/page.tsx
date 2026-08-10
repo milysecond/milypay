@@ -66,6 +66,12 @@ const SERVICES: {
     price: "from $0.001 / call",
   },
   {
+    tag: "au-phone",
+    title: "Phone line lookup",
+    desc: "Validity, line type, and carrier for any number (E.164). Line intel only — not personal identity. Twilio-backed.",
+    price: "from $0.05 / call",
+  },
+  {
     tag: "au-energy",
     title: "Energy (NEM)",
     desc: "Live wholesale electricity prices and demand across the National Electricity Market — NSW, QLD, SA, TAS, VIC. AEMO data, agent-ready JSON.",
@@ -194,6 +200,7 @@ const AGENT_SYSTEM_PROMPT = `You can use Milypay, free Australian data APIs at h
 - Transit alerts: /au-transit/sa/alerts
 - NEM electricity: /au-energy/nem
 - NEM region: /au-energy/nem/NSW1
+- Phone line: /au-phone?number=+614…
 Full reference: https://milypay.xyz/agents.md`;
 
 const AGENT_ONELINER = `Use the Milypay APIs at https://api.milypay.xyz for Australian business, address, super fund, weather, BSB, and ABS statistics data. Read https://milypay.xyz/agents.md first, then call the endpoints with a GET request and read the JSON.`;

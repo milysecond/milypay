@@ -190,3 +190,21 @@ Prices: catalogue $0.001 · nem/notices $0.002
 Wholesale spot $/MWh (not retail). Regions: NSW1 QLD1 SA1 TAS1 VIC1.
 Source: AEMO ELEC_NEM_SUMMARY.
 
+## Phone line lookup
+
+Line intelligence only (not personal identity / CNAM):
+
+```
+GET /au-phone?number=%2B61412345678
+GET /au-phone/%2B61412345678
+```
+
+AU mobiles accepted as `04xxxxxxxx` (normalized to +61).
+
+Returns: valid, country, national format, line type, carrier name, MCC/MNC.
+
+CLI: `npx milypay phone +61412345678`
+MCP: `lookup_phone`
+Price: **$0.05** / call
+
+Does **not** return caller name or person identity for anonymous x402 wallets.

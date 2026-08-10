@@ -581,6 +581,19 @@ export async function startMcpServer(): Promise<void> {
   );
 
 
+
+  server.registerTool(
+    "lookup_phone",
+    {
+      description: "Phone line intelligence (Twilio): valid, country, line type (mobile/landline/voip), carrier. NOT personal identity or caller name. Accepts E.164 (+61…) or AU 04…",
+      inputSchema: {
+        number: z.string().describe("E.164 phone e.g. +61412345678 or AU mobile 0412345678"),
+      },
+    },
+    async ({ number }) => runJson(`/au-phone?number=${encodeURIComponent(number)}`),
+  );
+
+
   const transport = new StdioServerTransport();
   await server.connect(transport);
   // Keep process alive — transport owns stdio

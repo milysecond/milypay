@@ -258,6 +258,11 @@ export class Milypay {
 
 
 
+  phone = {
+    lookup: (number: string) =>
+      this.get(`/au-phone?number=${encodeURIComponent(number)}`),
+  };
+
   energy = {
     catalogue: () => this.get(`/au-energy`),
     nem: () => this.get(`/au-energy/nem`),
