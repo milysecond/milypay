@@ -31,7 +31,7 @@ export async function GET(req: Request) {
     req,
     {
       price: "0.05",
-      description: `Phone line lookup ${phone.slice(0, 6)}…`,
+      description: `Phone line lookup ${phone.slice(0, 8)}`,
     },
     async () => {
       try {
