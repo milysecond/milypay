@@ -94,6 +94,8 @@ const MANIFEST = {
     { method: "GET", path: "/au-energy/nem", price: "0.002", description: "Live AEMO NEM wholesale price + demand for all regions (NSW1/QLD1/SA1/TAS1/VIC1)." },
     { method: "GET", path: "/au-energy/nem/{region}", price: "0.002", description: "Live AEMO NEM snapshot for one region (NSW1 or NSW, etc)." },
     { method: "GET", path: "/au-energy/notices?limit=", price: "0.002", description: "Recent AEMO electricity market notices." },
+    { method: "GET", path: "/au-phone?number={e164}", price: "0.05", description: "Phone line intel: valid, type, carrier (not personal identity)." },
+    { method: "GET", path: "/au-phone/{e164}", price: "0.05", description: "Phone line intel by path (URL-encode +)." },
     { method: "GET", path: "/au-transit/regions", price: "0.001", description: "Australian public transport regions (live GTFS-RT + planned)." },
     { method: "GET", path: "/au-transit/{region}/vehicles", price: "0.003", description: "Live vehicle positions (GTFS-RT). region=seq|sa. Optional routeId, limit." },
     { method: "GET", path: "/au-transit/{region}/trip-updates", price: "0.003", description: "Live trip delays/ETAs (GTFS-RT). Optional routeId, stopId, limit." },

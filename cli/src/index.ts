@@ -441,6 +441,14 @@ async function main() {
       break;
     }
 
+    case "phone":
+    case "lookup-phone": {
+      const num = String(args._[1] || "");
+      if (!num) throw new Error("Usage: milypay phone +61412345678  (or 0412345678)");
+      print(await getJson(`/au-phone?number=${encodeURIComponent(num)}`, clientOpts(args)), args.json);
+      break;
+    }
+
     default:
       throw new Error(`Unknown command: ${cmd}\n\n${usage()}`);
   }

@@ -23,6 +23,7 @@ const NAV = [
   { id: "abs", label: "ABS statistics" },
   { id: "transit", label: "Public transport" },
   { id: "energy", label: "Energy (NEM)" },
+  { id: "phone", label: "Phone lookup" },
   { id: "markets", label: "Market data" },
   { id: "data", label: "Data & attribution" },
 ];
@@ -373,6 +374,30 @@ const SECTIONS: Section[] = [
         desc: "Recent AEMO market notices.",
         example: "curl https://api.milypay.xyz/au-energy/notices",
         response: `{ "notices": [{ "type": "NON-CONFORMANCE", "reference": "..." }] }`,
+      },
+    ],
+  },
+
+
+  {
+    id: "phone",
+    title: "Phone line lookup",
+    namespace: "milysec/au-phone",
+    source: "Twilio Lookup v2 (line_type_intelligence)",
+    blurb:
+      "Validity, country, line type (mobile/landline/voip), and carrier. Not personal identity or caller name — that tier needs permitted-use attestation and is intentionally out of scope for anonymous x402 wallets.",
+    endpoints: [
+      {
+        path: "GET /au-phone?number={e164}",
+        desc: "Line intel. AU 04… accepted. URL-encode + as %2B.",
+        example: 'curl "https://api.milypay.xyz/au-phone?number=%2B61412345678"',
+        response: `{ "valid": true, "e164": "+61412345678", "countryCode": "AU", "lineType": "mobile", "carrierName": "Telstra…", "note": "Line intelligence only…" }`,
+      },
+      {
+        path: "GET /au-phone/{e164}",
+        desc: "Same via path segment.",
+        example: 'curl "https://api.milypay.xyz/au-phone/%2B61412345678"',
+        response: `{ "valid": true, "lineType": "mobile", "carrierName": "…" }`,
       },
     ],
   },
