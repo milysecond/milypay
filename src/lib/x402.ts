@@ -1,5 +1,7 @@
-// x402 payment gate for Milypay on Solana via the PayAI facilitator.
-// Accepts AUD stables (AUDD, AUDM, dAUD) plus USDC/USDT for pay-skills / pay.sh.
+// x402 payment gate for Milypay.
+// Primary: Solana via PayAI facilitator (AUD stables + USDC/USDT).
+// Multi-network accepts scaffold: optional Tempo (eip155:4217) when configured.
+//
 // Spec: client gets HTTP 402 with a base64 PAYMENT-REQUIRED challenge, pays, and retries
 // with a PAYMENT-SIGNATURE header. We /verify, serve, then /settle.
 // Docs: https://docs.payai.network/x402
@@ -8,20 +10,37 @@
 //   X402_ENABLED      "true" to enforce payment. Anything else = pass-through (dev/testing).
 //   PAYAI_FACILITATOR facilitator base URL (default https://facilitator.payai.network)
 //   PAYAI_API_KEY_ID / PAYAI_API_KEY_SECRET  optional paid-tier facilitator auth
-//   X402_NETWORK      CAIP-2 network id (default Solana mainnet)
+//   X402_NETWORK      CAIP-2 default Solana mainnet (legacy single-network override)
 //   PAY_TO_WALLET     merchant Solana wallet that receives settlement
-//   AUDD_MINT         AUDD mint (default Novatti on Solana)
-//   AUDM_MINT         AUDM mint (default Macropod on Solana)
-//   DAUD_MINT         dAUD mint (default New Money on Solana)
-//   USDC_MINT / USDT_MINT optional overrides
+//   AUDD_MINT / AUDM_MINT / DAUD_MINT / USDC_MINT / USDT_MINT
+//
+// Tempo (optional — only advertised when BOTH are set):
+//   TEMPO_X402=true          include Tempo accepts in 402 challenges
+//   TEMPO_PAY_TO=0x…         EVM receive address on Tempo
+//   TEMPO_NETWORK            default eip155:4217 (mainnet Presto)
+//   TEMPO_PATHUSD / TEMPO_USDC  optional token address overrides
+//
+// NOTE: PayAI facilitator does NOT list Tempo (eip155:4217) as of 2026-08.
+// TEMPO_X402 challenges will fail at /verify until a facilitator supports it.
+// For live Tempo agent payments today, use MPP (mppx) — see docs/TEMPO.md.
 
 import { NextResponse } from "next/server";
 import { isThrottled } from "./throttle";
 import { apiError } from "./errors";
 import { payaiAuthHeaders } from "./payai-auth";
+import {
+  TEMPO_MAINNET_CAIP2,
+  TEMPO_PATHUSD,
+  TEMPO_USDC_E,
+  tempoExplorerTx,
+  tempoEnabled,
+  tempoPayTo,
+  tempoNetwork,
+} from "./tempo";
 
 const FACILITATOR = process.env.PAYAI_FACILITATOR || "https://facilitator.payai.network";
-const NETWORK = process.env.X402_NETWORK || "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp";
+const SOLANA_NETWORK =
+  process.env.X402_NETWORK || "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp";
 
 // Solana mainnet mints
 const USDC_MINT =
@@ -30,28 +49,42 @@ const USDT_MINT =
   process.env.USDT_MINT || "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB";
 const AUDD_MINT =
   process.env.AUDD_MINT || "AUDDttiEpCydTm7joUMbYddm72jAWXZnCpPZtDoxqBSw";
-// Macropod AUDM (Token-2022) — CoinGecko / stablesonsolana
 const AUDM_MINT =
   process.env.AUDM_MINT || "CiYXBwHPrdNkMtxR8YEWKv78K6bQjFoEWhPQrZqEmubi";
-// New Money dAUD — 9 decimals
 const DAUD_MINT =
   process.env.DAUD_MINT || "F7FiKutfrMMXd8Zw5ysZsfx5v4aBHffWc4EhRZE8NHiF";
 
 const FEE_PAYER =
   process.env.PAYAI_FEE_PAYER || "2wKupLR9q6wXYppw8Gr2NvWxKBUqm4PPJKkQfoxHDBg4";
 
-type AcceptedAsset = { mint: string; symbol: string; decimals: number };
+/** One accept option in a multi-network 402 challenge. */
+type AcceptedAsset = {
+  network: string;
+  mint: string;
+  symbol: string;
+  decimals: number;
+  payTo: string;
+  feePayer?: string;
+};
 
 function enabled(): boolean {
   return process.env.X402_ENABLED === "true";
 }
 
+/** Latin1-safe base64 for Worker btoa (Unicode in descriptions used to 500). */
 function b64encode(obj: unknown): string {
-  return btoa(JSON.stringify(obj));
+  const json = JSON.stringify(obj);
+  const bytes = new TextEncoder().encode(json);
+  let bin = "";
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]!);
+  return btoa(bin);
 }
 
 function b64decodeJson<T>(s: string): T {
-  return JSON.parse(atob(s)) as T;
+  const bin = atob(s);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return JSON.parse(new TextDecoder().decode(bytes)) as T;
 }
 
 /** Convert a human amount ("0.02") to atomic units for a given decimal scale. */
@@ -73,32 +106,72 @@ interface PaymentRequirements {
 }
 
 /**
- * Stables Milypay accepts on Solana.
- * Order: USDC/USDT first (pay-skills CI), then AUD-native rails (AUDD, AUDM, dAUD).
+ * All payment rails advertised in 402 accepts[].
+ * Solana first (default agent path). Tempo only when TEMPO_X402 + TEMPO_PAY_TO set.
  */
 function acceptedAssets(): AcceptedAsset[] {
-  return [
-    { mint: USDC_MINT, symbol: "USDC", decimals: 6 },
-    { mint: USDT_MINT, symbol: "USDT", decimals: 6 },
-    { mint: AUDD_MINT, symbol: "AUDD", decimals: 6 },
-    { mint: AUDM_MINT, symbol: "AUDM", decimals: 6 },
-    { mint: DAUD_MINT, symbol: "dAUD", decimals: 9 },
-  ].filter((a) => Boolean(a.mint));
+  const solPayTo = process.env.PAY_TO_WALLET || "";
+  const out: AcceptedAsset[] = [];
+
+  if (solPayTo) {
+    const sol: Array<{ mint: string; symbol: string; decimals: number }> = [
+      { mint: USDC_MINT, symbol: "USDC", decimals: 6 },
+      { mint: USDT_MINT, symbol: "USDT", decimals: 6 },
+      { mint: AUDD_MINT, symbol: "AUDD", decimals: 6 },
+      { mint: AUDM_MINT, symbol: "AUDM", decimals: 6 },
+      { mint: DAUD_MINT, symbol: "dAUD", decimals: 9 },
+    ];
+    for (const a of sol) {
+      if (!a.mint) continue;
+      out.push({
+        network: SOLANA_NETWORK,
+        mint: a.mint,
+        symbol: a.symbol,
+        decimals: a.decimals,
+        payTo: solPayTo,
+        feePayer: FEE_PAYER,
+      });
+    }
+  }
+
+  // Tempo x402 accepts (experimental — facilitator must support eip155:4217)
+  if (tempoEnabled()) {
+    const payTo = tempoPayTo()!;
+    const net = tempoNetwork();
+    const pathUsd = process.env.TEMPO_PATHUSD || TEMPO_PATHUSD;
+    const usdcE = process.env.TEMPO_USDC || TEMPO_USDC_E;
+    out.push({
+      network: net,
+      mint: pathUsd,
+      symbol: "pathUSD",
+      decimals: 6,
+      payTo,
+    });
+    out.push({
+      network: net,
+      mint: usdcE,
+      symbol: "USDC.e",
+      decimals: 6,
+      payTo,
+    });
+  }
+
+  return out;
 }
 
-function requirementsForAsset(
-  price: string,
-  asset: AcceptedAsset,
-): PaymentRequirements {
-  return {
+function requirementsForAsset(price: string, asset: AcceptedAsset): PaymentRequirements {
+  const req: PaymentRequirements = {
     scheme: "exact",
-    network: NETWORK,
+    network: asset.network,
     amount: toAtomic(price, asset.decimals),
     asset: asset.mint,
-    payTo: process.env.PAY_TO_WALLET || "",
+    payTo: asset.payTo,
     maxTimeoutSeconds: 60,
-    extra: { feePayer: FEE_PAYER },
   };
+  if (asset.feePayer) {
+    req.extra = { feePayer: asset.feePayer };
+  }
+  return req;
 }
 
 function allRequirements(price: string): PaymentRequirements[] {
@@ -110,16 +183,15 @@ function challenge(req: Request, price: string, description: string) {
     x402Version: 2,
     error: "PAYMENT-SIGNATURE header is required",
     resource: { url: req.url, description, mimeType: "application/json" },
-    // USDC first so pay-skills probes recognize a Solana USDC/USDT accept.
     accepts: allRequirements(price),
     extensions: {},
   };
 }
 
 function paymentRequired(req: Request, price: string, description: string): NextResponse {
-  const symbols = acceptedAssets()
-    .map((a) => a.symbol)
-    .join(" / ");
+  const assets = acceptedAssets();
+  const symbols = [...new Set(assets.map((a) => a.symbol))].join(" / ");
+  const networks = [...new Set(assets.map((a) => a.network))];
   return apiError(
     402,
     "payment_required",
@@ -127,16 +199,24 @@ function paymentRequired(req: Request, price: string, description: string): Next
     {
       price: `${price} ${symbols}`,
       description,
-      accepts: acceptedAssets().map((a) => a.symbol),
+      accepts: assets.map((a) => a.symbol),
+      networks,
       payTo: process.env.PAY_TO_WALLET || undefined,
-      network: NETWORK,
+      tempoPayTo: tempoEnabled() ? tempoPayTo() : undefined,
+      network: networks[0] || SOLANA_NETWORK,
       facilitator: FACILITATOR,
+      tempo: tempoEnabled()
+        ? {
+            network: tempoNetwork(),
+            caip2: TEMPO_MAINNET_CAIP2,
+            note: "Tempo x402 requires facilitator support. Prefer MPP (mppx) for Tempo today.",
+          }
+        : undefined,
     },
     { "PAYMENT-REQUIRED": b64encode(challenge(req, price, description)) },
   );
 }
 
-/** Best-effort extract of the paid asset mint from a payment payload. */
 function extractPaidAsset(payload: unknown): string | null {
   if (!payload || typeof payload !== "object") return null;
   const walk = (obj: unknown, depth = 0): string | null => {
@@ -152,22 +232,41 @@ function extractPaidAsset(payload: unknown): string | null {
   return walk(payload);
 }
 
+function extractPaidNetwork(payload: unknown): string | null {
+  if (!payload || typeof payload !== "object") return null;
+  const walk = (obj: unknown, depth = 0): string | null => {
+    if (!obj || typeof obj !== "object" || depth > 4) return null;
+    const rec = obj as Record<string, unknown>;
+    if (typeof rec.network === "string" && rec.network.length > 3) return rec.network;
+    for (const v of Object.values(rec)) {
+      const found = walk(v, depth + 1);
+      if (found) return found;
+    }
+    return null;
+  };
+  return walk(payload);
+}
+
 function pickRequirements(price: string, payload: unknown): PaymentRequirements {
   const accepts = allRequirements(price);
-  const paid = extractPaidAsset(payload);
-  if (paid) {
-    const match = accepts.find((a) => a.asset === paid);
+  const paidAsset = extractPaidAsset(payload);
+  const paidNet = extractPaidNetwork(payload);
+  if (paidAsset) {
+    const match = accepts.find(
+      (a) =>
+        a.asset === paidAsset &&
+        (!paidNet || a.network === paidNet || a.network.includes(String(paidNet))),
+    );
     if (match) return match;
+    const byAsset = accepts.find((a) => a.asset === paidAsset);
+    if (byAsset) return byAsset;
   }
-  // Default to USDC (first accept) for facilitator calls when shape is unknown.
   return accepts[0];
 }
 
 export interface GateOptions {
-  price: string; // human amount in AUD-equivalent units, e.g. "0.002"
-  description: string;
-  // Always require payment (even on the website host). Use for services that cost us
-  // money upstream (e.g. resold third-party APIs) so the free host can't drain funds.
+  price: string; // human amount e.g. "0.002"
+  description: string; // prefer ASCII — Unicode is now safe via TextEncoder b64
   alwaysPaid?: boolean;
 }
 
@@ -180,12 +279,8 @@ export async function withX402(
   opts: GateOptions,
   handler: () => Promise<NextResponse>,
 ): Promise<NextResponse> {
-  // Payments are enforced only on the API host (api.milypay.xyz). The website and demo
-  // (milypay.xyz/api/*) stay free - just per-IP throttled - as does the off state.
   const host = (req.headers.get("host") || "").toLowerCase();
   const paidHost = host.startsWith("api.") || opts.alwaysPaid === true;
-  // A service that costs us money upstream (alwaysPaid) must NEVER be served free.
-  // If payments are off, refuse rather than fall through to the free path.
   if (opts.alwaysPaid && !enabled()) {
     return apiError(503, "service_unavailable", "This service is temporarily unavailable.");
   }
@@ -202,7 +297,7 @@ export async function withX402(
     return handler();
   }
 
-  if (!process.env.PAY_TO_WALLET) {
+  if (!process.env.PAY_TO_WALLET && !tempoEnabled()) {
     return apiError(503, "payment_not_configured", "Payment not configured");
   }
   if (allRequirements(opts.price).length === 0) {
@@ -221,7 +316,6 @@ export async function withX402(
 
   const reqs = pickRequirements(opts.price, payload);
 
-  // 1. Verify the payment proof with the facilitator.
   try {
     const auth = await payaiAuthHeaders();
     const vr = await fetch(`${FACILITATOR}/verify`, {
@@ -231,10 +325,9 @@ export async function withX402(
     });
     const verify = (await vr.json()) as { isValid?: boolean };
     if (!vr.ok || !verify.isValid) {
-      // Retry against each accepted asset if the first match failed.
       let ok = false;
       for (const alt of allRequirements(opts.price)) {
-        if (alt.asset === reqs.asset) continue;
+        if (alt.asset === reqs.asset && alt.network === reqs.network) continue;
         const vr2 = await fetch(`${FACILITATOR}/verify`, {
           method: "POST",
           headers: { "content-type": "application/json", ...auth },
@@ -253,10 +346,7 @@ export async function withX402(
     return apiError(502, "verification_unavailable", "Verification unavailable");
   }
 
-  // 2. Serve the resource.
   const res = await handler();
-
-  // 3. Settle only on success. Failed upstream (4xx/5xx) must not charge the agent.
   if (!res.ok) return res;
 
   try {
@@ -273,24 +363,21 @@ export async function withX402(
       res.headers.set("X-Milypay-Tx", receipt.signature);
       res.headers.set("X-Milypay-Explorer", receipt.explorerUrl || "");
     }
-    // Attach receipt into JSON bodies for agent convenience
     try {
       const ct = res.headers.get("content-type") || "";
       if (ct.includes("application/json")) {
         const body = await res.clone().json();
         if (body && typeof body === "object" && !Array.isArray(body)) {
-          const enriched = NextResponse.json(
+          return NextResponse.json(
             { ...(body as object), $receipt: receipt },
             { status: res.status, headers: res.headers },
           );
-          return enriched;
         }
       }
     } catch {
       /* leave original body */
     }
   } catch {
-    // Resource already served; settlement issues are logged, not surfaced to the agent.
     console.error("x402 settle failed");
   }
 
@@ -303,8 +390,8 @@ function buildReceipt(
 ): {
   signature?: string;
   explorerUrl?: string;
-    /** @deprecated alias — same as explorerUrl */
-    solNewUrl?: string;
+  /** @deprecated alias — same as explorerUrl */
+  solNewUrl?: string;
   network: string;
   asset: string;
   amount: string;
@@ -322,10 +409,15 @@ function buildReceipt(
   ) {
     sig = (settlement.transaction as { signature: string }).signature;
   }
-  const network = reqs.network || NETWORK;
-  const explorerUrl = sig
-    ? `https://sol.new/receipt/${sig}`
-    : undefined;
+  const network = reqs.network || SOLANA_NETWORK;
+  let explorerUrl: string | undefined;
+  if (sig) {
+    if (network.startsWith("eip155:") || network.includes("tempo")) {
+      explorerUrl = tempoExplorerTx(sig);
+    } else {
+      explorerUrl = `https://sol.new/receipt/${sig}`;
+    }
+  }
   return {
     signature: typeof sig === "string" ? sig : undefined,
     explorerUrl,
@@ -335,5 +427,27 @@ function buildReceipt(
     amount: reqs.amount,
     payTo: reqs.payTo,
     brand: "Milypay",
+  };
+}
+
+/** Status helper for /api/status and /ops */
+export function paymentRailsStatus() {
+  return {
+    x402Enabled: enabled(),
+    solana: {
+      network: SOLANA_NETWORK,
+      payToConfigured: Boolean(process.env.PAY_TO_WALLET),
+      assets: acceptedAssets()
+        .filter((a) => a.network === SOLANA_NETWORK)
+        .map((a) => a.symbol),
+    },
+    tempo: {
+      configured: tempoEnabled(),
+      network: tempoEnabled() ? tempoNetwork() : TEMPO_MAINNET_CAIP2,
+      payTo: tempoEnabled() ? tempoPayTo() : null,
+      x402Flag: process.env.TEMPO_X402 === "true",
+      facilitatorSupportsTempo: false, // PayAI as of 2026-08 — update when true
+      preferredPath: "MPP (mppx) until facilitator lists eip155:4217",
+    },
   };
 }
