@@ -250,4 +250,5 @@ Does **not** return caller name or person identity for anonymous x402 wallets.
 ## Networks
 
 - **Solana (default):** x402 via PayAI — USDC / USDT / AUDD / AUDM / dAUD
-- **Tempo (optional scaffold):** CAIP-2 `eip155:4217` pathUSD / USDC.e when `TEMPO_X402=true` + `TEMPO_PAY_TO` set. Facilitator support required for settle. Prefer **MPP** for Tempo-native agents — see repo `docs/TEMPO.md`.
+- **Tempo MPP (live):** pay with pathUSD on Tempo via Machine Payments Protocol. Use `?rail=mpp` or header `X-Payment-Rail: mpp` / `Authorization: Payment …`. See `docs/TEMPO.md`.
+- **Tempo x402 (scaffold):** `TEMPO_X402=true` only when a facilitator settles `eip155:4217`.

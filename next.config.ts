@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 import path from "path";
 
 const nextConfig: NextConfig = {
+  // mppx/viem are large; keep optional server external for node, webpack still bundles for CF.
+  serverExternalPackages: [],
   // Force webpack so vendored gtfs-realtime-bindings resolve cleanly on OpenNext/CF.
   // (Turbopack alias paths were rejecting absolute vendor paths.)
   webpack: (config) => {
@@ -14,6 +16,13 @@ const nextConfig: NextConfig = {
       protobufjs: path.resolve(__dirname, "vendor/protobufjs"),
       "protobufjs/minimal": path.resolve(__dirname, "vendor/protobufjs/minimal.js"),
       long: path.resolve(__dirname, "vendor/long/index.js"),
+    };
+    // mppx pulls node:http types; ignore optional native bits
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      net: false,
+      tls: false,
     };
     return config;
   },
