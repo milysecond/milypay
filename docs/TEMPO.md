@@ -45,6 +45,25 @@ Constants: `src/lib/tempo.ts`.
 - Solana → `https://sol.new/receipt/<sig>`
 - Tempo (`eip155:*`) → `https://explore.tempo.xyz/tx/<hash>`
 
+## Live MPP (shipped)
+
+Env on Worker:
+
+- `TEMPO_MPP=true`
+- `TEMPO_PAY_TO=0x…` (merchant receive)
+- `MPP_SECRET_KEY` (32+ bytes HMAC)
+- `MPP_REALM=api.milypay.xyz`
+
+Client:
+
+```
+curl -H "X-Payment-Rail: mpp" https://api.milypay.xyz/au-energy/nem
+# → 402 + WWW-Authenticate: Payment …
+# Retry with Authorization: Payment <credential>
+```
+
+Or `?rail=mpp`. Solana x402 unchanged (PAYMENT-SIGNATURE).
+
 ## What we still need for live Tempo
 
 ### A. x402-on-Tempo (when facilitator ready)

@@ -37,6 +37,7 @@ import {
   tempoPayTo,
   tempoNetwork,
 } from "./tempo";
+import { hasMppCredential, mppCharge, mppEnabled, mppStatus } from "./mpp";
 
 const FACILITATOR = process.env.PAYAI_FACILITATOR || "https://facilitator.payai.network";
 const SOLANA_NETWORK =
@@ -271,8 +272,9 @@ export interface GateOptions {
 }
 
 /**
- * Wrap a route handler with the x402 payment gate.
- * When X402_ENABLED !== "true", the handler runs free (data layer testing).
+ * Wrap a route handler with the payment gate.
+ * - Free demo host: throttle only
+ * - Paid host: MPP (Tempo) when client speaks MPP / ?rail=mpp, else x402 (Solana)
  */
 export async function withX402(
   req: Request,
@@ -281,20 +283,76 @@ export async function withX402(
 ): Promise<NextResponse> {
   const host = (req.headers.get("host") || "").toLowerCase();
   const paidHost = host.startsWith("api.") || opts.alwaysPaid === true;
-  if (opts.alwaysPaid && !enabled()) {
+  if (opts.alwaysPaid && !enabled() && !mppEnabled()) {
     return apiError(503, "service_unavailable", "This service is temporarily unavailable.");
   }
-  if (!enabled() || !paidHost) {
+  if ((!enabled() && !mppEnabled()) || !paidHost) {
     if (await isThrottled(req)) {
       return apiError(
         429,
         "rate_limited",
-        "Rate limit exceeded. Slow down, or use api.milypay.xyz with x402 payment.",
+        "Rate limit exceeded. Slow down, or use api.milypay.xyz with x402 or MPP payment.",
         { retryAfterSeconds: 60 },
         { "retry-after": "60" },
       );
     }
     return handler();
+  }
+
+  // --- MPP (Tempo) rail ---
+  // Prefer MPP when Authorization: Payment is present or client asks for mpp/tempo.
+  // x402 PAYMENT-SIGNATURE takes precedence for Solana agents.
+  const hasX402Sig = Boolean(req.headers.get("PAYMENT-SIGNATURE"));
+  if (mppEnabled() && !hasX402Sig) {
+    // Only enter MPP path when credential present or explicit rail — avoid stealing x402 clients
+    const url = new URL(req.url);
+    const rail = (url.searchParams.get("rail") || req.headers.get("x-payment-rail") || "").toLowerCase();
+    const wantMpp = hasMppCredential(req) || rail === "mpp" || rail === "tempo";
+    if (wantMpp) {
+      const mpp = await mppCharge(req, opts.price, { forceChallenge: true });
+      if (mpp.kind === "error") {
+        return new NextResponse(mpp.response.body, {
+          status: mpp.response.status,
+          headers: mpp.response.headers,
+        });
+      }
+      if (mpp.kind === "challenge") {
+        return new NextResponse(mpp.response.body, {
+          status: 402,
+          headers: mpp.response.headers,
+        });
+      }
+      if (mpp.kind === "paid") {
+        const res = await handler();
+        if (!res.ok) return res;
+        const paid = mpp.withReceipt(res);
+        return paid instanceof NextResponse
+          ? paid
+          : new NextResponse(paid.body, { status: paid.status, headers: paid.headers });
+      }
+    }
+  }
+
+  // --- x402 (Solana) rail ---
+  if (!enabled()) {
+    // MPP-only deployment without x402
+    if (mppEnabled()) {
+      const mpp = await mppCharge(req, opts.price, { forceChallenge: true });
+      if (mpp.kind === "challenge") {
+        return new NextResponse(mpp.response.body, {
+          status: 402,
+          headers: mpp.response.headers,
+        });
+      }
+      if (mpp.kind === "paid") {
+        const res = await handler();
+        const paid = mpp.withReceipt(res);
+        return paid instanceof NextResponse
+          ? paid
+          : new NextResponse(paid.body, { status: paid.status, headers: paid.headers });
+      }
+    }
+    return apiError(503, "payment_not_configured", "Payment not configured");
   }
 
   if (!process.env.PAY_TO_WALLET && !tempoEnabled()) {
@@ -446,8 +504,9 @@ export function paymentRailsStatus() {
       network: tempoEnabled() ? tempoNetwork() : TEMPO_MAINNET_CAIP2,
       payTo: tempoEnabled() ? tempoPayTo() : null,
       x402Flag: process.env.TEMPO_X402 === "true",
-      facilitatorSupportsTempo: false, // PayAI as of 2026-08 — update when true
-      preferredPath: "MPP (mppx) until facilitator lists eip155:4217",
+      facilitatorSupportsTempo: false,
+      preferredPath: "MPP (mppx)",
+      mpp: mppStatus(),
     },
   };
 }
