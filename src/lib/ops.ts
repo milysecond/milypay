@@ -149,6 +149,8 @@ export async function collectOpsData() {
       probe("/au-abs/cpi", "abs-cpi"),
       probe("/au-transit/seq/summary", "transit-seq"),
       probe("/au-energy/nem", "energy-nem"),
+      // phone needs a number — skip live probe or use query form 400 as up
+      probe("/au-phone", "phone-route"),
     ]),
   ]);
 
