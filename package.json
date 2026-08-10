@@ -26,7 +26,9 @@
     "react-dom": "19.2.4",
     "x402-solana": "^2.0.4",
     "gtfs-realtime-bindings": "file:vendor/gtfs-realtime-bindings",
-    "protobufjs": "file:vendor/protobufjs"
+    "protobufjs": "file:vendor/protobufjs",
+    "mppx": "0.8.17",
+    "viem": "2.54.0"
   },
   "devDependencies": {
     "@opennextjs/cloudflare": "^1.19.11",
