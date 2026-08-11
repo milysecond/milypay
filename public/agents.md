@@ -252,3 +252,18 @@ Does **not** return caller name or person identity for anonymous x402 wallets.
 - **Solana (default):** x402 via PayAI — USDC / USDT / AUDD / AUDM / dAUD
 - **Tempo MPP (live):** pay with pathUSD on Tempo via Machine Payments Protocol. Use `?rail=mpp` or header `X-Payment-Rail: mpp` / `Authorization: Payment …`. See `docs/TEMPO.md`.
 - **Tempo x402 (scaffold):** `TEMPO_X402=true` only when a facilitator settles `eip155:4217`.
+
+## Rides (quote only)
+
+Uber price / ETA / products — **no booking**.
+
+| Path | Price | Notes |
+|------|-------|-------|
+| `/au-rides` | $0.001 | Catalogue |
+| `/au-rides/quote?start_lat&start_lng&end_lat&end_lng` | $0.01 | Price estimates |
+| `/au-rides/eta?start_lat&start_lng` | $0.01 | Pickup ETAs |
+| `/au-rides/products?lat&lng` | $0.005 | Products at point |
+
+Requires Worker secrets `UBER_CLIENT_ID` + `UBER_CLIENT_SECRET` (OAuth scope `ride_request.estimate`).
+Example (Sydney CBD → airport):  
+`/au-rides/quote?start_lat=-33.8688&start_lng=151.2093&end_lat=-33.9399&end_lng=151.1753`

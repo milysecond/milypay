@@ -442,14 +442,70 @@ async function main() {
     }
 
     case "phone":
-    case "lookup-phone": {
-      const num = String(args._[1] || "");
-      if (!num) throw new Error("Usage: milypay phone +61412345678  (or 0412345678)");
-      print(await getJson(`/au-phone?number=${encodeURIComponent(num)}`, clientOpts(args)), args.json);
+        case "lookup-phone": {
+          const num = String(args._[1] || "");
+          if (!num) throw new Error("Usage: milypay phone +614****5678  (or 0412345678)");
+          print(await getJson(`/au-phone?number=${encodeURIComponent(num)}`, clientOpts(args)), args.json);
+          break;
+        }
+
+        case "rides":
+    case "ride":
+    case "uber": {
+      const sub = String(args._[1] || "quote").toLowerCase();
+      if (sub === "products") {
+        const lat = args._[2];
+        const lng = args._[3];
+        if (lat == null || lng == null) {
+          throw new Error("Usage: milypay rides products <lat> <lng>");
+        }
+        print(
+          await getJson(
+            `/au-rides/products?lat=${encodeURIComponent(String(lat))}&lng=${encodeURIComponent(String(lng))}`,
+            clientOpts(args),
+          ),
+          args.json,
+        );
+        break;
+      }
+      if (sub === "eta") {
+        const slat = args._[2];
+        const slng = args._[3];
+        if (slat == null || slng == null) {
+          throw new Error("Usage: milypay rides eta <start_lat> <start_lng>");
+        }
+        print(
+          await getJson(
+            `/au-rides/eta?start_lat=${encodeURIComponent(String(slat))}&start_lng=${encodeURIComponent(String(slng))}`,
+            clientOpts(args),
+          ),
+          args.json,
+        );
+        break;
+      }
+      // quote: milypay rides quote slat slng elat elng
+      // or milypay rides slat slng elat elng
+      const off = sub === "quote" ? 2 : 1;
+      const startLat = args._[off];
+      const startLng = args._[off + 1];
+      const endLat = args._[off + 2];
+      const endLng = args._[off + 3];
+      if (startLat == null || startLng == null || endLat == null || endLng == null) {
+        throw new Error(
+          "Usage: milypay rides quote <start_lat> <start_lng> <end_lat> <end_lng>",
+        );
+      }
+      const qs = new URLSearchParams({
+        start_lat: String(startLat),
+        start_lng: String(startLng),
+        end_lat: String(endLat),
+        end_lng: String(endLng),
+      });
+      print(await getJson(`/au-rides/quote?${qs}`, clientOpts(args)), args.json);
       break;
     }
 
-    default:
+        default:
       throw new Error(`Unknown command: ${cmd}\n\n${usage()}`);
   }
 }
