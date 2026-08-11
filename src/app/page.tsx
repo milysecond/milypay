@@ -72,6 +72,12 @@ const SERVICES: {
     price: "from $0.05 / call",
   },
   {
+    tag: "au-rides",
+    title: "Rides (quote only)",
+    desc: "Uber price estimates, pickup ETAs, and products between lat/lng points. No booking — quotes only.",
+    price: "from $0.005 / call",
+  },
+  {
     tag: "au-energy",
     title: "Energy (NEM)",
     desc: "Live wholesale electricity prices and demand across the National Electricity Market — NSW, QLD, SA, TAS, VIC. AEMO data, agent-ready JSON.",
