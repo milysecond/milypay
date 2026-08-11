@@ -129,6 +129,7 @@ export const SERVICES: Service[] = [
   { id: "energy-nem-region", path: "/au-energy/nem/{region}", price: "0.002", description: "NEM live one region" },
   { id: "energy-notices", path: "/au-energy/notices", price: "0.002", description: "AEMO market notices" },
 
+  { id: "rides-quote", path: "/au-rides/quote", price: "0.01", description: "Uber price estimate quote-only" },
   { id: "phone", path: "/au-phone?number={e164}", price: "0.05", description: "Phone line intel (valid/type/carrier)" },
 ];
 

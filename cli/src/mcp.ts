@@ -583,18 +583,72 @@ export async function startMcpServer(): Promise<void> {
 
 
   server.registerTool(
-    "lookup_phone",
-    {
-      description: "Phone line intelligence (Twilio): valid, country, line type (mobile/landline/voip), carrier. NOT personal identity or caller name. Accepts E.164 (+61…) or AU 04…",
-      inputSchema: {
-        number: z.string().describe("E.164 phone e.g. +61412345678 or AU mobile 0412345678"),
+      "lookup_phone",
+      {
+        description: "Phone line intelligence (Twilio): valid, country, line type (mobile/landline/voip), carrier. NOT personal identity or caller name. Accepts E.164 (+61…) or AU 04…",
+        inputSchema: {
+          number: z.string().describe("E.164 phone e.g. +614****5678 or AU mobile 0412345678"),
+        },
       },
-    },
-    async ({ number }) => runJson(`/au-phone?number=${encodeURIComponent(number)}`),
-  );
+      async ({ number }) => runJson(`/au-phone?number=${encodeURIComponent(number)}`),
+    );
 
+    server.registerTool(
+      "rides_quote",
+      {
+        description:
+          "Uber ride PRICE estimates only (no booking). start/end lat/lng. Returns product prices and surge.",
+        inputSchema: {
+          start_lat: z.number(),
+          start_lng: z.number(),
+          end_lat: z.number(),
+          end_lng: z.number(),
+          seat_count: z.number().int().min(1).max(10).optional(),
+        },
+      },
+      async ({ start_lat, start_lng, end_lat, end_lng, seat_count }) => {
+        const qs = new URLSearchParams({
+          start_lat: String(start_lat),
+          start_lng: String(start_lng),
+          end_lat: String(end_lat),
+          end_lng: String(end_lng),
+        });
+        if (seat_count) qs.set("seat_count", String(seat_count));
+        return runJson(`/au-rides/quote?${qs}`);
+      },
+    );
 
-  const transport = new StdioServerTransport();
+    server.registerTool(
+      "rides_eta",
+      {
+        description: "Uber pickup ETA estimates only (no booking).",
+        inputSchema: {
+          start_lat: z.number(),
+          start_lng: z.number(),
+          product_id: z.string().optional(),
+        },
+      },
+      async ({ start_lat, start_lng, product_id }) => {
+        const qs = new URLSearchParams({
+          start_lat: String(start_lat),
+          start_lng: String(start_lng),
+        });
+        if (product_id) qs.set("product_id", product_id);
+        return runJson(`/au-rides/eta?${qs}`);
+      },
+    );
+
+    server.registerTool(
+      "rides_products",
+      {
+        description: "Uber products available at a lat/lng (no booking).",
+        inputSchema: { lat: z.number(), lng: z.number() },
+      },
+      async ({ lat, lng }) =>
+        runJson(`/au-rides/products?lat=${encodeURIComponent(String(lat))}&lng=${encodeURIComponent(String(lng))}`),
+    );
+
+    const transport = new StdioServerTransport();
   await server.connect(transport);
   // Keep process alive — transport owns stdio
 }
