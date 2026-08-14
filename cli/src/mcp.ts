@@ -594,7 +594,26 @@ export async function startMcpServer(): Promise<void> {
     );
 
     server.registerTool(
-      "rides_quote",
+      "domains_check",
+    {
+      description: "Check DNS domain availability via Dynadot (x402 catalogue).",
+      inputSchema: { name: z.string() },
+    },
+    async ({ name }: { name: string }) => runJson(`/domains/check?name=${encodeURIComponent(name)}`),
+  );
+
+  server.registerTool(
+    "domains_quote",
+    {
+      description: "Quote domain registration chargeUsd for x402.",
+      inputSchema: { name: z.string(), years: z.number().optional() },
+    },
+    async ({ name, years }: { name: string; years?: number }) =>
+      runJson(`/domains/quote?name=${encodeURIComponent(name)}&years=${years || 1}`),
+  );
+
+  server.registerTool(
+    "rides_quote",
       {
         description:
           "Uber ride PRICE estimates only (no booking). start/end lat/lng. Returns product prices and surge.",
