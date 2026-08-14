@@ -449,7 +449,29 @@ async function main() {
           break;
         }
 
-        case "rides":
+        case "domains":
+    case "domain": {
+      const sub = String(args._[1] || "check").toLowerCase();
+      const name = String(args._[2] || args._[1] || "");
+      if (sub === "check" || (sub.includes(".") && !["check","quote","register"].includes(sub))) {
+        const n = sub.includes(".") ? sub : name;
+        if (!n || !n.includes(".")) throw new Error("Usage: milypay domains check example.com");
+        print(await getJson(`/domains/check?name=${encodeURIComponent(n)}`, clientOpts(args)), args.json);
+        break;
+      }
+      if (sub === "quote") {
+        if (!name.includes(".")) throw new Error("Usage: milypay domains quote example.com [years]");
+        const years = args._[3] || "1";
+        print(await getJson(`/domains/quote?name=${encodeURIComponent(name)}&years=${encodeURIComponent(String(years))}`, clientOpts(args)), args.json);
+        break;
+      }
+      if (sub === "register") {
+        throw new Error("Register via paid API: POST /domains/register with x402 for quote chargeUsd");
+      }
+      throw new Error("Usage: milypay domains check|quote <name>");
+    }
+
+    case "rides":
     case "ride":
     case "uber": {
       const sub = String(args._[1] || "quote").toLowerCase();

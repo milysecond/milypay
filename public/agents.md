@@ -267,3 +267,16 @@ Uber price / ETA / products — **no booking**.
 Requires Worker secrets `UBER_CLIENT_ID` + `UBER_CLIENT_SECRET` (OAuth scope `ride_request.estimate`).
 Example (Sydney CBD → airport):  
 `/au-rides/quote?start_lat=-33.8688&start_lng=151.2093&end_lat=-33.9399&end_lng=151.1753`
+
+## Domains (x402 register proxy)
+
+Milypay registers via Dynadot. You pay quote (registrar + markup). **No premium TLDs/names in v1.** Allowed: com net org xyz ai io app dev info co me online site store tech.
+
+| Path | Price |
+|------|-------|
+| `GET /domains` | $0.001 |
+| `GET /domains/check?name=example.com` | $0.01 |
+| `GET /domains/quote?name=example.com&years=1` | $0.01 |
+| `POST /domains/register` `{"name","years?"}` | **variable** (quote `chargeUsd`, always paid) |
+
+Flow: check → quote → pay x402 for `chargeUsd` → POST register with PAYMENT-SIGNATURE.

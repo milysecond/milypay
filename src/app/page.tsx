@@ -72,6 +72,12 @@ const SERVICES: {
     price: "from $0.05 / call",
   },
   {
+    tag: "domains",
+    title: "Domains",
+    desc: "Check, quote, and register DNS names with x402. Dynadot-backed; agent pays quote (cost + markup). No premium in v1.",
+    price: "from $0.01 / check",
+  },
+  {
     tag: "au-rides",
     title: "Rides (quote only)",
     desc: "Uber price estimates, pickup ETAs, and products between lat/lng points. No booking — quotes only.",
