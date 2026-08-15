@@ -280,3 +280,7 @@ Milypay registers via Dynadot. You pay quote (registrar + markup). **No premium 
 | `POST /domains/register` `{"name","years?"}` | **variable** (quote `chargeUsd`, always paid) |
 
 Flow: check → quote → pay x402 for `chargeUsd` → POST register with PAYMENT-SIGNATURE.
+
+## Domains — Doma (tokenized)
+
+See docs/DOMA.md and https://docs.doma.xyz — `GET/POST /domains/doma/*` (check, quote, contacts, register, order). Agent pays x402; Milypay settles Doma Marketplace.
