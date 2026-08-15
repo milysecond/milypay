@@ -74,7 +74,7 @@ const SERVICES: {
   {
     tag: "domains",
     title: "Domains",
-    desc: "Check, quote, and register DNS names with x402. Dynadot-backed; agent pays quote (cost + markup). No premium in v1.",
+    desc: "Check, quote, and register DNS names with x402. Dynadot DNS or Doma tokenized names. Agent pays x402; we register.",
     price: "from $0.01 / check",
   },
   {
