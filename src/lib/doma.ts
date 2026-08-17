@@ -144,7 +144,6 @@ async function gql<T = unknown>(
     headers: {
       "content-type": "application/json",
       "Api-Key": key,
-      "api-key": key,
     },
     body: JSON.stringify({ query, variables }),
     cache: "no-store",
