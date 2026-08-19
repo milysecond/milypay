@@ -295,3 +295,8 @@ MoneyGram does **not** settle x402. It funds USDC so agents can pay.
 4. Retry with `PAYMENT-SIGNATURE`
 
 Demo UI: https://milypay.xyz/fund
+
+## Usage dashboard
+
+- UI: https://milypay.xyz/dashboard
+- JSON: `GET /stats` (GA4 + npm + status)
