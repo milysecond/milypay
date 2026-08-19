@@ -38,6 +38,7 @@ import {
   tempoNetwork,
 } from "./tempo";
 import { hasMppCredential, mppCharge, mppEnabled, mppStatus } from "./mpp";
+import { bazaarResourceMeta, bazaarResourceUrl, buildBazaarExtension } from "./bazaar";
 
 const FACILITATOR = process.env.PAYAI_FACILITATOR || "https://facilitator.payai.network";
 const SOLANA_NETWORK =
@@ -180,12 +181,24 @@ function allRequirements(price: string): PaymentRequirements[] {
 }
 
 function challenge(req: Request, price: string, description: string) {
+  const resourceUrl = bazaarResourceUrl(req);
+  const meta = bazaarResourceMeta(description);
+  const bazaar = buildBazaarExtension(req, { method: req.method || "GET" });
   return {
     x402Version: 2,
     error: "PAYMENT-SIGNATURE header is required",
-    resource: { url: req.url, description, mimeType: "application/json" },
+    resource: {
+      url: resourceUrl,
+      description: meta.description,
+      mimeType: meta.mimeType,
+      serviceName: meta.serviceName,
+      tags: meta.tags,
+      iconUrl: meta.iconUrl,
+    },
     accepts: allRequirements(price),
-    extensions: {},
+    extensions: {
+      ...bazaar,
+    },
   };
 }
 
