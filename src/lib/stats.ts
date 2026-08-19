@@ -269,21 +269,44 @@ export async function collectUsageStats(): Promise<UsageStats> {
     };
   }
 
-  // status (public)
+  // status (public) — prefer same-origin path when available
   try {
-    const res = await fetch("https://api.milypay.xyz/status", {
-      headers: { "user-agent": "milypay-stats/1.0" },
-      signal: AbortSignal.timeout(15_000),
-      cache: "no-store",
-    });
-    const data = (await res.json()) as Record<string, unknown>;
-    out.status = {
-      overall: String(data.status || data.ok || ""),
-      x402: Boolean(data.x402),
-      moneygram: data.moneygram,
-      hosts: data.hosts,
-    };
-    out.sources.status = res.ok;
+    const statusUrls = [
+      "https://milypay.xyz/api/status",
+      "https://api.milypay.xyz/status",
+    ];
+    let data: Record<string, unknown> | null = null;
+    let ok = false;
+    for (const u of statusUrls) {
+      try {
+        const res = await fetch(u, {
+          headers: {
+            accept: "application/json",
+            "user-agent": "milypay-stats/1.0",
+          },
+          signal: AbortSignal.timeout(12_000),
+          cache: "no-store",
+        });
+        const ct = res.headers.get("content-type") || "";
+        if (!ct.includes("json")) continue;
+        data = (await res.json()) as Record<string, unknown>;
+        ok = res.ok;
+        if (ok) break;
+      } catch {
+        /* try next */
+      }
+    }
+    if (data) {
+      out.status = {
+        overall: String(data.status || data.ok || ""),
+        x402: Boolean(data.x402),
+        moneygram: data.moneygram,
+        hosts: data.hosts,
+      };
+      out.sources.status = ok;
+    } else {
+      out.status = { error: "status_unreachable" };
+    }
   } catch (e) {
     out.status = {
       error: e instanceof Error ? e.message : "status_failed",
