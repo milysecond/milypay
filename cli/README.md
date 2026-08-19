@@ -35,6 +35,9 @@ npx milypay <command>
 | `milypay bsb <bsb>` | BSB lookup |
 | `milypay bsb search <q>` | BSB search |
 | `milypay postage --from --to --weight` | AusPost rates |
+| `milypay fund status\|session` | MoneyGram pre-fund (sandbox) |
+| `milypay domains check\|quote <name>` | DNS check/quote |
+| `milypay rides quote …` | Uber estimates (no booking) |
 | `milypay call /path` | Raw path |
 | `milypay whoami` | Configured wallet |
 

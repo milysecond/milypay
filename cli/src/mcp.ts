@@ -9,7 +9,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import { getJson, type ClientOptions, type HostMode } from "./client.js";
+import { getJson, postJson, type ClientOptions, type HostMode } from "./client.js";
 import { DOCS, SERVICES } from "./services.js";
 import { loadWallet } from "./wallet.js";
 
@@ -666,6 +666,43 @@ export async function startMcpServer(): Promise<void> {
       async ({ lat, lng }) =>
         runJson(`/au-rides/products?lat=${encodeURIComponent(String(lat))}&lng=${encodeURIComponent(String(lng))}`),
     );
+
+  server.registerTool(
+    "moneygram_status",
+    {
+      description:
+        "MoneyGram funding status for pre-x402 wallet top-up. MoneyGram does NOT settle x402 — it funds USDC so you can pay. Demo UI: https://milypay.xyz/fund",
+      inputSchema: {},
+    },
+    async () => runJson(`/ramp/moneygram`),
+  );
+
+  server.registerTool(
+    "moneygram_session",
+    {
+      description:
+        "Create a MoneyGram Ramps sandbox session. Returns widgetUrl + sessionToken. Open widget to on-ramp USDC into a Solana wallet, then retry paid x402 calls. mode=on-ramp (fund) or off-ramp (cash out).",
+      inputSchema: {
+        mode: z
+          .enum(["on-ramp", "off-ramp"])
+          .optional()
+          .describe("on-ramp (default) funds wallet; off-ramp cashes out"),
+      },
+    },
+    async ({ mode }) => {
+      try {
+        return ok(
+          await postJson(
+            `/ramp/moneygram/session`,
+            { mode: mode || "on-ramp" },
+            opts(),
+          ),
+        );
+      } catch (e) {
+        return fail(e);
+      }
+    },
+  );
 
     const transport = new StdioServerTransport();
   await server.connect(transport);
