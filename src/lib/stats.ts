@@ -354,10 +354,10 @@ export async function collectUsageStats(): Promise<UsageStats> {
       ]);
 
       const pack = (r: unknown) => ({
-        users: metricVal(r, 0),
-        sessions: metricVal(r, 1),
-        views: metricVal(r, 2),
-        events: metricVal(r, 3),
+        users: metricRow(r, 0),
+        sessions: metricRow(r, 1),
+        views: metricRow(r, 2),
+        events: metricRow(r, 3),
       });
 
       out.ga4 = {
