@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { API_BASE, DEMO_BASE, DOCS, SERVICES } from "./services.js";
-import { getJson, type ClientOptions, type HostMode } from "./client.js";
+import { getJson, postJson, type ClientOptions, type HostMode } from "./client.js";
 import { loadWallet, walletHelp } from "./wallet.js";
 import { startMcpServer } from "./mcp.js";
 import { VERSION } from "./version.js";
@@ -76,6 +76,9 @@ Commands:
   bsb search <query>               Search BSBs
   postage --from <pc> --to <pc> --weight <kg> [--length --width --height]
   postage --country <cc> --weight <kg>
+  fund|moneygram [status|session]  MoneyGram wallet funding (pre-x402)
+  domains check|quote <name>       DNS availability / quote
+  rides quote|eta|products …       Uber estimates (quote-only)
   whoami                           Show configured wallet
   help                             This help
 
@@ -525,6 +528,34 @@ async function main() {
       });
       print(await getJson(`/au-rides/quote?${qs}`, clientOpts(args)), args.json);
       break;
+    }
+
+    case "fund":
+    case "moneygram":
+    case "ramp":
+    case "mg": {
+      const sub = String(args._[1] || "status").toLowerCase();
+      if (sub === "status" || sub === "info" || sub === "catalogue") {
+        print(await getJson(`/ramp/moneygram`, clientOpts(args)), args.json);
+        break;
+      }
+      if (sub === "session" || sub === "on" || sub === "on-ramp" || sub === "onramp" || sub === "off" || sub === "off-ramp" || sub === "offramp") {
+        let mode = "on-ramp";
+        if (sub === "off" || sub === "off-ramp" || sub === "offramp") mode = "off-ramp";
+        // milypay fund session on-ramp|off-ramp
+        const modeArg = String(args._[2] || "").toLowerCase();
+        if (modeArg === "off" || modeArg === "off-ramp" || modeArg === "offramp") mode = "off-ramp";
+        if (modeArg === "on" || modeArg === "on-ramp" || modeArg === "onramp") mode = "on-ramp";
+        if (sub === "on" || sub === "on-ramp" || sub === "onramp") mode = "on-ramp";
+        const data = await postJson(`/ramp/moneygram/session`, { mode }, clientOpts(args));
+        print(data, args.json);
+        const widget = (data as { widgetUrl?: string }).widgetUrl;
+        if (widget && !args.quiet) {
+          process.stderr.write(`\nOpen widget: ${widget}\nDemo UI: https://milypay.xyz/fund\n`);
+        }
+        break;
+      }
+      throw new Error("Usage: milypay fund status|session [on-ramp|off-ramp]");
     }
 
         default:

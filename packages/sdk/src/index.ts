@@ -170,6 +170,56 @@ export class Milypay {
     return this.get(path);
   }
 
+  async post<T = unknown>(path: string, body?: unknown): Promise<WithReceipt<T>> {
+    const url = path.startsWith("http") ? path : withHostPath(this.base, path);
+    const init: RequestInit = {
+      method: "POST",
+      headers: {
+        accept: "application/json",
+        "content-type": "application/json",
+        "user-agent": "milypay-sdk/0.2.0",
+      },
+      body: JSON.stringify(body ?? {}),
+    };
+    const res = this.x402
+      ? await this.x402.fetch(url, init)
+      : await this.fetcher(url, init);
+
+    const text = await res.text();
+    let data: unknown = text;
+    try {
+      data = text ? JSON.parse(text) : null;
+    } catch {
+      /* keep */
+    }
+    if (!res.ok) {
+      const msg =
+        typeof data === "object" && data && "error" in data
+          ? String((data as { error: unknown }).error)
+          : text.slice(0, 400);
+      const err = new Error(`HTTP ${res.status}: ${msg}`) as Error & {
+        status?: number;
+        body?: unknown;
+        code?: string;
+      };
+      err.status = res.status;
+      err.body = data;
+      err.code =
+        typeof data === "object" && data && "code" in data
+          ? String((data as { code: unknown }).code)
+          : undefined;
+      throw err;
+    }
+
+    const receipt = parseReceipt(
+      res.headers.get("PAYMENT-RESPONSE") || res.headers.get("payment-response"),
+    );
+    if (data && typeof data === "object" && !Array.isArray(data)) {
+      return { ...(data as object), ...(receipt ? { $receipt: receipt } : {}) } as WithReceipt<T>;
+    }
+    return (receipt ? { data, $receipt: receipt } : data) as WithReceipt<T>;
+  }
+
   business = {
     abn: (abn: string) => this.get(`/au-business/abn/${abn.replace(/\D/g, "")}`),
     acn: (acn: string) => this.get(`/au-business/acn/${acn.replace(/\D/g, "")}`),
@@ -319,6 +369,53 @@ export class Milypay {
     }
     return this.get(`/au-postage?${qs}`);
   }
+
+  domains = {
+    check: (name: string) =>
+      this.get(`/domains/check?name=${encodeURIComponent(name)}`),
+    quote: (name: string, years = 1) =>
+      this.get(
+        `/domains/quote?name=${encodeURIComponent(name)}&years=${encodeURIComponent(String(years))}`,
+      ),
+  };
+
+  rides = {
+    quote: (input: {
+      startLat: number;
+      startLng: number;
+      endLat: number;
+      endLng: number;
+      seatCount?: number;
+    }) => {
+      const qs = new URLSearchParams({
+        start_lat: String(input.startLat),
+        start_lng: String(input.startLng),
+        end_lat: String(input.endLat),
+        end_lng: String(input.endLng),
+      });
+      if (input.seatCount) qs.set("seat_count", String(input.seatCount));
+      return this.get(`/au-rides/quote?${qs}`);
+    },
+    eta: (input: { startLat: number; startLng: number; productId?: string }) => {
+      const qs = new URLSearchParams({
+        start_lat: String(input.startLat),
+        start_lng: String(input.startLng),
+      });
+      if (input.productId) qs.set("product_id", input.productId);
+      return this.get(`/au-rides/eta?${qs}`);
+    },
+    products: (lat: number, lng: number) =>
+      this.get(
+        `/au-rides/products?lat=${encodeURIComponent(String(lat))}&lng=${encodeURIComponent(String(lng))}`,
+      ),
+  };
+
+  /** MoneyGram pre-fund (does not settle x402). */
+  ramp = {
+    moneygram: () => this.get(`/ramp/moneygram`),
+    session: (mode: "on-ramp" | "off-ramp" = "on-ramp") =>
+      this.post(`/ramp/moneygram/session`, { mode }),
+  };
 }
 
 export default Milypay;

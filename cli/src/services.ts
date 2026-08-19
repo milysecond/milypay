@@ -133,6 +133,18 @@ export const SERVICES: Service[] = [
   { id: "domains-quote", path: "/domains/quote", price: "0.01", description: "Domain register quote" },
   { id: "rides-quote", path: "/au-rides/quote", price: "0.01", description: "Uber price estimate quote-only" },
   { id: "phone", path: "/au-phone?number={e164}", price: "0.05", description: "Phone line intel (valid/type/carrier)" },
+  {
+    id: "ramp-moneygram",
+    path: "/ramp/moneygram",
+    price: "0",
+    description: "MoneyGram funding status (pre-x402 wallet top-up)",
+  },
+  {
+    id: "ramp-moneygram-session",
+    path: "POST /ramp/moneygram/session",
+    price: "0",
+    description: "Create MoneyGram sandbox session (on-ramp / off-ramp widget)",
+  },
 ];
 
 export const DEMO_BASE = "https://milypay.xyz";
