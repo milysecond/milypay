@@ -284,3 +284,14 @@ Flow: check → quote → pay x402 for `chargeUsd` → POST register with PAYMEN
 ## Domains — Doma (tokenized)
 
 See docs/DOMA.md and https://docs.doma.xyz — `GET/POST /domains/doma/*` (check, quote, contacts, register, order). Agent pays x402; Milypay settles Doma Marketplace.
+
+## MoneyGram funding (x402 pre-fund)
+
+MoneyGram does **not** settle x402. It funds USDC so agents can pay.
+
+1. Paid route returns HTTP 402 with `funding.moneygram`
+2. `POST /ramp/moneygram/session` `{"mode":"on-ramp"}` → `widgetUrl` + `sessionToken`
+3. Complete sandbox widget → USDC in Solana wallet
+4. Retry with `PAYMENT-SIGNATURE`
+
+Demo UI: https://milypay.xyz/fund

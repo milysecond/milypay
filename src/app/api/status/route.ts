@@ -136,6 +136,7 @@ export async function GET(req: Request) {
         services: [...SERVICES],
         pending: ["au-tracking"],
         x402: process.env.X402_ENABLED === "true",
+        moneygram: { funding: true, session: "/ramp/moneygram/session", demo: "/fund" },
         payments: paymentRailsStatus(),
         hosts: {
           site: "https://milypay.xyz",
