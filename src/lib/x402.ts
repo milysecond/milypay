@@ -39,6 +39,7 @@ import {
 } from "./tempo";
 import { hasMppCredential, mppCharge, mppEnabled, mppStatus } from "./mpp";
 import { bazaarResourceMeta, bazaarResourceUrl, buildBazaarExtension } from "./bazaar";
+import { x402FundingHint } from "./moneygram";
 
 const FACILITATOR = process.env.PAYAI_FACILITATOR || "https://facilitator.payai.network";
 const SOLANA_NETWORK =
@@ -184,6 +185,7 @@ function challenge(req: Request, price: string, description: string) {
   const resourceUrl = bazaarResourceUrl(req);
   const meta = bazaarResourceMeta(description);
   const bazaar = buildBazaarExtension(req, { method: req.method || "GET" });
+  const funding = x402FundingHint(price);
   return {
     x402Version: 2,
     error: "PAYMENT-SIGNATURE header is required",
@@ -198,6 +200,7 @@ function challenge(req: Request, price: string, description: string) {
     accepts: allRequirements(price),
     extensions: {
       ...bazaar,
+      milypayFunding: funding,
     },
   };
 }
@@ -206,6 +209,7 @@ function paymentRequired(req: Request, price: string, description: string): Next
   const assets = acceptedAssets();
   const symbols = [...new Set(assets.map((a) => a.symbol))].join(" / ");
   const networks = [...new Set(assets.map((a) => a.network))];
+  const funding = x402FundingHint(price);
   return apiError(
     402,
     "payment_required",
@@ -219,6 +223,12 @@ function paymentRequired(req: Request, price: string, description: string): Next
       tempoPayTo: tempoEnabled() ? tempoPayTo() : undefined,
       network: networks[0] || SOLANA_NETWORK,
       facilitator: FACILITATOR,
+      funding,
+      howToPay: {
+        step1: "If wallet USDC is low, POST /ramp/moneygram/session (or open /fund) to on-ramp via MoneyGram sandbox",
+        step2: "Wait for USDC in your Solana wallet",
+        step3: "Sign x402 payment for the PAYMENT-REQUIRED challenge and retry with PAYMENT-SIGNATURE",
+      },
       tempo: tempoEnabled()
         ? {
             network: tempoNetwork(),
