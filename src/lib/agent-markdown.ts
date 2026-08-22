@@ -115,7 +115,7 @@ We read every message. For technical integration, include your use case (agent f
 `;
 
 export function markdownForPath(pathname: string): string | null {
-  const p = pathname.replace(/\\/+$/, "") || "/";
+  const p = pathname.replace(/\/+$/, "") || "/";
   switch (p) {
     case "/":
     case "":
