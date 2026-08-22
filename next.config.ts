@@ -42,6 +42,18 @@ const nextConfig: NextConfig = {
         destination: "/api/x402-manifest",
       },
       {
+        source: "/.well-known/api-catalog",
+        destination: "/api/api-catalog",
+      },
+      {
+        source: "/openapi.json",
+        destination: "/api/openapi",
+      },
+      {
+        source: "/openapi",
+        destination: "/api/openapi",
+      },
+      {
         source: "/googleb787913ba29840de.html",
         destination: "/api/gsc-verify",
       },
