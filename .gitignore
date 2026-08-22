@@ -46,3 +46,4 @@ packages/sdk/node_modules/
 vendor/**/node_modules/
 yarn-debug.log*
 yarn-error.log*
+vendor/mppx/

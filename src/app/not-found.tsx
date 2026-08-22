@@ -23,24 +23,41 @@ export default function NotFound() {
             code worth paying for around here is 402, and it lives on real endpoints.
           </p>
 
-          <div className="mt-10 max-w-2xl overflow-hidden rounded-2xl border border-border-brand bg-card">
-            <div className="flex items-center gap-2 border-b border-border-brand px-4 py-3">
-              <span className="h-3 w-3 rounded-full bg-brand-purple/60" />
-              <span className="h-3 w-3 rounded-full bg-brand-green/60" />
-              <span className="h-3 w-3 rounded-full bg-muted/30" />
-              <span className="ml-2 text-xs text-muted">agent &#8596; milypay</span>
-            </div>
-            <pre className="max-w-full min-w-0 overflow-x-auto whitespace-pre-wrap break-words p-4 text-[12px] leading-relaxed [overflow-wrap:anywhere] sm:p-5 sm:text-[13px]">
-              <code>
-{`$ curl https://milypay.xyz/this-page-does-not-exist
-
-`}<span className="text-brand-purple">HTTP/1.1 404 Not Found</span>{`
-x-402-price:    0.00 AUDD
-x-402-reason:   nothing to settle here
-
-`}<span className="text-muted"># 402 Payment Required lives on real endpoints. Try one:</span>
-              </code>
-            </pre>
+          <div className="mt-8 rounded-2xl border border-border-brand bg-card p-5 text-sm leading-relaxed text-muted">
+            <p className="font-semibold text-fg">Where agents should look next</p>
+            <ul className="mt-3 list-disc space-y-1 pl-5">
+              <li>
+                <Link href="/agents.md" className="underline">
+                  /agents.md
+                </Link>{" "}
+                — full agent guide
+              </li>
+              <li>
+                <Link href="/llms.txt" className="underline">
+                  /llms.txt
+                </Link>{" "}
+                ·{" "}
+                <Link href="/openapi.json" className="underline">
+                  /openapi.json
+                </Link>{" "}
+                ·{" "}
+                <Link href="/sitemap.xml" className="underline">
+                  /sitemap.xml
+                </Link>
+              </li>
+              <li>
+                <Link href="/.well-known/x402" className="underline">
+                  /.well-known/x402
+                </Link>{" "}
+                payment catalogue
+              </li>
+              <li>
+                <Link href="/mcp" className="underline">
+                  /mcp
+                </Link>{" "}
+                — stdio MCP via npx milypay mcp
+              </li>
+            </ul>
           </div>
 
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
@@ -50,8 +67,8 @@ x-402-reason:   nothing to settle here
             <Link href="/#services" className="btn-mono text-center">
               Browse services
             </Link>
-            <Link href="/stables" className="btn-mono text-center">
-              AUD stablecoins
+            <Link href="/docs" className="btn-mono text-center">
+              Docs
             </Link>
           </div>
         </div>

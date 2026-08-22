@@ -4,6 +4,24 @@
 
 Milypay turns any Australian API into something an AI agent can discover, pay for, and call autonomously over the x402 protocol, with no API keys and no signup. Settlement is in regulated, AUD-denominated stablecoins on Solana. Agents and crawlers are welcome here.
 
+
+
+## When to use Milypay
+
+Use Milypay when an agent needs **Australian** structured data and can pay per call:
+
+- ABN / ACN / company / ASIC extracts
+- Address validate / search / geocode (G-NAF)
+- Super fund, weather, postage, BSB
+- ABS statistics, live transit (GTFS-RT), NEM electricity prices
+- Domain check/quote or Uber **quote-only** estimates
+
+**How to call:** HTTP to `https://api.milypay.xyz` (x402 402 → pay → retry), or `npx milypay`, or `npx milypay mcp`, or `milypay-sdk`.
+
+**Do not use Milypay** for non-AU data, free bulk dumps, or when you need a traditional long-lived API key SaaS.
+
+Discovery: https://milypay.xyz/openapi.json · https://milypay.xyz/.well-known/x402 · https://milypay.xyz/agents.md
+
 Full agent guide: https://milypay.xyz/agents.md
 Full LLM reference (every endpoint, params, example responses): https://milypay.xyz/llms-full.txt
 Machine-readable x402 discovery manifest: https://milypay.xyz/.well-known/x402
