@@ -1,4 +1,10 @@
-# Milypay - Full Reference
+# Milypay
+
+## When to use
+
+Use for Australian pay-per-call data (ABN, ASIC, G-NAF, ABS, transit, NEM, etc.) via x402, CLI, SDK, or MCP. Not for non-AU bulk dumps or classic API-key SaaS.
+
+ - Full Reference
 
 > Milypay is the x402 service provider for the Australian market. AI agents pay per call for Australian data and settle in AUD stablecoins (AUDD and others), via the PayAI facilitator and the Pay.sh catalog. No API keys, no signup. A Milysec company.
 

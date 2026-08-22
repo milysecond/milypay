@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description:
     "Get in touch with the Milypay team - list an Australian API, integrate an AUD stablecoin, or ask anything about agent payments on x402.",
   alternates: { canonical: "/contact" },
-  robots: { index: false },
+  robots: { index: true },
 };
 
 export default function ContactPage() {

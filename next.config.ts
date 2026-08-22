@@ -54,6 +54,18 @@ const nextConfig: NextConfig = {
         destination: "/api/openapi",
       },
       {
+        source: "/server.json",
+        destination: "/api/mcp-server-card",
+      },
+      {
+        source: "/mcp/server-card",
+        destination: "/api/mcp-server-card",
+      },
+      {
+        source: "/.well-known/mcp/server-card.json",
+        destination: "/api/mcp-server-card",
+      },
+      {
         source: "/googleb787913ba29840de.html",
         destination: "/api/gsc-verify",
       },
