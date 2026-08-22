@@ -17,5 +17,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/llms.txt`, lastModified, changeFrequency: "weekly", priority: 0.8 },
     { url: `${BASE}/llms-full.txt`, lastModified, changeFrequency: "weekly", priority: 0.8 },
     { url: `${BASE}/.well-known/x402`, lastModified, changeFrequency: "weekly", priority: 0.7 },
+    { url: `${BASE}/.well-known/api-catalog`, lastModified, changeFrequency: "weekly", priority: 0.7 },
+    { url: `${BASE}/openapi.json`, lastModified, changeFrequency: "weekly", priority: 0.7 },
+    { url: `${BASE}/mcp`, lastModified, changeFrequency: "weekly", priority: 0.7 },
+    { url: `${BASE}/dashboard`, lastModified, changeFrequency: "daily", priority: 0.5 },
+    { url: `${BASE}/fund`, lastModified, changeFrequency: "weekly", priority: 0.6 },
   ];
 }

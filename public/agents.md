@@ -300,3 +300,12 @@ Demo UI: https://milypay.xyz/fund
 
 - UI: https://milypay.xyz/dashboard
 - JSON: `GET /stats` (GA4 + npm + status)
+
+## Machine discovery
+
+| Resource | URL |
+| --- | --- |
+| OpenAPI 3.1 | https://milypay.xyz/openapi.json |
+| API catalog (RFC 9727) | https://milypay.xyz/.well-known/api-catalog |
+| x402 manifest | https://milypay.xyz/.well-known/x402 |
+| MCP (stdio) | https://milypay.xyz/mcp · `npx milypay mcp` |

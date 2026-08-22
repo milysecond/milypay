@@ -153,3 +153,9 @@ MCP: `lookup_phone`
 Price: **$0.05** / call
 
 Does **not** return caller name or person identity for anonymous x402 wallets.
+
+## Discovery
+
+- OpenAPI: https://milypay.xyz/openapi.json
+- API catalog: https://milypay.xyz/.well-known/api-catalog
+- MCP: https://milypay.xyz/mcp
