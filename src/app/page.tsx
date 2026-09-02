@@ -335,14 +335,12 @@ export default function Home() {
             <p className="section-label mb-5">x402 · Australia · AUDD</p>
 
             <h1 className="font-display text-4xl leading-[1.08] tracking-tight text-fg sm:text-5xl md:text-[3.5rem]">
-              Keep agent spend{" "}
-              <span className="text-brand-green">in AUD</span>
-              <span className="block">on every call.</span>
+              Australian ABN, ASIC, BSB, and G-NAF APIs for agents
             </h1>
 
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted">
-              Milypay gives AI agents pay-per-call access to Australian data — business,
-              address, weather, postage — settled in AUDD. No keys. No signup. Just 402.
+              Pay-per-call Australian data over x402. Settle in AUDD. No keys. No signup.
+              Demo is free on milypay.xyz/api. Production is api.milypay.xyz (HTTP 402).
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -350,10 +348,27 @@ export default function Home() {
                 Try it live
                 <ArrowRight className="h-3.5 w-3.5" />
               </Link>
-              <a href="#developers" className="btn-mono">
-                Start building
-              </a>
+              <Link href="/abn-lookup-api" className="btn-mono">
+                ABN lookup API
+              </Link>
             </div>
+            <p className="mt-4 flex flex-wrap gap-x-3 gap-y-1 font-mono text-[11px] uppercase tracking-[0.12em] text-muted">
+              <Link href="/bsb-api" className="hover:text-brand-green">
+                BSB API
+              </Link>
+              <Link href="/asic-company-api" className="hover:text-brand-green">
+                ASIC company API
+              </Link>
+              <Link href="/gnaf-address-api" className="hover:text-brand-green">
+                G-NAF address API
+              </Link>
+              <Link href="/pricing" className="hover:text-brand-green">
+                Pricing
+              </Link>
+              <Link href="/x402-vs-api-key" className="hover:text-brand-green">
+                x402 vs API key
+              </Link>
+            </p>
 
             <p className="terminal-line mt-6">
               <span className="prompt">$</span> request → 402 → settle AUDD → data
