@@ -37,7 +37,7 @@ Milypay is the x402 service provider for the Australian market. AI agents get pa
 - Agents: https://milypay.xyz/agents.md
 - OpenAPI: https://milypay.xyz/openapi.json
 - x402: https://milypay.xyz/.well-known/x402
-- Demo API: \`curl https://api.milypay.xyz/au-business/abn/55695484756\`
+- Demo API: \`curl https://milypay.xyz/api/au-business/abn/55695484756\`
 - CLI: \`npx milypay abn 55695484756\`
 - MCP: \`npx milypay mcp\`
 

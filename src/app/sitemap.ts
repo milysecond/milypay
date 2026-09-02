@@ -24,5 +24,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/mcp`, lastModified, changeFrequency: "weekly", priority: 0.7 },
     { url: `${BASE}/dashboard`, lastModified, changeFrequency: "daily", priority: 0.5 },
     { url: `${BASE}/fund`, lastModified, changeFrequency: "weekly", priority: 0.6 },
+    { url: `${BASE}/abn-lookup-api`, lastModified, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${BASE}/bsb-api`, lastModified, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${BASE}/asic-company-api`, lastModified, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${BASE}/gnaf-address-api`, lastModified, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${BASE}/pricing`, lastModified, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${BASE}/changelog`, lastModified, changeFrequency: "weekly", priority: 0.6 },
   ];
 }
