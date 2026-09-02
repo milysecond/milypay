@@ -30,5 +30,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/gnaf-address-api`, lastModified, changeFrequency: "weekly", priority: 0.8 },
     { url: `${BASE}/pricing`, lastModified, changeFrequency: "weekly", priority: 0.8 },
     { url: `${BASE}/changelog`, lastModified, changeFrequency: "weekly", priority: 0.6 },
+    { url: `${BASE}/x402-vs-api-key`, lastModified, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${BASE}/vs/abr`, lastModified, changeFrequency: "monthly", priority: 0.7 },
   ];
 }
