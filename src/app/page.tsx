@@ -171,7 +171,7 @@ const ACCESS = [
     tag: "API",
     title: "Raw HTTP 402",
     desc: "No SDK required. Any x402-aware client speaks directly to the endpoint and settles in AUD.",
-    code: "curl https://api.milypay.xyz/au-business/abn/51824753556",
+    code: "curl https://milypay.xyz/api/au-business/abn/51824753556",
   },
 ];
 
@@ -193,7 +193,7 @@ const STEPS = [
   },
 ];
 
-const AGENT_SYSTEM_PROMPT = `You can use Milypay, free Australian data APIs at https://api.milypay.xyz (no API key needed). Make a GET request and read the JSON:
+const AGENT_SYSTEM_PROMPT = `You can use Milypay. Free demo (throttled): https://milypay.xyz/api/* . Paid x402: https://api.milypay.xyz (HTTP 402 without payment). Read https://milypay.xyz/agents.md. Demo GET examples:
 - Australian business by ABN: /au-business/abn/{abn}
 - Business by ACN: /au-business/acn/{acn}
 - Business name search: /au-business/search?name={name}
@@ -215,7 +215,7 @@ const AGENT_SYSTEM_PROMPT = `You can use Milypay, free Australian data APIs at h
 - Phone line: /au-phone?number=+614…
 Full reference: https://milypay.xyz/agents.md`;
 
-const AGENT_ONELINER = `Use the Milypay APIs at https://api.milypay.xyz for Australian business, address, super fund, weather, BSB, and ABS statistics data. Read https://milypay.xyz/agents.md first, then call the endpoints with a GET request and read the JSON.`;
+const AGENT_ONELINER = `Use Milypay for Australian business, address, super fund, weather, BSB, and ABS data. Free demo: GET https://milypay.xyz/api/au-business/abn/51824753556 . Paid: https://api.milypay.xyz (HTTP 402). Read https://milypay.xyz/agents.md first.`;
 
 const FAQ: { q: string; a: string }[] = [
   {
@@ -284,22 +284,19 @@ function PaymentMock() {
             <span className="h-2 w-2 rounded-full bg-brand-green" />
           </div>
           <span className="font-mono text-[10px] tracking-[0.14em] uppercase text-muted">
-            api.milypay.xyz
+            milypay.xyz/api
           </span>
         </div>
         <div className="space-y-4 p-5 font-mono text-[12px] leading-relaxed sm:p-6 sm:text-[13px]">
           <div className="text-muted">
-            <span className="text-brand-green">$</span> curl /au-business/abn/51824753556
+            <span className="text-brand-green">$</span> curl /api/au-business/abn/51824753556
           </div>
           <div className="border border-border-brand bg-secondary p-4">
             <div className="font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-muted">
-              Challenge
+              Demo (free, throttled)
             </div>
-            <div className="mt-2 text-brand-purple">HTTP/1.1 402 Payment Required</div>
-            <div className="mt-2 space-y-0.5 text-muted">
-              <div>price &nbsp;&nbsp; 0.002 AUDD</div>
-              <div>network &nbsp;solana</div>
-              <div>pay-to &nbsp; milypay.sol</div>
+            <div className="mt-2 text-muted">
+              Paid agents use api.milypay.xyz and get HTTP 402 until they settle.
             </div>
           </div>
           <div className="flex items-center gap-2 text-muted">
@@ -312,9 +309,11 @@ function PaymentMock() {
             <div className="text-brand-green">HTTP/1.1 200 OK</div>
             <pre className="mt-2 whitespace-pre-wrap text-fg">{`{
   "abn": "51824753556",
-  "entityName": "MILYSEC PTY LTD",
-  "status": "Active",
-  "state": "VIC"
+  "entityName": "AUSTRALIAN TAXATION OFFICE",
+  "entityType": "Commonwealth Government Entity",
+  "abnStatus": "Active",
+  "state": "NSW",
+  "postcode": "2640"
 }`}</pre>
           </div>
         </div>
@@ -578,19 +577,15 @@ export default function Home() {
                 If your agent can make an HTTP request, it can pay.
               </h2>
               <p className="mt-5 leading-relaxed text-muted">
-                No API keys, no onboarding forms, no invoices. Point any x402-aware client —
-                or the pay.sh MCP — at a Milypay endpoint. First response is a 402; wallet
-                approves; data comes back. Settlement in AUDD on Solana via PayAI.
+                No API keys, no onboarding forms, no invoices. Point the Milypay CLI, SDK,
+                MCP (`npx milypay mcp`), or any x402-aware client at a Milypay endpoint.
+                Demo is free on milypay.xyz/api. Paid host returns 402 until the wallet
+                settles. Settlement in AUDD on Solana via PayAI.
               </p>
               <div className="mt-7 flex flex-wrap gap-3">
-                <a
-                  href="https://pay.sh"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-mono-solid"
-                >
-                  Find us on pay.sh
-                </a>
+                <Link href="/docs" className="btn-mono-solid">
+                  Read the docs
+                </Link>
                 <a
                   href="https://x402.org"
                   target="_blank"
@@ -613,24 +608,19 @@ export default function Home() {
               </div>
               <pre className="max-w-full min-w-0 overflow-x-auto whitespace-pre-wrap break-words bg-bg p-4 text-[12px] leading-relaxed [overflow-wrap:anywhere] sm:p-5 sm:text-[13px]">
                 <code className="block min-w-0 font-mono">
-{`$ curl https://api.milypay.xyz/au-business/abn/51824753556
-
-`}<span className="text-brand-purple">HTTP/1.1 402 Payment Required</span>{`
-x-402-price:    0.002
-x-402-asset:    AUDD
-x-402-network:  solana
-x-402-pay-to:   milypay.sol
-
-`}<span className="text-muted"># agent wallet approves, retries with payment…</span>{`
+{`$ curl https://milypay.xyz/api/au-business/abn/51824753556
 
 `}<span className="text-brand-green">HTTP/1.1 200 OK</span>{`
 {
   "abn": "51824753556",
-  "entityName": "MILYSEC PTY LTD",
-  "status": "Active",
-  "state": "VIC",
-  "gstRegistered": true
-}`}
+  "entityName": "AUSTRALIAN TAXATION OFFICE",
+  "entityType": "Commonwealth Government Entity",
+  "abnStatus": "Active",
+  "state": "NSW",
+  "postcode": "2640"
+}
+
+`}<span className="text-muted"># paid agents: https://api.milypay.xyz/au-business/abn/51824753556 → 402</span>{``}
                 </code>
               </pre>
             </div>
