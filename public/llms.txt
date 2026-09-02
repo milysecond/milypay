@@ -1,6 +1,6 @@
 # Milypay
 
-> Milypay is the x402 service provider for the Australian market. AI agents pay per call for Australian data and settle in AUD stablecoins (AUDD and others), via the PayAI facilitator and the Pay.sh catalog. A Milysec company.
+> Milypay is the x402 service provider for the Australian market. AI agents pay per call for Australian data and settle in AUD stablecoins (AUDD and others) via the PayAI facilitator. A Milysec company.
 
 Milypay turns any Australian API into something an AI agent can discover, pay for, and call autonomously over the x402 protocol, with no API keys and no signup. Settlement is in regulated, AUD-denominated stablecoins on Solana. Agents and crawlers are welcome here.
 
@@ -58,6 +58,14 @@ Milypay is AUD-stablecoin-agnostic. AUDD (live on Solana, AFSL-regulated) is the
 ## Pages
 
 - Home: https://milypay.xyz
+- ABN lookup API: https://milypay.xyz/abn-lookup-api
+- BSB API: https://milypay.xyz/bsb-api
+- ASIC company API: https://milypay.xyz/asic-company-api
+- G-NAF address API: https://milypay.xyz/gnaf-address-api
+- Pricing: https://milypay.xyz/pricing
+- Changelog: https://milypay.xyz/changelog
+- x402 vs API key: https://milypay.xyz/x402-vs-api-key
+- vs ABR: https://milypay.xyz/vs/abr
 - Live demo: https://milypay.xyz/demo
 - Docs: https://milypay.xyz/docs
 - Pay: https://milypay.xyz/pay
