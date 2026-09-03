@@ -7,7 +7,7 @@
   "homepage": "https://milypay.xyz",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/metasal1/milypay.git",
+    "url": "git+https://github.com/milysecond/milypay.git",
     "directory": "packages/sdk"
   },
   "type": "module",

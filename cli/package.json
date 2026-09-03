@@ -7,11 +7,11 @@
   "homepage": "https://milypay.xyz",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/metasal1/milypay.git",
+    "url": "git+https://github.com/milysecond/milypay.git",
     "directory": "cli"
   },
   "bugs": {
-    "url": "https://github.com/metasal1/milypay/issues"
+    "url": "https://github.com/milysecond/milypay/issues"
   },
   "keywords": [
     "milypay",
