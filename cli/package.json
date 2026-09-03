@@ -1,6 +1,6 @@
 {
   "name": "milypay",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "CLI + MCP for Milypay \u2014 Australian data over x402",
   "license": "MIT",
   "author": "Milysec",

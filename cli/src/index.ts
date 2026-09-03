@@ -558,6 +558,50 @@ async function main() {
       throw new Error("Usage: milypay fund status|session [on-ramp|off-ramp]");
     }
 
+    case "check":
+    case "checkify": {
+      const sub = String(args._[1] || "catalogue").toLowerCase();
+      const arg = args._[2];
+      if (sub === "catalogue" || sub === "status" || sub === "help") {
+        print(await getJson(`/au-check`, clientOpts(args)), args.json);
+        break;
+      }
+      if (sub === "reverse") {
+        const lat = args._[2];
+        const lng = args._[3];
+        if (lat == null || lng == null) throw new Error("Usage: milypay check reverse <lat> <lng>");
+        print(
+          await getJson(
+            `/au-check/reverse?lat=${encodeURIComponent(String(lat))}&lng=${encodeURIComponent(String(lng))}`,
+            clientOpts(args),
+          ),
+          args.json,
+        );
+        break;
+      }
+      const map: Record<string, [string, string]> = {
+        postcode: ["/au-check/postcode", "postcode"],
+        suburb: ["/au-check/suburb", "q"],
+        activity: ["/au-check/activity", "q"],
+        "company-name": ["/au-check/company-name", "name"],
+        "business-name": ["/au-check/business-name", "name"],
+        sanctions: ["/au-check/sanctions", "name"],
+        "director-id": ["/au-check/director-id", "id"],
+        tfn: ["/au-check/tfn", "tfn"],
+        email: ["/au-check/email", "email"],
+      };
+      const spec = map[sub];
+      if (!spec) {
+        throw new Error(
+          "Usage: milypay check <catalogue|postcode|reverse|suburb|activity|company-name|business-name|sanctions|director-id|tfn|email>",
+        );
+      }
+      if (arg == null) throw new Error(`Usage: milypay check ${sub} <value>`);
+      const [path, param] = spec;
+      print(await getJson(`${path}?${param}=${encodeURIComponent(String(arg))}`, clientOpts(args)), args.json);
+      break;
+    }
+
         default:
       throw new Error(`Unknown command: ${cmd}\n\n${usage()}`);
   }

@@ -410,6 +410,27 @@ export class Milypay {
       ),
   };
 
+  check = {
+    catalogue: () => this.get(`/au-check`),
+    postcode: (postcode: string, country?: string) =>
+      this.get(`/au-check/postcode?postcode=${encodeURIComponent(postcode)}${country ? `&country=${encodeURIComponent(country)}` : ""}`),
+    reverse: (lat: number, lng: number) =>
+      this.get(`/au-check/reverse?lat=${lat}&lng=${lng}`),
+    suburb: (q: string) => this.get(`/au-check/suburb?q=${encodeURIComponent(q)}`),
+    activity: (q: string) => this.get(`/au-check/activity?q=${encodeURIComponent(q)}`),
+    companyName: (name: string) =>
+      this.get(`/au-check/company-name?name=${encodeURIComponent(name)}`),
+    businessName: (name: string) =>
+      this.get(`/au-check/business-name?name=${encodeURIComponent(name)}`),
+    sanctions: (name: string) =>
+      this.get(`/au-check/sanctions?name=${encodeURIComponent(name)}`),
+    directorId: (id: string) =>
+      this.get(`/au-check/director-id?id=${encodeURIComponent(id)}`),
+    tfn: (tfn: string) => this.get(`/au-check/tfn?tfn=${encodeURIComponent(tfn)}`),
+    email: (email: string) =>
+      this.get(`/au-check/email?email=${encodeURIComponent(email)}`),
+  };
+
   /** MoneyGram pre-fund (does not settle x402). */
   ramp = {
     moneygram: () => this.get(`/ramp/moneygram`),

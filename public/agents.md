@@ -309,3 +309,23 @@ Demo UI: https://milypay.xyz/fund
 | API catalog (RFC 9727) | https://milypay.xyz/.well-known/api-catalog |
 | x402 manifest | https://milypay.xyz/.well-known/x402 |
 | MCP (stdio) | https://milypay.xyz/mcp · `npx milypay mcp` |
+
+## Checkify extras (`/au-check`)
+
+Australian extras via Checkify (x402). TFN and Director ID are **checksums only**.
+
+| Endpoint | Price | Notes |
+| --- | --- | --- |
+| `GET /au-check` | $0.001 | Catalogue |
+| `GET /au-check/postcode?postcode=` | $0.01 | Suburbs in postcode (AU/NZ `country=`) |
+| `GET /au-check/reverse?lat=&lng=` | $0.01 | Reverse geocode |
+| `GET /au-check/suburb?q=` | $0.005 | Suburb autocomplete |
+| `GET /au-check/activity?q=` | $0.005 | ANZSIC / business activity |
+| `GET /au-check/company-name?name=` | $0.01 | ASIC company name availability |
+| `GET /au-check/business-name?name=` | $0.01 | ASIC business name availability |
+| `GET /au-check/sanctions?name=` | $0.03 | 11 sanctions lists |
+| `GET /au-check/director-id?id=` | $0.01 | Director ID checksum (not live ABRS) |
+| `GET /au-check/tfn?tfn=` | $0.01 | TFN checksum (not live ATO) |
+| `GET /au-check/email?email=` | $0.01 | Email MX/deliverability |
+
+CLI: `npx milypay check postcode 2000`
