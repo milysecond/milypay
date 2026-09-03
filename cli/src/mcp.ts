@@ -668,6 +668,57 @@ export async function startMcpServer(): Promise<void> {
     );
 
   server.registerTool(
+    "check_postcode",
+    {
+      description: "Suburbs in an AU/NZ postcode (Checkify).",
+      inputSchema: { postcode: z.string(), country: z.string().optional() },
+    },
+    async ({ postcode, country }) => {
+      const qs = new URLSearchParams({ postcode });
+      if (country) qs.set("country", country);
+      return runJson(`/au-check/postcode?${qs}`);
+    },
+  );
+
+  server.registerTool(
+    "check_company_name",
+    {
+      description: "ASIC company name availability.",
+      inputSchema: { name: z.string() },
+    },
+    async ({ name }) => runJson(`/au-check/company-name?name=${encodeURIComponent(name)}`),
+  );
+
+  server.registerTool(
+    "check_sanctions",
+    {
+      description: "Sanctions screening against 11 lists. Optional birth_year, country, city.",
+      inputSchema: {
+        name: z.string(),
+        birth_year: z.string().optional(),
+        country: z.string().optional(),
+        city: z.string().optional(),
+      },
+    },
+    async ({ name, birth_year, country, city }) => {
+      const qs = new URLSearchParams({ name });
+      if (birth_year) qs.set("birth_year", birth_year);
+      if (country) qs.set("country", country);
+      if (city) qs.set("city", city);
+      return runJson(`/au-check/sanctions?${qs}`);
+    },
+  );
+
+  server.registerTool(
+    "check_email",
+    {
+      description: "Email format/MX/deliverability (Checkify).",
+      inputSchema: { email: z.string() },
+    },
+    async ({ email }) => runJson(`/au-check/email?email=${encodeURIComponent(email)}`),
+  );
+
+  server.registerTool(
     "moneygram_status",
     {
       description:

@@ -1,6 +1,6 @@
 {
   "name": "milypay-sdk",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "TypeScript client for Milypay — Australian data over x402",
   "license": "MIT",
   "author": "Milysec",
