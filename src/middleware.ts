@@ -14,7 +14,7 @@ const CORS: Record<string, string> = {
   "Access-Control-Allow-Headers":
     "Content-Type, Accept, PAYMENT-SIGNATURE, X-PAYMENT, payment-signature",
   "Access-Control-Expose-Headers":
-    "PAYMENT-REQUIRED, PAYMENT-RESPONSE, payment-required, payment-response",
+    "PAYMENT-REQUIRED, PAYMENT-RESPONSE, X-PAYMENT-RESPONSE, payment-required, payment-response, x-payment-response",
   "Access-Control-Max-Age": "86400",
 };
 
