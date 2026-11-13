@@ -3,13 +3,17 @@
 // Multi-network accepts scaffold: optional Tempo (eip155:4217) when configured.
 //
 // Spec: client gets HTTP 402 with a base64 PAYMENT-REQUIRED challenge, pays, and retries
-// with a PAYMENT-SIGNATURE header. We /verify, serve, then /settle.
+// with a PAYMENT-SIGNATURE header (v2) or X-PAYMENT (v1). We /verify, serve, then /settle.
 // Docs: https://docs.payai.network/x402
+//
+// The Solana exact fee payer is read from GET {facilitator}/supported (cached ~60s).
+// PAYAI_FEE_PAYER is only a fallback when that endpoint cannot be read.
 //
 // Config (Worker env / secrets):
 //   X402_ENABLED      "true" to enforce payment. Anything else = pass-through (dev/testing).
 //   PAYAI_FACILITATOR facilitator base URL (default https://facilitator.payai.network)
 //   PAYAI_API_KEY_ID / PAYAI_API_KEY_SECRET  optional paid-tier facilitator auth
+//   PAYAI_FEE_PAYER   optional fallback fee payer if /supported is unreachable
 //   X402_NETWORK      CAIP-2 default Solana mainnet (legacy single-network override)
 //   PAY_TO_WALLET     merchant Solana wallet that receives settlement
 //   AUDD_MINT / AUDM_MINT / DAUD_MINT / USDC_MINT / USDT_MINT
@@ -40,6 +44,20 @@ import {
 import { hasMppCredential, mppCharge, mppEnabled, mppStatus } from "./mpp";
 import { bazaarResourceMeta, bazaarResourceUrl, buildBazaarExtension } from "./bazaar";
 import { x402FundingHint } from "./moneygram";
+import {
+  facilitatorFailureReason,
+  isSolanaNetwork,
+  networksMatch,
+  paymentVersion,
+  prepareFacilitatorRequest,
+  readPaymentHeader,
+  resolveFeePayer,
+  fallbackFeePayer,
+  sanitizeForLog,
+  settlementSucceeded,
+  verifySucceeded,
+  type PaymentRequirements,
+} from "./x402-protocol";
 
 const FACILITATOR = process.env.PAYAI_FACILITATOR || "https://facilitator.payai.network";
 const SOLANA_NETWORK =
@@ -56,9 +74,6 @@ const AUDM_MINT =
   process.env.AUDM_MINT || "CiYXBwHPrdNkMtxR8YEWKv78K6bQjFoEWhPQrZqEmubi";
 const DAUD_MINT =
   process.env.DAUD_MINT || "F7FiKutfrMMXd8Zw5ysZsfx5v4aBHffWc4EhRZE8NHiF";
-
-const FEE_PAYER =
-  process.env.PAYAI_FEE_PAYER || "2wKupLR9q6wXYppw8Gr2NvWxKBUqm4PPJKkQfoxHDBg4";
 
 /** One accept option in a multi-network 402 challenge. */
 type AcceptedAsset = {
@@ -98,21 +113,12 @@ function toAtomic(human: string, decimals: number): string {
   return (BigInt(whole || "0") * base + BigInt(fracPadded || "0")).toString();
 }
 
-interface PaymentRequirements {
-  scheme: "exact";
-  network: string;
-  amount: string;
-  asset: string;
-  payTo: string;
-  maxTimeoutSeconds: number;
-  extra?: Record<string, unknown>;
-}
-
 /**
  * All payment rails advertised in 402 accepts[].
  * Solana first (default agent path). Tempo only when TEMPO_X402 + TEMPO_PAY_TO set.
+ * `feePayer` is the facilitator's current exact sponsor for SOLANA_NETWORK.
  */
-function acceptedAssets(): AcceptedAsset[] {
+function acceptedAssets(feePayer: string): AcceptedAsset[] {
   const solPayTo = process.env.PAY_TO_WALLET || "";
   const out: AcceptedAsset[] = [];
 
@@ -132,7 +138,7 @@ function acceptedAssets(): AcceptedAsset[] {
         symbol: a.symbol,
         decimals: a.decimals,
         payTo: solPayTo,
-        feePayer: FEE_PAYER,
+        feePayer,
       });
     }
   }
@@ -177,18 +183,18 @@ function requirementsForAsset(price: string, asset: AcceptedAsset): PaymentRequi
   return req;
 }
 
-function allRequirements(price: string): PaymentRequirements[] {
-  return acceptedAssets().map((a) => requirementsForAsset(price, a));
+function allRequirements(price: string, feePayer: string): PaymentRequirements[] {
+  return acceptedAssets(feePayer).map((a) => requirementsForAsset(price, a));
 }
 
-function challenge(req: Request, price: string, description: string) {
+function challenge(req: Request, price: string, description: string, feePayer: string, paymentError?: string) {
   const resourceUrl = bazaarResourceUrl(req);
   const meta = bazaarResourceMeta(description);
   const bazaar = buildBazaarExtension(req, { method: req.method || "GET" });
   const funding = x402FundingHint(price);
   return {
     x402Version: 2,
-    error: "PAYMENT-SIGNATURE header is required",
+    error: paymentError || "PAYMENT-SIGNATURE header is required",
     resource: {
       url: resourceUrl,
       description: meta.description,
@@ -197,7 +203,7 @@ function challenge(req: Request, price: string, description: string) {
       tags: meta.tags,
       iconUrl: meta.iconUrl,
     },
-    accepts: allRequirements(price),
+    accepts: allRequirements(price, feePayer),
     extensions: {
       ...bazaar,
       milypayFunding: funding,
@@ -205,8 +211,15 @@ function challenge(req: Request, price: string, description: string) {
   };
 }
 
-function paymentRequired(req: Request, price: string, description: string): NextResponse {
-  const assets = acceptedAssets();
+function paymentRequired(
+  req: Request,
+  price: string,
+  description: string,
+  feePayer: string,
+  paymentError?: string,
+): NextResponse {
+  const reason = paymentError ? paymentError.slice(0, 400) : undefined;
+  const assets = acceptedAssets(feePayer);
   const symbols = [...new Set(assets.map((a) => a.symbol))].join(" / ");
   const networks = [...new Set(assets.map((a) => a.network))];
   const funding = x402FundingHint(price);
@@ -220,14 +233,16 @@ function paymentRequired(req: Request, price: string, description: string): Next
       accepts: assets.map((a) => a.symbol),
       networks,
       payTo: process.env.PAY_TO_WALLET || undefined,
+      feePayer,
       tempoPayTo: tempoEnabled() ? tempoPayTo() : undefined,
       network: networks[0] || SOLANA_NETWORK,
       facilitator: FACILITATOR,
       funding,
+      ...(reason ? { paymentError: reason } : {}),
       howToPay: {
         step1: "If wallet USDC is low, POST /ramp/moneygram/session (or open /fund) to on-ramp via MoneyGram sandbox",
         step2: "Wait for USDC in your Solana wallet",
-        step3: "Sign x402 payment for the PAYMENT-REQUIRED challenge and retry with PAYMENT-SIGNATURE",
+        step3: "Sign x402 payment for the PAYMENT-REQUIRED challenge and retry with PAYMENT-SIGNATURE (v2) or X-PAYMENT (v1)",
       },
       tempo: tempoEnabled()
         ? {
@@ -237,7 +252,7 @@ function paymentRequired(req: Request, price: string, description: string): Next
           }
         : undefined,
     },
-    { "PAYMENT-REQUIRED": b64encode(challenge(req, price, description)) },
+    { "PAYMENT-REQUIRED": b64encode(challenge(req, price, description, feePayer, reason)) },
   );
 }
 
@@ -271,21 +286,54 @@ function extractPaidNetwork(payload: unknown): string | null {
   return walk(payload);
 }
 
-function pickRequirements(price: string, payload: unknown): PaymentRequirements {
-  const accepts = allRequirements(price);
+function pickRequirements(price: string, payload: unknown, feePayer: string): PaymentRequirements {
+  const accepts = allRequirements(price, feePayer);
   const paidAsset = extractPaidAsset(payload);
   const paidNet = extractPaidNetwork(payload);
   if (paidAsset) {
     const match = accepts.find(
-      (a) =>
-        a.asset === paidAsset &&
-        (!paidNet || a.network === paidNet || a.network.includes(String(paidNet))),
+      (a) => a.asset === paidAsset && (!paidNet || networksMatch(a.network, paidNet)),
     );
     if (match) return match;
     const byAsset = accepts.find((a) => a.asset === paidAsset);
     if (byAsset) return byAsset;
   }
-  return accepts[0];
+  const first = accepts[0];
+  if (!first) {
+    throw new Error("No settlement assets configured");
+  }
+  return first;
+}
+
+async function currentSolanaFeePayer(): Promise<string> {
+  try {
+    return await resolveFeePayer(SOLANA_NETWORK, {
+      facilitator: FACILITATOR,
+      authHeaders: payaiAuthHeaders,
+      envFallback: process.env.PAYAI_FEE_PAYER,
+    });
+  } catch (e) {
+    console.error("x402 fee payer lookup failed", e instanceof Error ? e.message : "error");
+    return fallbackFeePayer(SOLANA_NETWORK, process.env.PAYAI_FEE_PAYER);
+  }
+}
+
+async function readFacilitatorBody(res: Response): Promise<unknown> {
+  const text = await res.text();
+  if (!text) return {};
+  try {
+    return JSON.parse(text) as unknown;
+  } catch {
+    return { message: text.slice(0, 500) };
+  }
+}
+
+function logFacilitator(op: "verify" | "settle", status: number, body: unknown): void {
+  const httpOk = status >= 200 && status < 300;
+  const ok = op === "verify" ? verifySucceeded(httpOk, body) : settlementSucceeded(httpOk, body);
+  const line = JSON.stringify(sanitizeForLog(body));
+  if (ok) console.info(`x402 ${op} response`, status, line);
+  else console.error(`x402 ${op} response`, status, line);
 }
 
 export interface GateOptions {
@@ -324,8 +372,9 @@ export async function withX402(
 
   // --- MPP (Tempo) rail ---
   // Prefer MPP when Authorization: Payment is present or client asks for mpp/tempo.
-  // x402 PAYMENT-SIGNATURE takes precedence for Solana agents.
-  const hasX402Sig = Boolean(req.headers.get("PAYMENT-SIGNATURE"));
+  // x402 PAYMENT-SIGNATURE (v2) or X-PAYMENT (v1) takes precedence for Solana agents.
+  const paymentHeader = readPaymentHeader(req.headers);
+  const hasX402Sig = Boolean(paymentHeader);
   if (mppEnabled() && !hasX402Sig) {
     // Only enter MPP path when credential present or explicit rail — avoid stealing x402 clients
     const url = new URL(req.url);
@@ -378,52 +427,85 @@ export async function withX402(
     return apiError(503, "payment_not_configured", "Payment not configured");
   }
 
+  const feePayer = await currentSolanaFeePayer();
+
   if (!process.env.PAY_TO_WALLET && !tempoEnabled()) {
     return apiError(503, "payment_not_configured", "Payment not configured");
   }
-  if (allRequirements(opts.price).length === 0) {
+  if (allRequirements(opts.price, feePayer).length === 0) {
     return apiError(503, "payment_not_configured", "No settlement assets configured");
   }
 
-  const sig = req.headers.get("PAYMENT-SIGNATURE");
-  if (!sig) return paymentRequired(req, opts.price, opts.description);
+  if (!paymentHeader) {
+    return paymentRequired(req, opts.price, opts.description, feePayer);
+  }
 
   let payload: unknown;
   try {
-    payload = b64decodeJson(sig);
+    payload = b64decodeJson(paymentHeader.raw);
   } catch {
-    return paymentRequired(req, opts.price, opts.description);
+    return paymentRequired(
+      req,
+      opts.price,
+      opts.description,
+      feePayer,
+      `${paymentHeader.via} header is not valid base64 JSON`,
+    );
   }
 
-  const reqs = pickRequirements(opts.price, payload);
+  const version = paymentVersion(payload);
+  const resource = {
+    url: bazaarResourceUrl(req),
+    description: opts.description,
+    mimeType: "application/json",
+  };
+  let reqs = pickRequirements(opts.price, payload, feePayer);
+
+  const facilitatorRequest = (requirements: PaymentRequirements) =>
+    prepareFacilitatorRequest({
+      version,
+      payload,
+      requirements,
+      resource,
+      feePayer: isSolanaNetwork(requirements.network) ? feePayer : undefined,
+    });
 
   try {
     const auth = await payaiAuthHeaders();
-    const vr = await fetch(`${FACILITATOR}/verify`, {
-      method: "POST",
-      headers: { "content-type": "application/json", ...auth },
-      body: JSON.stringify({ paymentPayload: payload, paymentRequirements: reqs }),
-    });
-    const verify = (await vr.json()) as { isValid?: boolean };
-    if (!vr.ok || !verify.isValid) {
-      let ok = false;
-      for (const alt of allRequirements(opts.price)) {
-        if (alt.asset === reqs.asset && alt.network === reqs.network) continue;
-        const vr2 = await fetch(`${FACILITATOR}/verify`, {
-          method: "POST",
-          headers: { "content-type": "application/json", ...auth },
-          body: JSON.stringify({ paymentPayload: payload, paymentRequirements: alt }),
-        });
-        const v2 = (await vr2.json()) as { isValid?: boolean };
-        if (vr2.ok && v2.isValid) {
-          ok = true;
-          Object.assign(reqs, alt);
+    const attempt = async (requirements: PaymentRequirements) => {
+      const vr = await fetch(`${FACILITATOR}/verify`, {
+        method: "POST",
+        headers: { "content-type": "application/json", ...auth },
+        body: JSON.stringify(facilitatorRequest(requirements)),
+      });
+      const body = await readFacilitatorBody(vr);
+      logFacilitator("verify", vr.status, body);
+      return { ok: verifySucceeded(vr.ok, body), body, status: vr.status };
+    };
+
+    let result = await attempt(reqs);
+    if (!result.ok) {
+      for (const alt of allRequirements(opts.price, feePayer)) {
+        if (alt.asset === reqs.asset && networksMatch(alt.network, reqs.network)) continue;
+        const altResult = await attempt(alt);
+        if (altResult.ok) {
+          reqs = alt;
+          result = altResult;
           break;
         }
       }
-      if (!ok) return paymentRequired(req, opts.price, opts.description);
     }
-  } catch {
+    if (!result.ok) {
+      return paymentRequired(
+        req,
+        opts.price,
+        opts.description,
+        feePayer,
+        facilitatorFailureReason(result.body, result.status),
+      );
+    }
+  } catch (e) {
+    console.error("x402 verify unavailable", e instanceof Error ? e.message : "error");
     return apiError(502, "verification_unavailable", "Verification unavailable");
   }
 
@@ -435,11 +517,27 @@ export async function withX402(
     const sr = await fetch(`${FACILITATOR}/settle`, {
       method: "POST",
       headers: { "content-type": "application/json", ...auth },
-      body: JSON.stringify({ paymentPayload: payload, paymentRequirements: reqs }),
+      body: JSON.stringify(facilitatorRequest(reqs)),
     });
-    const settlement = (await sr.json()) as Record<string, unknown>;
-    const receipt = buildReceipt(settlement, reqs);
-    res.headers.set("PAYMENT-RESPONSE", b64encode(settlement));
+    const settlement = await readFacilitatorBody(sr);
+    logFacilitator("settle", sr.status, settlement);
+    if (!settlementSucceeded(sr.ok, settlement)) {
+      return paymentRequired(
+        req,
+        opts.price,
+        opts.description,
+        feePayer,
+        facilitatorFailureReason(settlement, sr.status),
+      );
+    }
+    const settlementRec =
+      settlement && typeof settlement === "object"
+        ? (settlement as Record<string, unknown>)
+        : {};
+    const receipt = buildReceipt(settlementRec, reqs);
+    const encoded = b64encode(settlementRec);
+    res.headers.set("PAYMENT-RESPONSE", encoded);
+    res.headers.set("X-PAYMENT-RESPONSE", encoded);
     if (receipt.signature) {
       res.headers.set("X-Milypay-Tx", receipt.signature);
       res.headers.set("X-Milypay-Explorer", receipt.explorerUrl || "");
@@ -458,8 +556,9 @@ export async function withX402(
     } catch {
       /* leave original body */
     }
-  } catch {
-    console.error("x402 settle failed");
+  } catch (e) {
+    console.error("x402 settle failed", e instanceof Error ? e.message : "error");
+    return apiError(502, "verification_unavailable", "Settlement unavailable");
   }
 
   return res;
@@ -518,7 +617,7 @@ export function paymentRailsStatus() {
     solana: {
       network: SOLANA_NETWORK,
       payToConfigured: Boolean(process.env.PAY_TO_WALLET),
-      assets: acceptedAssets()
+      assets: acceptedAssets(fallbackFeePayer(SOLANA_NETWORK, process.env.PAYAI_FEE_PAYER))
         .filter((a) => a.network === SOLANA_NETWORK)
         .map((a) => a.symbol),
     },

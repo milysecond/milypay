@@ -193,7 +193,7 @@ export function buildOpenApi() {
           in: "header",
           name: "PAYMENT-SIGNATURE",
           description:
-            "x402 payment proof after HTTP 402. See https://x402.org and https://milypay.xyz/.well-known/x402",
+            "x402 v2 payment proof (PAYMENT-SIGNATURE) after HTTP 402. v1 clients may send the same base64 payload in X-PAYMENT. See https://x402.org and https://milypay.xyz/.well-known/x402",
         },
       },
     },
