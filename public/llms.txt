@@ -47,6 +47,8 @@ Base URL: https://api.milypay.xyz . More Australian services are on the roadmap.
 2. Receive `HTTP 402 Payment Required` with the price, asset (AUDD), network (solana), and pay-to address.
 3. Approve the micropayment from an x402-aware wallet or client. The data returns in the same round-trip.
 
+x402 v2 details: `PAYMENT-REQUIRED` challenge (scheme `exact`, network `solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp`), retry with `PAYMENT-SIGNATURE` (v1 `X-PAYMENT` also accepted), PayAI facilitator with sponsored network fees. Each 402 offers AUDD, AUDM, dAUD, USDC and USDT; MPP on Tempo is available opt-in with `?rail=mpp`. Every protocol explained: https://milypay.xyz/protocols
+
 No accounts, no keys. Any x402-aware client, the Milypay CLI, SDK, or Milypay MCP server (`npx milypay mcp`) can transact.
 
 ## Settlement currency
@@ -68,6 +70,7 @@ Milypay is AUD-stablecoin-agnostic. AUDD (live on Solana, AFSL-regulated) is the
 - vs ABR: https://milypay.xyz/vs/abr
 - Live demo: https://milypay.xyz/demo
 - Docs: https://milypay.xyz/docs
+- Protocols (x402 v2, MPP, MCP, CLI, SDK, OpenAPI, agents.md, llms.txt, Bazaar; Solana.ai ecosystem): https://milypay.xyz/protocols
 - Pay: https://milypay.xyz/pay
 - AUD stablecoins: https://milypay.xyz/stables
 - Contact: https://milypay.xyz/contact
