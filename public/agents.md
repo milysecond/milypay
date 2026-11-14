@@ -65,6 +65,21 @@ No SDK required. Any x402-aware client speaks directly to the endpoint.
 - Asset AUDD, network Solana
 - Same round-trip settlement
 
+### Protocols
+
+Full reference with code and spec links: https://milypay.xyz/protocols
+
+| Protocol | Status | Notes |
+| --- | --- | --- |
+| x402 v2 | Live, default | `PAYMENT-REQUIRED` → retry with `PAYMENT-SIGNATURE` (v1 `X-PAYMENT` accepted). Scheme `exact`, Solana mainnet, PayAI facilitator, network fees sponsored (`extra.feePayer`). |
+| Settlement assets | Live | Each 402 lists AUDD, AUDM, dAUD, USDC and USDT on Solana at the same price; the wallet picks. |
+| MPP (Tempo) | Live, opt-in | `?rail=mpp`, `X-Payment-Rail: mpp` or `Authorization: Payment` → `WWW-Authenticate: Payment` (method tempo, pathUSD on eip155:4217). |
+| MCP | Live | `npx -y milypay mcp` (stdio) |
+| CLI / SDK | Live | `npx milypay` · `milypay-sdk` |
+| HTTP + OpenAPI 3.1 | Live | https://milypay.xyz/openapi.json |
+| Discovery | Live | agents.md, llms.txt, `/.well-known/x402`, `/.well-known/api-catalog` |
+| x402 Bazaar extension | Live | `extensions.bazaar` + resource metadata on every 402 |
+
 ## Services
 
 All services live under the `milysec/*` namespace on Pay.sh.
@@ -144,6 +159,8 @@ Solana, via the PayAI x402 facilitator.
 
 - Home: https://milypay.xyz
 - AUD stablecoins: https://milypay.xyz/stables
+- Protocols: https://milypay.xyz/protocols
+- Solana.ai (Solana Foundation AI hub; Milypay is not listed there): https://solana.ai
 - Contact and list an API: https://milypay.xyz/contact
 - Catalog: https://pay.sh (namespace `milysec/*`)
 - x402 specification: https://x402.org

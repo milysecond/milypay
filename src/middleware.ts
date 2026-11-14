@@ -27,6 +27,7 @@ const KNOWN_SITE = new Set([
   "/demo",
   "/quickstart",
   "/stables",
+  "/protocols",
   "/fund",
   "/dashboard",
   "/pay",

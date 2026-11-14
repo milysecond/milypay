@@ -114,6 +114,27 @@ Talk to the Milypay team about listing an Australian API, integrating AUD stable
 We read every message. For technical integration, include your use case (agent framework, expected volume, endpoints).
 `;
 
+export const MD_PROTOCOLS = `# Milypay protocols
+
+Every open protocol Milypay supports. HTML: https://milypay.xyz/protocols
+
+| Protocol | Status | How |
+| --- | --- | --- |
+| x402 v2 (Solana) | Live, default | Unpaid GET on https://api.milypay.xyz returns 402 + base64 \`PAYMENT-REQUIRED\`. Scheme \`exact\`, network \`solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp\`. Retry with \`PAYMENT-SIGNATURE\` (v2) or \`X-PAYMENT\` (v1). PayAI facilitator verifies/settles; \`extra.feePayer\` = PayAI's sponsored fee payer (from /supported). |
+| Settlement assets | Live | Same price offered in AUDD, AUDM, dAUD (AUD) and USDC, USDT (USD) on Solana; wallet picks. |
+| MPP (Tempo) | Live, opt-in | \`?rail=mpp\` or \`X-Payment-Rail: mpp\` or \`Authorization: Payment\` -> \`WWW-Authenticate: Payment\` method=tempo intent=charge, pathUSD on eip155:4217. x402-on-Tempo not enabled. |
+| MCP | Live (stdio) | \`npx -y milypay mcp\` (MILYPAY_HOST=demo, or api + MILYPAY_PRIVATE_KEY) |
+| CLI | Live | \`npx milypay abn 51824753556\` · \`npx milypay --api ...\` |
+| SDK | Live | \`npm i milypay-sdk\` |
+| HTTP + OpenAPI 3.1 | Live | https://milypay.xyz/openapi.json · demo https://milypay.xyz/api/* · paid https://api.milypay.xyz |
+| Discovery | Live | /agents.md · /llms.txt · /llms-full.txt · /.well-known/x402 · /.well-known/api-catalog |
+| x402 Bazaar extension | Live | \`extensions.bazaar\` + resource serviceName/tags/iconUrl on every 402 |
+
+## Solana.ai
+
+Solana.ai (https://solana.ai) is the Solana Foundation's site for AI on Solana: Confidential Compute, pay.sh, Payment Channels, the Developer Platform and the Solana AI Toolkit. Milypay uses the pay-per-call x402 pattern it describes, settled via PayAI on Solana. Milypay is independent and is not listed on or endorsed by solana.ai.
+`;
+
 export function markdownForPath(pathname: string): string | null {
   const p = pathname.replace(/\/+$/, "") || "/";
   switch (p) {
@@ -126,6 +147,8 @@ export function markdownForPath(pathname: string): string | null {
       return MD_PRIVACY;
     case "/contact":
       return MD_CONTACT;
+    case "/protocols":
+      return MD_PROTOCOLS;
     default:
       return null;
   }
