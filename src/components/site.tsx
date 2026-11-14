@@ -32,6 +32,7 @@ const NAV = [
   { href: "/demo", label: "Demo" },
   { href: "/stables", label: "AUD Stables" },
   { href: "/docs", label: "Docs" },
+  { href: "/protocols", label: "Protocols" },
   { href: "/quickstart", label: "Quickstart" },
   { href: "/status", label: "Status" },
   { href: "/#faq", label: "FAQ" },
@@ -72,7 +73,7 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
 
   const linkClass =
-    "font-mono text-[11px] tracking-[0.12em] uppercase text-muted transition-colors hover:text-fg px-3 py-2 rounded-md hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green/40";
+    "whitespace-nowrap font-mono text-[11px] tracking-[0.12em] uppercase text-muted transition-colors hover:text-fg px-3 xl:px-2.5 py-2 rounded-md hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green/40";
 
   return (
     <>
@@ -85,7 +86,7 @@ export function SiteHeader() {
       <header className="sticky top-0 z-50 border-b border-border-brand bg-bg/80 backdrop-blur-xl supports-[backdrop-filter]:bg-bg/70">
         <nav className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
           <Logo />
-          <div className="hidden items-center gap-0.5 md:flex">
+          <div className="hidden items-center gap-0.5 xl:flex">
             {NAV.map((item) => (
               <Link key={item.href} href={item.href} className={linkClass}>
                 {item.label}
@@ -99,15 +100,15 @@ export function SiteHeader() {
             >
               pay.sh
             </a>
-            <Link href="/demo" className="ml-2 btn-mono !py-2 !px-3.5">
+            <Link href="/demo" className="ml-2 whitespace-nowrap btn-mono !py-2 !px-3.5">
               Try live
             </Link>
-            <Link href="/#developers" className="btn-mono-solid !py-2 !px-3.5">
+            <Link href="/#developers" className="whitespace-nowrap btn-mono-solid !py-2 !px-3.5">
               Start building
             </Link>
             <ThemeToggle className="ml-1" />
           </div>
-          <div className="flex items-center gap-1.5 md:hidden">
+          <div className="flex items-center gap-1.5 xl:hidden">
             <ThemeToggle />
             <button
               type="button"
@@ -121,7 +122,7 @@ export function SiteHeader() {
           </div>
         </nav>
         {open && (
-          <div className="border-t border-border-brand bg-bg md:hidden">
+          <div className="border-t border-border-brand bg-bg xl:hidden">
             <div className="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-3 sm:px-6">
               {NAV.map((item) => (
                 <Link
@@ -196,6 +197,11 @@ export function SiteFooter() {
                 </Link>
               </li>
               <li>
+                <Link href="/protocols" className="transition-colors hover:text-brand-green">
+                  Protocols
+                </Link>
+              </li>
+              <li>
                 <Link href="/pay" className="transition-colors hover:text-brand-green">
                   Pay with wallet
                 </Link>
@@ -258,6 +264,16 @@ export function SiteFooter() {
                   className="transition-colors hover:text-brand-green"
                 >
                   PayAI
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://solana.ai"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="transition-colors hover:text-brand-green"
+                >
+                  Solana.ai
                 </a>
               </li>
             </ul>
