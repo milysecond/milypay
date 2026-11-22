@@ -28,6 +28,7 @@ const KNOWN_SITE = new Set([
   "/quickstart",
   "/stables",
   "/protocols",
+  "/lazorkit",
   "/fund",
   "/dashboard",
   "/pay",
