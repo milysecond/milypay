@@ -160,6 +160,7 @@ Solana, via the PayAI x402 facilitator.
 - Home: https://milypay.xyz
 - AUD stablecoins: https://milypay.xyz/stables
 - Protocols: https://milypay.xyz/protocols
+- LazorKit (auth/permission layer positioning): https://milypay.xyz/lazorkit
 - Solana.ai (Solana Foundation AI hub; Milypay is not listed there): https://solana.ai
 - Contact and list an API: https://milypay.xyz/contact
 - Catalog: https://pay.sh (namespace `milysec/*`)

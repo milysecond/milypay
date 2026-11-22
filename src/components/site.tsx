@@ -202,6 +202,11 @@ export function SiteFooter() {
                 </Link>
               </li>
               <li>
+                <Link href="/lazorkit" className="transition-colors hover:text-brand-green">
+                  LazorKit
+                </Link>
+              </li>
+              <li>
                 <Link href="/pay" className="transition-colors hover:text-brand-green">
                   Pay with wallet
                 </Link>
