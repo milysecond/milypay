@@ -43,7 +43,7 @@ Milypay is the x402 service provider for the Australian market. AI agents get pa
 
 ## Site map
 
-- /docs · /quickstart · /demo · /stables · /fund · /dashboard · /about · /contact · /privacy · /mcp
+- /docs · /quickstart · /demo · /stables · /protocols · /lazorkit · /fund · /dashboard · /about · /contact · /privacy · /mcp
 `;
 
 export const MD_ABOUT = `# About Milypay
@@ -135,6 +135,49 @@ Every open protocol Milypay supports. HTML: https://milypay.xyz/protocols
 Solana.ai (https://solana.ai) is the Solana Foundation's site for AI on Solana: Confidential Compute, pay.sh, Payment Channels, the Developer Platform and the Solana AI Toolkit. Milypay uses the pay-per-call x402 pattern it describes, settled via PayAI on Solana. Milypay is independent and is not listed on or endorsed by solana.ai.
 `;
 
+export const MD_LAZORKIT = `# LazorKit and Milypay
+
+HTML: https://milypay.xyz/lazorkit
+
+**Milypay settles what LazorKit authorizes.** Biometrics in, scoped spend out, auditable on-chain. LazorKit is the authentication and permission layer Milypay sits on top of. Once a payment is authorized, Milypay settles it for Australian data over x402.
+
+This is architecture and positioning, not a claim that milypay.xyz already ships a LazorKit wallet integration. The live app settles via PayAI. A LazorKit wallet is not wired into production today.
+
+## What LazorKit is
+
+Open-source Solana passkey smart-wallet infrastructure (MIT). Users authenticate with Face ID, Touch ID or Windows Hello. Official docs call it an execution layer: authentication, permission enforcement, fee routing and transaction submission. The Milypay founder helped co-build it and ship protocol v1 to mainnet. It is not a finished product he personally guarantees.
+
+- Site: https://www.lazorkit.com/
+- Docs: https://docs.lazorkit.com/
+- GitHub: https://github.com/lazor-kit
+- License: MIT
+
+## Status (checked 23 November 2026, Australia/Melbourne)
+
+- Protocol v1 is live on Solana mainnet (program LazorjRF…). The public monorepo still says "Pre-audit. Do not use in production."
+- Protocol v2 was audited by Accretion in a Solana Foundation engagement (report A26SFR1, February 2026; the project reports all 17 findings remediated). v2 is live on devnet. The v2 mainnet program (LazorFroi…) was not deployed as of 23 November 2026.
+- Official protocol dashboard, all-time mainnet v1, complete through 23 November 2026, 8:46am Australia/Melbourne: 450 wallets created (425 passkey), 3,974 transactions (3,942 successful). https://lazorkit-protocol-dashboard.vercel.app
+- Marketing figures on lazorkit.com were not used because they do not match the dashboard.
+
+## Features
+
+- Passkey auth (Face ID, Touch ID, Windows Hello)
+- Gasless transactions via a Kora paymaster
+- Session keys with on-chain spending limits
+- Roles in protocol v2: Owner, Admin, and Delegate (SDK name: Spender). v1 did not check rank on Execute.
+- Scoped delegation for AI agents (program, amount, time; revocable)
+
+## Official Solana starter templates (unpaid catalog listing)
+
+Listed as community templates in the Solana Foundation catalog (https://github.com/solana-foundation/templates/blob/main/TEMPLATES.md):
+
+- Next.js: https://templates.solana.com/lazorkit-starter-next
+- Expo: https://templates.solana.com/lazorkit-starter-expo
+- Vite (also listed): https://templates.solana.com/lazorkit-starter-vite
+
+lazorkit.com also states support from the Solana Foundation.
+`;
+
 export function markdownForPath(pathname: string): string | null {
   const p = pathname.replace(/\/+$/, "") || "/";
   switch (p) {
@@ -149,6 +192,8 @@ export function markdownForPath(pathname: string): string | null {
       return MD_CONTACT;
     case "/protocols":
       return MD_PROTOCOLS;
+    case "/lazorkit":
+      return MD_LAZORKIT;
     default:
       return null;
   }

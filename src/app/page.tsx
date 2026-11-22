@@ -562,6 +562,54 @@ export default function Home() {
         </div>
       </section>
 
+      {/* LazorKit positioning */}
+      <section id="lazorkit" className="mx-auto max-w-6xl px-4 py-16 sm:px-6 md:py-20">
+        <div className="max-w-2xl">
+          <p className="section-label">Infrastructure</p>
+          <h2 className="font-display mt-3 text-3xl tracking-tight md:text-4xl">
+            Milypay settles what LazorKit authorizes.
+          </h2>
+          <p className="mt-4 leading-relaxed text-muted">
+            LazorKit is the authentication and permission layer Milypay sits on
+            top of: biometrics in, scoped spend out, auditable on-chain. The
+            Milypay founder helped co-build that open-source Solana passkey
+            infrastructure and ship it to mainnet. Once a payment is authorized,
+            Milypay settles it for Australian data.
+          </p>
+        </div>
+
+        <div className="mt-12 grid gap-px border border-border-brand bg-border-brand sm:grid-cols-3">
+          {[
+            {
+              t: "Passkeys in",
+              d: "Face ID, Touch ID or Windows Hello. No seed phrase, no browser extension.",
+            },
+            {
+              t: "Scoped spend out",
+              d: "Session keys, on-chain spending limits, and roles for apps and agents.",
+            },
+            {
+              t: "Then settlement",
+              d: "Milypay takes the authorized payment and returns Australian data over x402.",
+            },
+          ].map((w) => (
+            <div key={w.t} className="bg-card p-6">
+              <h3 className="font-display text-base leading-snug tracking-tight">{w.t}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted">{w.d}</p>
+            </div>
+          ))}
+        </div>
+
+        <p className="mt-6 text-sm leading-relaxed text-muted">
+          This is how the two layers fit together. The current milypay.xyz app
+          does not yet include a LazorKit wallet integration.{" "}
+          <Link href="/lazorkit" className="text-fg underline underline-offset-4 hover:text-brand-green">
+            Read the LazorKit page
+          </Link>
+          {" — "}status, templates, and what has been independently verified.
+        </p>
+      </section>
+
       {/* Provider onboarding */}
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
         <div className="flex flex-col items-start justify-between gap-8 border border-border-brand bg-cream p-8 md:flex-row md:items-center md:p-10">

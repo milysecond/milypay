@@ -13,6 +13,7 @@ const URLS: Array<{ path: string; changefreq: string; priority: string }> = [
   { path: "/pay", changefreq: "weekly", priority: "0.7" },
   { path: "/stables", changefreq: "weekly", priority: "0.8" },
   { path: "/protocols", changefreq: "weekly", priority: "0.8" },
+  { path: "/lazorkit", changefreq: "monthly", priority: "0.7" },
   { path: "/about", changefreq: "monthly", priority: "0.6" },
   { path: "/privacy", changefreq: "monthly", priority: "0.5" },
   { path: "/contact", changefreq: "monthly", priority: "0.5" },
