@@ -2,6 +2,7 @@ import { createX402Client } from "x402-solana/client";
 import { API_BASE, DEMO_BASE } from "./services.js";
 import { loadWallet, type Wallet } from "./wallet.js";
 import { USER_AGENT } from "./version.js";
+import { ringPaidFetch } from "./ring.js";
 
 export type HostMode = "auto" | "api" | "demo";
 
@@ -12,6 +13,10 @@ export type ClientOptions = {
   /** Max atomic units of the payment asset (default: 50_000_000 = 50 with 6dp). */
   maxAmount?: bigint;
   quiet?: boolean;
+  /** Payment rail on the paid host. "ring" = Helius Rings private transfer (beta). */
+  rail?: "x402" | "ring";
+  /** Preferred ring asset (USDC | AUDD). */
+  ringAsset?: string;
 };
 
 export type FetchInit = {
@@ -78,6 +83,21 @@ export async function milypayFetch(
     if (!headers["content-type"] && !headers["Content-Type"]) {
       headers["content-type"] = "application/json";
     }
+  }
+
+  // Private Helius Rings rail (beta): always the paid host.
+  if (opts.rail === "ring") {
+    if (!opts.baseUrl) {
+      base = API_BASE;
+      url = path.startsWith("http") ? path : withHostPath(base, path);
+    }
+    log(opts.quiet, `→ ${method} ${url}  (paying privately via Helius Rings, beta — confidential, not anonymous)`);
+    const res = await ringPaidFetch(
+      url,
+      { method, headers, body },
+      { asset: opts.ringAsset, maxAtomic: opts.maxAmount ?? BigInt(50_000_000), quiet: opts.quiet },
+    );
+    return { res, base, paid: true };
   }
 
   // Paid path with x402 client (GET primarily; POST paid routes still work if client supports)

@@ -12,9 +12,9 @@ const CORS: Record<string, string> = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers":
-    "Content-Type, Accept, Authorization, PAYMENT-SIGNATURE, X-PAYMENT, payment-signature, X-Extract-Token",
+    "Content-Type, Accept, Authorization, PAYMENT-SIGNATURE, X-PAYMENT, payment-signature, X-Extract-Token, X-Payment-Rail, Spr-Tee, Spr-Tee-Enc, Spr-Tee-Ciphertext",
   "Access-Control-Expose-Headers":
-    "PAYMENT-REQUIRED, PAYMENT-RESPONSE, X-PAYMENT-RESPONSE, payment-required, payment-response, x-payment-response",
+    "PAYMENT-REQUIRED, PAYMENT-RESPONSE, X-PAYMENT-RESPONSE, payment-required, payment-response, x-payment-response, X-Milypay-Tx, X-Milypay-Rail, Spr-Tee, Spr-Tee-Enc, Spr-Tee-Ciphertext",
   "Access-Control-Max-Age": "86400",
 };
 
@@ -24,6 +24,7 @@ const KNOWN_SITE = new Set([
   "/privacy",
   "/contact",
   "/docs",
+  "/docs/ring",
   "/demo",
   "/quickstart",
   "/stables",

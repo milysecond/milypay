@@ -47,3 +47,9 @@ vendor/**/node_modules/
 yarn-debug.log*
 yarn-error.log*
 vendor/mppx/
+
+# ring worker local secrets
+ring-worker/.dev.vars
+ring-worker/.wrangler/
+ring/node_modules/
+ring/dist/

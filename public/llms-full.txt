@@ -135,6 +135,10 @@ GET /au-postage?country={code}&weight={kg} - price 0.002
   International parcel rates and service options.
   Example: GET https://api.milypay.xyz/au-postage?country=US&weight=0.5
 
+## Private payments (Helius Rings, beta)
+
+Every paid endpoint also accepts a confidential Helius Privacy Rings transfer. The 402 challenge lists a `private-exact` entry (rail `helius-rings`) for USDC and for AUDD, with Milypay's shielded address, the amount, and sponsored endpoints (https://api.milypay.xyz/ring/rpc, /ring/indexer, /ring/prover; rate-limited and capped per day). Send a private transfer of at least the amount, sign `milypay-ring:v1:<txSignature>` with the key that signed it, and retry with PAYMENT-SIGNATURE carrying `{txSignature, payer, signature}`. It is confidential, not anonymous: amount and asset are hidden on-chain; sender and recipient are public. A 409 with `retryable: true` means resend the same header shortly; a verified payment can be retried for the same URL for 600 seconds; each transfer pays for one served request. CLI: `milypay ring shield 0.10 --asset USDC`, then any command with `--rail ring`. Guide: https://milypay.xyz/docs/ring
+
 ## Settlement currency
 
 Milypay is AUD-stablecoin-agnostic. On Solana it accepts AUDD, AUDM, and dAUD for AUD-native settlement, plus USDC and USDT for pay.sh compatibility. Settling in AUD removes the USD foreign-exchange round-trip that USDC-only x402 services require. AUD stablecoin reference: https://milypay.xyz/stables .

@@ -76,6 +76,7 @@ Full reference with code and spec links: https://milypay.xyz/protocols
 | x402 v2 | Live, default | `PAYMENT-REQUIRED` → retry with `PAYMENT-SIGNATURE` (v1 `X-PAYMENT` accepted). Scheme `exact`, Solana mainnet, PayAI facilitator, network fees sponsored (`extra.feePayer`). |
 | Settlement assets | Live | Each 402 lists AUDD, AUDM, dAUD, USDC and USDT on Solana at the same price; the wallet picks. |
 | MPP (Tempo) | Live, opt-in | `?rail=mpp`, `X-Payment-Rail: mpp` or `Authorization: Payment` → `WWW-Authenticate: Payment` (method tempo, pathUSD on eip155:4217). |
+| Helius Rings (Solana) | Beta | Scheme `private-exact`, rail `helius-rings` in every 402 `accepts[]` (USDC, AUDD). Private transfer to the advertised shielded address, then `PAYMENT-SIGNATURE` with `{txSignature, payer, signature}` (payer signs `milypay-ring:v1:<txSignature>`). Confidential, not anonymous. https://milypay.xyz/docs/ring |
 | MCP | Live | `npx -y milypay mcp` (stdio) |
 | CLI / SDK | Live | `npx milypay` · `milypay-sdk` |
 | HTTP + OpenAPI 3.1 | Live | https://milypay.xyz/openapi.json |
@@ -300,6 +301,7 @@ Does **not** return caller name or person identity for anonymous x402 wallets.
 ## Networks
 
 - **Solana (default):** x402 via PayAI — USDC / USDT / AUDD / AUDM / dAUD
+- **Helius Rings private payments (beta):** confidential, not anonymous: amount and asset are hidden on-chain, sender and recipient are public. `milypay ring shield 0.10 --asset USDC`, then any command with `--rail ring`. Sponsored, rate-limited endpoints at `https://api.milypay.xyz/ring/{rpc,indexer,prover}`. 409 with `retryable: true` means resend the same header in ~2s; a verified payment can be retried for the same URL for 600s. Guide: https://milypay.xyz/docs/ring
 - **Tempo MPP (live):** pay with pathUSD on Tempo via Machine Payments Protocol. Use `?rail=mpp` or header `X-Payment-Rail: mpp` / `Authorization: Payment …`. See `docs/TEMPO.md`.
 - **Tempo x402 (scaffold):** `TEMPO_X402=true` only when a facilitator settles `eip155:4217`.
 

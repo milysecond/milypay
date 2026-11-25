@@ -1,0 +1,33 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "milypay-ring",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-04-01",
+  "compatibility_flags": ["nodejs_compat"],
+  // Private: reachable only through the main milypay Worker's service binding.
+  "workers_dev": false,
+  "preview_urls": false,
+  "observability": { "enabled": true },
+  "alias": {
+    "@lightprotocol/hasher.rs": "./src/hasher-shim.ts"
+  },
+  "rules": [{ "type": "CompiledWasm", "globs": ["**/*.wasm"], "fallthrough": true }],
+  "d1_databases": [
+    { "binding": "RING_DB", "database_name": "milypay-ring", "database_id": "0cc558bf-5595-4356-b133-1eb680cdf4ff" }
+  ],
+  "unsafe": {
+    "bindings": [
+      { "name": "PROVE_LIMITER", "type": "ratelimit", "namespace_id": "2001", "simple": { "limit": 6, "period": 60 } },
+      { "name": "READ_LIMITER", "type": "ratelimit", "namespace_id": "2002", "simple": { "limit": 240, "period": 60 } }
+    ]
+  },
+  "vars": {
+    "RING_SHIELDED_ADDRESS": "01810705455d240f765a29ec4112efa137ebcc68e120a2264d543529366dd0e8130029f327e0e40d4f52adef1726affe6cf4f6ffe35ee82a5e762708cb07b89b8b12042cf0c0a4c51fdb04ca95f8c0b3ae742cd064fa666ba85d6b459d700b0fe89c68",
+    "RING_PAY_TO": "9gfoX7ojkdXZ5gp7iDGPtHQHvot82eGvQisPBArpG5ni",
+    "RING_PROOF_DAILY_CAP": "300",
+    "RING_PROOF_IP_DAILY_CAP": "30",
+    "RING_READ_DAILY_CAP": "50000",
+    "RING_READ_IP_DAILY_CAP": "3000"
+  }
+  // Secrets: RING_VIEWING_KEY, HELIUS_RPC_URL
+}

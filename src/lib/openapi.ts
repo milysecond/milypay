@@ -135,7 +135,7 @@ export function buildOpenApi() {
           },
         },
         "402": {
-          description: "Payment Required (x402). Pay then retry with PAYMENT-SIGNATURE.",
+          description: "Payment Required (x402). Pay then retry with PAYMENT-SIGNATURE. accepts[] also lists private-exact entries (Helius Rings, beta: confidential, not anonymous).",
           content: {
             "application/json": {
               schema: {
@@ -200,7 +200,7 @@ export function buildOpenApi() {
           in: "header",
           name: "PAYMENT-SIGNATURE",
           description:
-            "x402 v2 payment proof (PAYMENT-SIGNATURE) after HTTP 402. v1 clients may send the same base64 payload in X-PAYMENT. See https://x402.org and https://milypay.xyz/.well-known/x402",
+            "x402 v2 payment proof (PAYMENT-SIGNATURE) after HTTP 402. v1 clients may send the same base64 payload in X-PAYMENT. Scheme exact (PayAI) or private-exact (Helius Rings, beta; https://milypay.xyz/docs/ring). See https://x402.org and https://milypay.xyz/.well-known/x402",
         },
       },
     },
@@ -215,6 +215,14 @@ export function buildOpenApi() {
       sdk: "npm i milypay-sdk",
       fund: "https://milypay.xyz/fund",
       dashboard: "https://milypay.xyz/dashboard",
+      privateRail: {
+        scheme: "private-exact",
+        rail: "helius-rings",
+        label: "beta",
+        privacy: "confidential, not anonymous",
+        assets: ["USDC", "AUDD"],
+        docs: "https://milypay.xyz/docs/ring",
+      },
     },
   };
 }

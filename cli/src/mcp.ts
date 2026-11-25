@@ -5,6 +5,7 @@
  * Run: npx milypay mcp
  * Env: MILYPAY_HOST=demo|api|auto (default auto)
  *      MILYPAY_PRIVATE_KEY / SOLANA_PAYER_SECRET for paid API
+ *      MILYPAY_RAIL=ring  pay every call privately via Helius Rings (beta)
  */
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
@@ -14,6 +15,7 @@ import { DOCS, SERVICES } from "./services.js";
 import { loadWallet } from "./wallet.js";
 
 import { VERSION } from "./version.js";
+import { ringBalance, ringShield, ringStatus, ringUnshield } from "./ring.js";
 
 function hostFromEnv(): HostMode {
   const h = (process.env.MILYPAY_HOST || "auto").toLowerCase();
@@ -27,6 +29,8 @@ function opts(): ClientOptions {
     baseUrl: process.env.MILYPAY_BASE_URL,
     rpcUrl: process.env.SOLANA_RPC_URL || process.env.HELIUS_RPC_URL,
     quiet: true,
+    rail: process.env.MILYPAY_RAIL === "ring" ? "ring" : undefined,
+    ringAsset: process.env.MILYPAY_RING_ASSET,
   };
 }
 
@@ -909,6 +913,63 @@ export async function startMcpServer(): Promise<void> {
         return fail(e);
       }
     },
+  );
+
+  // --- Helius Rings private payments (beta; confidential, not anonymous) ---
+  const RING_NOTE =
+    " Helius Rings (beta): amount and asset hidden on-chain; sender and recipient public. Needs Node >= 22.12 and @milypay/ring.";
+  const ringAsset = z.enum(["USDC", "AUDD"]).optional().describe("USDC (default) or AUDD");
+  const wrap = async (fn: () => Promise<unknown>) => {
+    try {
+      return ok(await fn());
+    } catch (e) {
+      return fail(e);
+    }
+  };
+
+  server.registerTool(
+    "ring_status",
+    { description: "Your Helius Rings identity: Solana address, shielded address, sponsored endpoints." + RING_NOTE, inputSchema: {} },
+    async () => wrap(() => ringStatus()),
+  );
+
+  server.registerTool(
+    "ring_balance",
+    { description: "Private ring balances (USDC, AUDD) and public SOL for fees." + RING_NOTE, inputSchema: { asset: ringAsset } },
+    async ({ asset }) => wrap(() => ringBalance(asset)),
+  );
+
+  server.registerTool(
+    "ring_shield",
+    {
+      description:
+        "Move public USDC/AUDD into your private ring balance. Simulates unless confirm=true (a real shield spends funds)." + RING_NOTE,
+      inputSchema: { amount: z.string().describe("Human amount, e.g. 0.10"), asset: ringAsset, confirm: z.boolean().optional() },
+    },
+    async ({ amount, asset, confirm }) => wrap(() => ringShield(amount, asset || "USDC", confirm !== true)),
+  );
+
+  server.registerTool(
+    "ring_unshield",
+    {
+      description: "Move private ring funds back to a public wallet (default: your own). Requires confirm=true." + RING_NOTE,
+      inputSchema: { amount: z.string(), asset: ringAsset, to: z.string().optional(), confirm: z.boolean() },
+    },
+    async ({ amount, asset, to, confirm }) =>
+      confirm === true
+        ? wrap(() => ringUnshield(amount, asset || "USDC", to))
+        : fail(new Error("Set confirm=true to unshield (this sends a transaction).")),
+  );
+
+  server.registerTool(
+    "ring_pay",
+    {
+      description:
+        "Call any paid Milypay path (e.g. /au-company/acn/695484756) and pay privately from your ring balance (private-exact)." + RING_NOTE,
+      inputSchema: { path: z.string().describe("API path starting with /"), asset: ringAsset },
+    },
+    async ({ path, asset }) =>
+      wrap(() => getJson(path.startsWith("/") ? path : `/${path}`, { ...opts(), host: "api", rail: "ring", ringAsset: asset })),
   );
 
     const transport = new StdioServerTransport();

@@ -5,6 +5,7 @@ import { writeFileSync } from "node:fs";
 import { loadWallet, walletHelp } from "./wallet.js";
 import { startMcpServer } from "./mcp.js";
 import { VERSION } from "./version.js";
+import { ringBalance, ringShield, ringStatus, ringUnshield } from "./ring.js";
 
 type Args = {
   _: string[];
@@ -15,6 +16,8 @@ type Args = {
   help: boolean;
   version: boolean;
   rpc?: string;
+  rail?: "x402" | "ring";
+  ringAsset?: string;
 };
 
 function parseArgs(argv: string[]): Args {
@@ -38,6 +41,11 @@ function parseArgs(argv: string[]): Args {
       out.base = argv[++i];
       out.host = "api"; // custom base treated as paid-capable
     } else if (a === "--rpc") out.rpc = argv[++i];
+    else if (a === "--rail") {
+      const r = String(argv[++i] || "").toLowerCase();
+      if (r !== "ring" && r !== "x402") throw new Error("--rail must be ring or x402");
+      out.rail = r as "ring" | "x402";
+    } else if (a === "--ring-asset") out.ringAsset = String(argv[++i] || "").toUpperCase();
     else if (a === "--") {
       out._.push(...argv.slice(i + 1));
       break;
@@ -98,6 +106,11 @@ Commands:
   domains check|quote <name>       DNS availability / quote
   rides quote|eta|products …       Uber estimates (quote-only)
   whoami                           Show configured wallet
+  ring address                     Your Helius Rings identity + shielded address (beta)
+  ring balance [--asset USDC]      Private ring balances + public SOL
+  ring shield <amount> [--asset USDC|AUDD] [--simulate]   Public -> private (spends funds unless --simulate)
+  ring unshield <amount> [--asset USDC|AUDD] [--to <addr>] Private -> public
+  ring init-asset AUDD             Simulate the first AUDD deposit (creates the AUDD interface; nothing sent)
   help                             This help
 
 MCP (Claude / Cursor):
@@ -117,6 +130,8 @@ Flags:
   --api           Force paid host (${API_BASE}) — needs wallet
   --base <url>    Custom API base
   --rpc <url>     Solana RPC for x402 payments
+  --rail ring     Pay privately with Helius Rings (beta; confidential, not anonymous;
+                  Node >= 22.12 + optional @milypay/ring). --ring-asset USDC|AUDD
   --json, -j      Pretty JSON (default for data commands)
   --quiet, -q     Suppress stderr progress
   -h, --help
@@ -144,6 +159,8 @@ function clientOpts(args: Args): ClientOptions {
     baseUrl: args.base,
     rpcUrl: args.rpc,
     quiet: args.quiet,
+    rail: args.rail ?? (process.env.MILYPAY_RAIL === "ring" ? "ring" : undefined),
+    ringAsset: args.ringAsset,
   };
 }
 
@@ -336,6 +353,40 @@ async function cmdAsic(rest: string[], args: Args) {
   throw new Error("Usage: milypay asic [search|company|business|purchase|status|extract] …");
 }
 
+async function cmdRing(rest: string[], args: Args) {
+  const sub = String(rest[0] || "address").toLowerCase();
+  const asset = String(flagValue(rest, "--asset") || args.ringAsset || "USDC").toUpperCase();
+  if (asset !== "USDC" && asset !== "AUDD" && sub !== "address" && sub !== "status") {
+    throw new Error("ring assets: USDC or AUDD");
+  }
+  const amount = rest[1] && !rest[1].startsWith("--") ? rest[1] : undefined;
+  switch (sub) {
+    case "address":
+    case "status":
+      print(await ringStatus(), true);
+      return;
+    case "balance":
+      print(await ringBalance(flagValue(rest, "--asset")), true);
+      return;
+    case "shield":
+      if (!amount) throw new Error("ring shield <amount> [--asset USDC|AUDD] [--simulate]");
+      print(await ringShield(amount, asset, rest.includes("--simulate")), true);
+      return;
+    case "unshield":
+      if (!amount) throw new Error("ring unshield <amount> [--asset USDC|AUDD] [--to <addr>]");
+      print(await ringUnshield(amount, asset, flagValue(rest, "--to")), true);
+      return;
+    case "init-asset": {
+      const a = String(rest[1] || "AUDD").toUpperCase();
+      // Always simulated here: a real first deposit spends funds (rent + deposit) and needs an explicit shield.
+      print(await ringShield(flagValue(rest, "--amount") || "0.01", a, true), true);
+      return;
+    }
+    default:
+      throw new Error("ring address|balance|shield|unshield|init-asset");
+  }
+}
+
 async function main() {
   // MCP takes over stdio — handle before any other stdout writes
   const rawArgv = process.argv.slice(2);
@@ -421,6 +472,9 @@ async function main() {
       break;
     case "postage":
       await cmdPostage(rest, args);
+      break;
+    case "ring":
+      await cmdRing(rest, args);
       break;
     case "whoami": {
       const w = loadWallet();

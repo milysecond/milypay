@@ -27,7 +27,7 @@ export default function PricingPage() {
         <h1 className="font-display text-4xl tracking-tight md:text-5xl">Pricing</h1>
         <p className="mt-5 text-base leading-relaxed text-muted">
           No seats. No API keys. Demo host is free and throttled. Production agents pay per call on
-          api.milypay.xyz via x402 (Solana stables) or MPP (?rail=mpp).
+          api.milypay.xyz via x402 (Solana stables), MPP (?rail=mpp), or private Helius Rings transfers (beta, USDC/AUDD; see /docs/ring).
         </p>
         <div className="mt-10 overflow-x-auto">
           <table className="min-w-[32rem] w-full text-left text-sm">

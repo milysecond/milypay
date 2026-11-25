@@ -14,7 +14,7 @@ export type Wallet = {
   source: string;
 };
 
-function decodeSecret(raw: string): Uint8Array {
+export function decodeSecret(raw: string): Uint8Array {
   const s = raw.trim();
   // JSON byte array
   if (s.startsWith("[")) {
@@ -23,6 +23,15 @@ function decodeSecret(raw: string): Uint8Array {
   }
   // base58 secret key
   return bs58.decode(s);
+}
+
+/** Raw secret bytes from the first configured env var (for the optional ring rail). */
+export function loadSecretBytes(): Uint8Array | null {
+  for (const name of ENV_KEYS) {
+    const raw = process.env[name];
+    if (raw?.trim()) return decodeSecret(raw);
+  }
+  return null;
 }
 
 /** Load wallet from env. Returns null if none configured. */

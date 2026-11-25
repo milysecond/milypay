@@ -68,6 +68,24 @@ const MANIFEST = {
       decimals: 6,
     },
     currency: "AUD",
+    // Second Solana rail (beta): confidential Helius Privacy Rings transfers on every paid endpoint.
+    privateRail: {
+      scheme: "private-exact",
+      rail: "helius-rings",
+      label: "beta",
+      privacy: "confidential, not anonymous",
+      ring: "default",
+      programId: "ring1GaLCuJnkUMVkX2JeZLTTX17wKsV4fZmPVzXANW",
+      assets: ["USDC", "AUDD"],
+      endpoints: {
+        rpcUrl: "https://api.milypay.xyz/ring/rpc",
+        indexerUrl: "https://api.milypay.xyz/ring/indexer",
+        proverUrl: "https://api.milypay.xyz/ring/prover",
+      },
+      binding: "milypay-ring:v1:<txSignature>",
+      retryWindowSeconds: 600,
+      docs: "https://milypay.xyz/docs/ring",
+    },
   },
   endpoints: [
     { method: "GET", path: "/au-business/abn/{abn}", price: "0.002", description: "Australian business by ABN (entity name, status, type, ACN, GST, business names, location). Source: ABR." },

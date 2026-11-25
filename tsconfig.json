@@ -45,6 +45,10 @@
     "video-demo/**",
     "cli",
     "cli/**",
+    "ring",
+    "ring/**",
+    "ring-worker",
+    "ring-worker/**",
     "**/*.test-d.ts"
   ]
 }

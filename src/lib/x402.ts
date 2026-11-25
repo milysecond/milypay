@@ -44,6 +44,7 @@ import {
 import { hasMppCredential, mppCharge, mppEnabled, mppStatus } from "./mpp";
 import { bazaarResourceMeta, bazaarResourceUrl, buildBazaarExtension } from "./bazaar";
 import { x402FundingHint } from "./moneygram";
+import { isRingPayload, ringEnabled, ringMark, ringRequirements, ringSummary, ringVerify } from "./ring";
 import {
   facilitatorFailureReason,
   isSolanaNetwork,
@@ -203,7 +204,8 @@ function challenge(req: Request, price: string, description: string, feePayer: s
       tags: meta.tags,
       iconUrl: meta.iconUrl,
     },
-    accepts: allRequirements(price, feePayer),
+    // private-exact (Helius Rings, beta) entries go last; exact-only clients ignore them.
+    accepts: [...allRequirements(price, feePayer), ...ringRequirements(price)],
     extensions: {
       ...bazaar,
       milypayFunding: funding,
@@ -238,6 +240,7 @@ function paymentRequired(
       network: networks[0] || SOLANA_NETWORK,
       facilitator: FACILITATOR,
       funding,
+      ...(ringEnabled() ? { privateRail: ringSummary() } : {}),
       ...(reason ? { paymentError: reason } : {}),
       howToPay: {
         step1: "If wallet USDC is low, POST /ramp/moneygram/session (or open /fund) to on-ramp via MoneyGram sandbox",
@@ -453,6 +456,14 @@ export async function withX402(
     );
   }
 
+  // --- Helius Rings private rail (beta): private-exact payload ---
+  if (isRingPayload(payload)) {
+    if (!ringEnabled()) {
+      return paymentRequired(req, opts.price, opts.description, feePayer, "private-exact (helius-rings) is not enabled");
+    }
+    return ringGate(req, opts, payload, feePayer, handler);
+  }
+
   const version = paymentVersion(payload);
   const resource = {
     url: bazaarResourceUrl(req),
@@ -564,6 +575,88 @@ export async function withX402(
   return res;
 }
 
+async function ringGate(
+  req: Request,
+  opts: GateOptions,
+  payload: Parameters<typeof ringVerify>[0],
+  feePayer: string,
+  handler: () => Promise<NextResponse>,
+): Promise<NextResponse> {
+  const resource = bazaarResourceUrl(req);
+  const v = await ringVerify(payload, opts.price, resource, req.method || "GET");
+  if (!v.ok) {
+    if (v.retryable) {
+      return NextResponse.json(
+        {
+          error: v.message,
+          code: v.code,
+          rail: "helius-rings",
+          retryable: true,
+          retryAfterSeconds: 2,
+          brand: "Milypay",
+          docs: "https://milypay.xyz/docs/ring",
+        },
+        { status: 409, headers: { "retry-after": "2", "X-Milypay-Rail": "helius-rings; beta" } },
+      );
+    }
+    return paymentRequired(req, opts.price, opts.description, feePayer, `${v.code}: ${v.message}`);
+  }
+  const txSignature = payload.payload.txSignature;
+  let res: NextResponse;
+  try {
+    res = await handler();
+  } catch (e) {
+    await ringMark(txSignature, false);
+    throw e;
+  }
+  if (!res.ok) {
+    // Not served: keep the payment claimable for a retry inside the window.
+    await ringMark(txSignature, false);
+    return res;
+  }
+  await ringMark(txSignature, true);
+  const receipt = {
+    signature: txSignature,
+    explorerUrl: `https://solscan.io/tx/${txSignature}`,
+    network: payload.accepted.network,
+    asset: payload.accepted.asset,
+    amount: v.amount,
+    payTo: process.env.RING_PAY_TO || payload.accepted.payTo,
+    payer: payload.payload.payer,
+    rail: "helius-rings",
+    label: "beta",
+    privacy: "confidential, not anonymous",
+    retry: v.retry,
+    brand: "Milypay" as const,
+  };
+  const settlement = {
+    success: true,
+    scheme: "private-exact",
+    rail: "helius-rings",
+    transaction: txSignature,
+    network: payload.accepted.network,
+    payer: payload.payload.payer,
+  };
+  const encoded = b64encode(settlement);
+  res.headers.set("PAYMENT-RESPONSE", encoded);
+  res.headers.set("X-PAYMENT-RESPONSE", encoded);
+  res.headers.set("X-Milypay-Tx", txSignature);
+  res.headers.set("X-Milypay-Explorer", receipt.explorerUrl);
+  res.headers.set("X-Milypay-Rail", "helius-rings; beta");
+  try {
+    const ct = res.headers.get("content-type") || "";
+    if (ct.includes("application/json")) {
+      const body = await res.clone().json();
+      if (body && typeof body === "object" && !Array.isArray(body)) {
+        return NextResponse.json({ ...(body as object), $receipt: receipt }, { status: res.status, headers: res.headers });
+      }
+    }
+  } catch {
+    /* leave original body */
+  }
+  return res;
+}
+
 function buildReceipt(
   settlement: Record<string, unknown>,
   reqs: PaymentRequirements,
@@ -630,5 +723,6 @@ export function paymentRailsStatus() {
       preferredPath: "MPP (mppx)",
       mpp: mppStatus(),
     },
+    ring: ringSummary(),
   };
 }

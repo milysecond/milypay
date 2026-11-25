@@ -38,6 +38,7 @@ const SUMMARY: { id: string; name: string; role: string; status: Status; label: 
   { id: "x402", name: "x402 v2", role: "Pay per call over HTTP 402 on Solana", status: "live", label: "Live · default" },
   { id: "settlement", name: "Solana stablecoins", role: "USDC, USDT, AUDD, AUDM, dAUD on one challenge", status: "live", label: "Live" },
   { id: "mpp", name: "MPP (Tempo)", role: "Second payment rail, opt-in", status: "live", label: "Live · opt-in" },
+  { id: "ring", name: "Helius Rings", role: "Private payments: confidential, not anonymous (USDC, AUDD)", status: "scaffold", label: "Beta" },
   { id: "mcp", name: "MCP", role: "Tools for Claude, Cursor and any MCP client", status: "live", label: "Live · stdio" },
   { id: "cli", name: "milypay CLI", role: "One command per dataset", status: "live", label: "Live" },
   { id: "sdk", name: "milypay-sdk", role: "Typed TypeScript client", status: "live", label: "Live" },

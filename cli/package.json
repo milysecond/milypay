@@ -1,7 +1,7 @@
 {
   "name": "milypay",
   "version": "0.2.6",
-  "description": "CLI + MCP for Milypay — Australian data over x402",
+  "description": "CLI + MCP for Milypay \u2014 Australian data over x402",
   "license": "MIT",
   "author": "Milysec",
   "homepage": "https://milypay.xyz",
@@ -23,7 +23,8 @@
     "cli",
     "mcp",
     "audd",
-    "agent"
+    "agent",
+    "helius-rings"
   ],
   "type": "module",
   "bin": {
@@ -59,5 +60,13 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "peerDependencies": {
+    "@milypay/ring": ">=0.1.0-beta.0"
+  },
+  "peerDependenciesMeta": {
+    "@milypay/ring": {
+      "optional": true
+    }
   }
 }
