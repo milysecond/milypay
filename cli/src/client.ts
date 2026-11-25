@@ -1,6 +1,7 @@
 import { createX402Client } from "x402-solana/client";
 import { API_BASE, DEMO_BASE } from "./services.js";
 import { loadWallet, type Wallet } from "./wallet.js";
+import { USER_AGENT } from "./version.js";
 
 export type HostMode = "auto" | "api" | "demo";
 
@@ -68,7 +69,7 @@ export async function milypayFetch(
   const method = (init.method || "GET").toUpperCase();
   const headers: Record<string, string> = {
     accept: "application/json",
-    "user-agent": "milypay-cli/0.2.5",
+    "user-agent": USER_AGENT,
     ...(init.headers || {}),
   };
   let body: string | undefined;

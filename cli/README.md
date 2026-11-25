@@ -34,14 +34,32 @@ npx milypay <command>
 | `milypay weather <address>` | BOM forecast |
 | `milypay bsb <bsb>` | BSB lookup |
 | `milypay bsb search <q>` | BSB search |
-| `milypay postage --from --to --weight` | AusPost rates |
+| `milypay postage --from 3000 --to 2000 --weight 1` | AusPost rates |
+| `milypay abs dataflows\|dataflow\|data …` | ABS (`abs data CPI --key 1.10001.10.50.Q --start 2024`) |
+| `milypay cpi [start]` | Headline CPI |
+| `milypay transit <region> vehicles\|trips\|alerts\|summary [--limit n]` | GTFS-RT |
+| `milypay nem [region]` · `milypay energy notices\|catalogue` | AEMO NEM |
+| `milypay phone <number>` | Phone line intel |
+| `milypay check <postcode\|reverse\|suburb\|activity\|company-name\|business-name\|sanctions\|director-id\|tfn\|email> <value>` | Checkify extras |
+| `milypay asic search <name>` | ASIC extract search (Acceleon, UAT test mode) |
+| `milypay asic company\|business <nni>` | Details + purchasable flags |
+| `milypay asic purchase <nni> [--type current\|historical]` | Buy extract (paid, POST) |
+| `milypay asic status\|extract <id> --token <t> [--out f.pdf]` | Status / download |
+| `milypay status` · `milypay stats` | Health / usage |
 | `milypay fund status\|session` | MoneyGram pre-fund (sandbox) |
 | `milypay domains check\|quote <name>` | DNS check/quote |
-| `milypay rides quote …` | Uber estimates (no booking) |
+| `milypay rides quote -33.87 151.21 -33.90 151.20` | Uber estimates (no booking) |
 | `milypay call /path` | Raw path |
 | `milypay whoami` | Configured wallet |
 
+## MCP
+
+Stdio only: `npx -y milypay mcp` (set `MILYPAY_HOST=demo`, or `api` + `MILYPAY_PRIVATE_KEY`).
+
 ## Flags
+
+Subcommand flags (`--from`, `--limit`, `--token` …) and negative numbers (`-33.87`) pass through to the command.
+
 
 - `--demo` — force `https://milypay.xyz` (free)
 - `--api` — force `https://api.milypay.xyz` (needs wallet)

@@ -34,15 +34,18 @@ function digits(s: string): string {
   return s.replace(/\D/g, "");
 }
 
+/** Max characters returned in one tool result; larger payloads are truncated with a note. */
+const MAX_TEXT = Number(process.env.MILYPAY_MCP_MAX_CHARS || 200_000);
+
 function ok(data: unknown) {
-  return {
-    content: [
-      {
-        type: "text" as const,
-        text: typeof data === "string" ? data : JSON.stringify(data, null, 2),
-      },
-    ],
-  };
+  // Compact JSON (no pretty-print) keeps big responses small for MCP clients.
+  let text = typeof data === "string" ? data : JSON.stringify(data);
+  if (text.length > MAX_TEXT) {
+    text =
+      text.slice(0, MAX_TEXT) +
+      `\n…[truncated ${text.length - MAX_TEXT} chars; narrow the query (e.g. key=, maxSeries, limit)]`;
+  }
+  return { content: [{ type: "text" as const, text }] };
 }
 
 function fail(err: unknown) {
@@ -442,10 +445,18 @@ export async function startMcpServer(): Promise<void> {
         key: z.string().optional().describe("SDMX key e.g. 1.10001.10.50.Q"),
         startPeriod: z.string().optional().describe("e.g. 2020 or 2020-Q1"),
         endPeriod: z.string().optional(),
+        maxSeries: z
+          .number()
+          .int()
+          .min(1)
+          .max(200)
+          .optional()
+          .describe("Max series returned (default 10). Use a specific key for one series."),
       },
     },
-    async ({ dataflow, key, startPeriod, endPeriod }) => {
+    async ({ dataflow, key, startPeriod, endPeriod, maxSeries }) => {
       const qs = new URLSearchParams();
+      qs.set("maxSeries", String(maxSeries ?? 10));
       if (key) qs.set("key", key);
       if (startPeriod) qs.set("startPeriod", startPeriod);
       if (endPeriod) qs.set("endPeriod", endPeriod);
@@ -716,6 +727,151 @@ export async function startMcpServer(): Promise<void> {
       inputSchema: { email: z.string() },
     },
     async ({ email }) => runJson(`/au-check/email?email=${encodeURIComponent(email)}`),
+  );
+
+  // --- Checkify extras (all /au-check routes) ---
+  server.registerTool(
+    "check_catalogue",
+    { description: "Checkify extras catalogue (postcode, reverse geo, names, sanctions, checksums).", inputSchema: {} },
+    async () => runJson(`/au-check`),
+  );
+  server.registerTool(
+    "check_reverse",
+    {
+      description: "Reverse geocode a lat/lng to the nearest Australian address (Checkify).",
+      inputSchema: { lat: z.number(), lng: z.number() },
+    },
+    async ({ lat, lng }) =>
+      runJson(`/au-check/reverse?${new URLSearchParams({ lat: String(lat), lng: String(lng) })}`),
+  );
+  server.registerTool(
+    "check_suburb",
+    { description: "Suburb / locality autocomplete (Checkify).", inputSchema: { q: z.string() } },
+    async ({ q }) => runJson(`/au-check/suburb?${new URLSearchParams({ q })}`),
+  );
+  server.registerTool(
+    "check_activity",
+    { description: "ANZSIC / business activity search (Checkify).", inputSchema: { q: z.string() } },
+    async ({ q }) => runJson(`/au-check/activity?${new URLSearchParams({ q })}`),
+  );
+  server.registerTool(
+    "check_business_name",
+    { description: "ASIC business name availability.", inputSchema: { name: z.string() } },
+    async ({ name }) => runJson(`/au-check/business-name?${new URLSearchParams({ name })}`),
+  );
+  server.registerTool(
+    "check_director_id",
+    {
+      description: "Director ID checksum (15 digits). Structural validity only, not a live ABRS lookup.",
+      inputSchema: { id: z.string() },
+    },
+    async ({ id }) => runJson(`/au-check/director-id?${new URLSearchParams({ id })}`),
+  );
+  server.registerTool(
+    "check_tfn",
+    {
+      description: "TFN checksum. Structural validity only, not a live ATO lookup.",
+      inputSchema: { tfn: z.string() },
+    },
+    async ({ tfn }) => runJson(`/au-check/tfn?${new URLSearchParams({ tfn })}`),
+  );
+
+  // --- ASIC extracts (Acceleon, UAT test mode) ---
+  server.registerTool(
+    "asic_extract_catalogue",
+    { description: "ASIC extract catalogue and prices (Acceleon UAT test mode).", inputSchema: {} },
+    async () => runJson(`/au-asic-extract`),
+  );
+  server.registerTool(
+    "asic_extract_search",
+    {
+      description: "ASIC organisation name search via Acceleon (UAT test mode). Returns NNIs for details/purchase.",
+      inputSchema: { name: z.string().describe("Organisation name, e.g. milysec") },
+    },
+    async ({ name }) => runJson(`/au-asic-extract/search?${new URLSearchParams({ name })}`),
+  );
+  server.registerTool(
+    "asic_extract_company",
+    {
+      description: "ASIC company details + canPurchase flags by NNI (ACN for companies).",
+      inputSchema: { nni: z.string().describe("NNI / ACN, e.g. 695484756") },
+    },
+    async ({ nni }) => runJson(`/au-asic-extract/company/${digits(nni)}`),
+  );
+  server.registerTool(
+    "asic_extract_business",
+    {
+      description: "ASIC business name details by NNI.",
+      inputSchema: { nni: z.string() },
+    },
+    async ({ nni }) => runJson(`/au-asic-extract/business/${digits(nni)}`),
+  );
+  server.registerTool(
+    "asic_extract_purchase",
+    {
+      description:
+        "Buy an ASIC extract (POST, always paid via x402: 0.10 current / 0.20 historical in UAT test mode). Returns extractId + buyer token. Needs a wallet (MILYPAY_PRIVATE_KEY).",
+      inputSchema: {
+        nni: z.string(),
+        kind: z.enum(["company", "business"]).optional(),
+        type: z.enum(["current", "historical"]).optional(),
+      },
+    },
+    async ({ nni, kind, type }) => {
+      try {
+        return ok(
+          await postJson(
+            `/au-asic-extract/purchase`,
+            { nni: digits(nni), kind: kind || "company", type: type || "current" },
+            opts(),
+          ),
+        );
+      } catch (e) {
+        return fail(e);
+      }
+    },
+  );
+  server.registerTool(
+    "asic_extract_status",
+    {
+      description: "Extract status by extractId (buyer token from the purchase response required).",
+      inputSchema: { id: z.string(), token: z.string() },
+    },
+    async ({ id, token }) => runJson(`/au-asic-extract/status/${digits(id)}?${new URLSearchParams({ token })}`),
+  );
+  server.registerTool(
+    "asic_extract_download",
+    {
+      description: "Download a purchased extract as JSON (pdf=true adds pdfBase64). Buyer token required.",
+      inputSchema: { id: z.string(), token: z.string(), pdf: z.boolean().optional() },
+    },
+    async ({ id, token, pdf }) => {
+      const qs = new URLSearchParams({ token });
+      if (pdf) qs.set("pdf", "1");
+      return runJson(`/au-asic-extract/extract/${digits(id)}?${qs}`);
+    },
+  );
+
+  // --- Catalogues / health ---
+  server.registerTool(
+    "energy_catalogue",
+    { description: "Australian energy products catalogue.", inputSchema: {} },
+    async () => runJson(`/au-energy`),
+  );
+  server.registerTool(
+    "rides_catalogue",
+    { description: "Rides catalogue (Uber quote-only, no booking).", inputSchema: {} },
+    async () => runJson(`/au-rides`),
+  );
+  server.registerTool(
+    "domains_catalogue",
+    { description: "Domain catalogue (Dynadot x402 register proxy).", inputSchema: {} },
+    async () => runJson(`/domains`),
+  );
+  server.registerTool(
+    "service_status",
+    { description: "Milypay service health, including degraded upstreams.", inputSchema: {} },
+    async () => runJson(`/status`),
   );
 
   server.registerTool(

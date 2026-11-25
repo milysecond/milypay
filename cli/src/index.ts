@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { API_BASE, DEMO_BASE, DOCS, SERVICES } from "./services.js";
 import { getJson, postJson, type ClientOptions, type HostMode } from "./client.js";
+import { writeFileSync } from "node:fs";
 import { loadWallet, walletHelp } from "./wallet.js";
 import { startMcpServer } from "./mcp.js";
 import { VERSION } from "./version.js";
@@ -37,9 +38,13 @@ function parseArgs(argv: string[]): Args {
       out.base = argv[++i];
       out.host = "api"; // custom base treated as paid-capable
     } else if (a === "--rpc") out.rpc = argv[++i];
-    else if (a.startsWith("-")) {
-      throw new Error(`Unknown flag: ${a}`);
-    } else out._.push(a);
+    else if (a === "--") {
+      out._.push(...argv.slice(i + 1));
+      break;
+    }
+    // Everything else (subcommand flags like --from/--limit, negative numbers like -33.87)
+    // is passed through positionally; each subcommand parses its own flags.
+    else out._.push(a);
   }
   return out;
 }
@@ -76,6 +81,19 @@ Commands:
   bsb search <query>               Search BSBs
   postage --from <pc> --to <pc> --weight <kg> [--length --width --height]
   postage --country <cc> --weight <kg>
+  abs dataflows [q] | abs dataflow <id> | abs data <flow> --key <k> [--start p] [--max-series n]
+  cpi [startPeriod]                Headline CPI (ABS)
+  transit regions | transit <region> vehicles|trips|alerts|summary [--limit n --route r --stop s]
+  nem [region] | energy notices [n] | energy catalogue
+  phone <number>                   Phone line intel
+  check <postcode|reverse|suburb|activity|company-name|business-name|sanctions|director-id|tfn|email> <value>
+  asic                             ASIC extract catalogue (Acceleon, UAT test mode)
+  asic search <name>               Organisation search (returns NNIs)
+  asic company|business <nni>      Details + purchasable flags
+  asic purchase <nni> [--kind company|business] [--type current|historical]   (paid, POST)
+  asic status <id> --token <t>     Extract status (buyer token from purchase)
+  asic extract <id> --token <t> [--pdf] [--out file.pdf]
+  status | stats                   Service health / usage
   fund|moneygram [status|session]  MoneyGram wallet funding (pre-x402)
   domains check|quote <name>       DNS availability / quote
   rides quote|eta|products …       Uber estimates (quote-only)
@@ -132,6 +150,7 @@ function clientOpts(args: Args): ClientOptions {
 async function cmdServices() {
   const rows = SERVICES.map((s) => ({
     id: s.id,
+    method: s.method,
     path: s.path,
     priceAUD: s.price,
     description: s.description,
@@ -243,6 +262,78 @@ async function cmdPostage(rest: string[], args: Args) {
     throw new Error("postage requires --from/--to or --country");
   }
   print(await getJson(`/au-postage?${qs}`, clientOpts(args)), true);
+}
+
+function flagValue(rest: string[], name: string): string | undefined {
+  const i = rest.indexOf(name);
+  return i >= 0 ? rest[i + 1] : undefined;
+}
+
+function positionals(rest: string[], valueFlags: string[]): string[] {
+  const out: string[] = [];
+  for (let i = 0; i < rest.length; i++) {
+    if (valueFlags.includes(rest[i])) {
+      i++;
+      continue;
+    }
+    if (rest[i].startsWith("--")) continue;
+    out.push(rest[i]);
+  }
+  return out;
+}
+
+async function cmdAsic(rest: string[], args: Args) {
+  const sub = String(rest[0] || "catalogue").toLowerCase();
+  const tail = rest.slice(1);
+  const pos = positionals(tail, ["--token", "--kind", "--type", "--out"]);
+  const o = clientOpts(args);
+  if (sub === "catalogue" || sub === "catalog") {
+    print(await getJson(`/au-asic-extract`, o), true);
+    return;
+  }
+  if (sub === "search") {
+    const name = pos.join(" ");
+    if (!name) throw new Error("Usage: milypay asic search <name>");
+    print(await getJson(`/au-asic-extract/search?${new URLSearchParams({ name })}`, o), true);
+    return;
+  }
+  if (sub === "company" || sub === "business") {
+    const nni = digitsOnly(pos[0] || "");
+    if (!nni) throw new Error(`Usage: milypay asic ${sub} <nni>`);
+    print(await getJson(`/au-asic-extract/${sub}/${nni}`, o), true);
+    return;
+  }
+  if (sub === "purchase" || sub === "buy") {
+    const nni = digitsOnly(pos[0] || "");
+    if (!nni) throw new Error("Usage: milypay asic purchase <nni> [--kind company|business] [--type current|historical]");
+    const kind = (flagValue(tail, "--kind") || "company").toLowerCase();
+    const type = (flagValue(tail, "--type") || "current").toLowerCase();
+    print(await postJson(`/au-asic-extract/purchase`, { nni, kind, type }, o), true);
+    return;
+  }
+  if (sub === "status" || sub === "extract" || sub === "download") {
+    const id = digitsOnly(pos[0] || "");
+    const token = flagValue(tail, "--token") || process.env.MILYPAY_EXTRACT_TOKEN;
+    if (!id || !token) {
+      throw new Error(`Usage: milypay asic ${sub} <extractId> --token <buyer token from purchase>`);
+    }
+    const qs = new URLSearchParams({ token });
+    if (sub === "status") {
+      print(await getJson(`/au-asic-extract/status/${id}?${qs}`, o), true);
+      return;
+    }
+    const out = flagValue(tail, "--out");
+    if (tail.includes("--pdf") || out) qs.set("pdf", "1");
+    const data = (await getJson(`/au-asic-extract/extract/${id}?${qs}`, o)) as Record<string, unknown>;
+    if (out && typeof data.pdfBase64 === "string") {
+      writeFileSync(out, Buffer.from(data.pdfBase64, "base64"));
+      delete data.pdfBase64;
+      data.savedPdf = out;
+    }
+    print(data, true);
+    return;
+  }
+  throw new Error("Usage: milypay asic [search|company|business|purchase|status|extract] …");
 }
 
 async function main() {
@@ -361,14 +452,17 @@ async function main() {
         // parse optional flags from remaining
         let key = "";
         let start = "";
+        let maxSeries = "";
         const rest = args._.slice(3);
         for (let i = 0; i < rest.length; i++) {
           if (rest[i] === "--key") key = String(rest[++i] || "");
-          else if (rest[i] === "--start") start = String(rest[++i] || "");
+          else if (rest[i] === "--start" || rest[i] === "--start-period") start = String(rest[++i] || "");
+          else if (rest[i] === "--max-series") maxSeries = String(rest[++i] || "");
         }
         const qs = new URLSearchParams();
         if (key) qs.set("key", key);
         if (start) qs.set("startPeriod", start);
+        if (maxSeries) qs.set("maxSeries", maxSeries);
         if (!key && !start) qs.set("startPeriod", "2020");
         const q = qs.toString();
         print(await getJson(`/au-abs/data/${encodeURIComponent(flow)}${q ? `?${q}` : ""}`, clientOpts(args)), args.json);
@@ -436,6 +530,10 @@ async function main() {
         print(await getJson(`/au-energy/notices${q}`, clientOpts(args)), args.json);
         break;
       }
+      if (sub === "catalogue" || sub === "catalog" || sub === "products") {
+        print(await getJson(`/au-energy`, clientOpts(args)), args.json);
+        break;
+      }
       if (!sub || sub === "all" || sub === "summary") {
         print(await getJson(`/au-energy/nem`, clientOpts(args)), args.json);
         break;
@@ -456,6 +554,10 @@ async function main() {
     case "domain": {
       const sub = String(args._[1] || "check").toLowerCase();
       const name = String(args._[2] || args._[1] || "");
+      if (sub === "catalogue" || sub === "catalog") {
+        print(await getJson(`/domains`, clientOpts(args)), args.json);
+        break;
+      }
       if (sub === "check" || (sub.includes(".") && !["check","quote","register"].includes(sub))) {
         const n = sub.includes(".") ? sub : name;
         if (!n || !n.includes(".")) throw new Error("Usage: milypay domains check example.com");
@@ -478,6 +580,10 @@ async function main() {
     case "ride":
     case "uber": {
       const sub = String(args._[1] || "quote").toLowerCase();
+      if (sub === "catalogue" || sub === "catalog") {
+        print(await getJson(`/au-rides`, clientOpts(args)), args.json);
+        break;
+      }
       if (sub === "products") {
         const lat = args._[2];
         const lng = args._[3];
@@ -556,6 +662,19 @@ async function main() {
         break;
       }
       throw new Error("Usage: milypay fund status|session [on-ramp|off-ramp]");
+    }
+
+    case "status":
+      print(await getJson(`/status`, clientOpts(args)), true);
+      break;
+    case "stats":
+      print(await getJson(`/stats`, clientOpts(args)), true);
+      break;
+
+    case "asic":
+    case "asic-extract": {
+      await cmdAsic(args._.slice(1), args);
+      break;
     }
 
     case "check":
