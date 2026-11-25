@@ -13,14 +13,14 @@ import { Milypay } from "milypay-sdk";
 
 // Free demo host (rate-limited)
 const demo = new Milypay({ host: "demo" });
-const biz = await demo.business.abn("51824753556");
+const biz = await demo.business.abn("55695484756");
 
 // Paid API with Solana wallet (base58 secret)
 const paid = new Milypay({
   host: "api",
   privateKey: process.env.MILYPAY_PRIVATE_KEY!,
 });
-const company = await paid.company.acn("000014675");
+const company = await paid.company.acn("695484756");
 // company.$receipt? — settlement metadata when paid
 
 // MoneyGram pre-fund (does NOT settle x402)

@@ -141,8 +141,8 @@ export async function collectOpsData() {
     soft(tokenBalances(FLOAT_PAYER), {}),
     soft(recentSigs(payTo, 20), []),
     Promise.all([
-      probe("/au-business/abn/51824753556", "abn"),
-      probe("/au-company/acn/000014675", "company"),
+      probe("/au-business/abn/55695484756", "abn"),
+      probe("/au-company/acn/695484756", "company"),
       probe("/au-bsb/012-002", "bsb"),
       probe("/au-address/geocode?q=1%20bligh%20st%20sydney", "address"),
       probe("/au-weather?q=sydney", "weather"),
@@ -159,7 +159,7 @@ export async function collectOpsData() {
   {
     const t0 = Date.now();
     try {
-      const res = await fetch("https://api.milypay.xyz/au-business/abn/51824753556", {
+      const res = await fetch("https://api.milypay.xyz/au-business/abn/55695484756", {
         signal: AbortSignal.timeout(10_000),
       });
       paidApi = {

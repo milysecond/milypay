@@ -21,7 +21,7 @@
 //
 // Extract body (verified sandbox):
 //   POST /asic/extracts
-//   { "generalInformation": { "acn": "000014675", "type": "current" | "historical" } }
+//   { "generalInformation": { "acn": "695484756", "type": "current" | "historical" } }
 //   GET  /asic/extracts/{requestId}/pdf -> PDF
 
 const LIVE_BASE = "https://businessapi.com.au/api/v2";

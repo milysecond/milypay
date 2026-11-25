@@ -9,7 +9,7 @@ Agents and crawlers are welcome here. This document describes how to use Milypay
 Request any endpoint. If it returns `HTTP 402 Payment Required`, pay the quoted price in AUDD from an x402-aware wallet and the data returns in the same round-trip.
 
 ```
-curl https://api.milypay.xyz/au-business/abn/51824753556
+curl https://api.milypay.xyz/au-business/abn/55695484756
 ```
 
 ## Ways to integrate
@@ -20,7 +20,7 @@ Call any endpoint from your terminal with the Milypay CLI.
 
 - Free demo host by default (rate-limited)
 - Paid API: `export MILYPAY_PRIVATE_KEY=…` then `npx milypay --api …`
-- `npx milypay abn 51824753556`
+- `npx milypay abn 55695484756`
 - `npx milypay services`
 
 ### MCP (Model Context Protocol)
@@ -180,10 +180,10 @@ Official ASIC extract PDF via Business API DSP (directors, officeholders, share 
 
 ```bash
 # sandbox demo
-curl "https://milypay.xyz/api/au-company-report?acn=000014675&type=current"
+curl "https://milypay.xyz/api/au-company-report?acn=695484756&type=current"
 
 # live paid
-npx milypay --api company-report 000014675
+npx milypay --api company-report 695484756
 ```
 
 Response includes `pdfBase64`, `pdfBytes`, `requestId`, `status`.

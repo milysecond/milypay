@@ -2,7 +2,7 @@
 
 Milypay is live: Australian data for agents over x402.
 
-npx milypay abn 51824753556
+npx milypay abn 55695484756
 npx milypay mcp
 
 No API keys. Settle in AUDD.

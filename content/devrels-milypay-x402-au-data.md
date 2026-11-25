@@ -12,7 +12,7 @@ Agents that operate in Australia still hit a wall: government data is fragmented
 |---------|-----|
 | HTTP API | `https://api.milypay.xyz` + x402 |
 | Free demo | `https://milypay.xyz/api/*` (throttled) |
-| CLI | `npx milypay abn 51824753556` |
+| CLI | `npx milypay abn 55695484756` |
 | MCP | `npx milypay mcp` |
 | SDK | `npm i milypay-sdk` |
 
@@ -34,7 +34,7 @@ Agents that operate in Australia still hit a wall: government data is fragmented
 
 ```bash
 export MILYPAY_PRIVATE_KEY=<base58>
-npx milypay --api abn 51824753556
+npx milypay --api abn 55695484756
 ```
 
 Successful paid calls return `$receipt` with Solana signature + Solscan URL when the facilitator settles.

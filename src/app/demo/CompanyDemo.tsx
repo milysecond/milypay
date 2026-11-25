@@ -76,7 +76,7 @@ function digitsOnly(s: string): string {
 export default function CompanyDemo({ initialAcn }: { initialAcn?: string | null }) {
   const seed = initialAcn ? digitsOnly(initialAcn) : "";
   const [mode, setMode] = useState<Mode>(seed ? "acn" : "name");
-  const [query, setQuery] = useState(seed || "woolworths group");
+  const [query, setQuery] = useState(seed || "milysec");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [company, setCompany] = useState<Company | null>(null);
@@ -197,7 +197,7 @@ export default function CompanyDemo({ initialAcn }: { initialAcn?: string | null
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder={mode === "acn" ? "e.g. 000014675" : "e.g. Woolworths Group"}
+            placeholder={mode === "acn" ? "e.g. 695484756" : "e.g. Milysec"}
             className="w-full rounded-md border border-border-brand bg-card px-5 py-3 pr-11 text-fg outline-none placeholder:text-muted/50 focus:border-brand-green focus-visible:ring-2 focus-visible:ring-brand-green/30"
           />
           {query && (

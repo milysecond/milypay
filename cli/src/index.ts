@@ -62,7 +62,7 @@ Usage:
 Commands:
   mcp                              Start MCP server (stdio) for Claude/Cursor
   services                         List endpoints + prices
-  call <path>                      Raw path, e.g. /au-business/abn/51824753556
+  call <path>                      Raw path, e.g. /au-business/abn/55695484756
   abn <abn>                        Business by ABN
   acn <acn>                        Business by ACN
   business search <name>           ABN name search

@@ -117,7 +117,7 @@ function Protocol({
 }
 
 const X402_CODE = `# 1. Ask for data with no payment
-curl -i https://api.milypay.xyz/au-business/abn/51824753556
+curl -i https://api.milypay.xyz/au-business/abn/55695484756
 
 HTTP/2 402
 PAYMENT-REQUIRED: eyJ4NDAyVmVyc2lvbiI6Mi...   # base64 JSON
@@ -137,7 +137,7 @@ PAYMENT-REQUIRED: eyJ4NDAyVmVyc2lvbiI6Mi...   # base64 JSON
 }
 
 # 3. Sign the transfer, retry with the payment
-curl https://api.milypay.xyz/au-business/abn/51824753556 \\
+curl https://api.milypay.xyz/au-business/abn/55695484756 \\
   -H "PAYMENT-SIGNATURE: <base64 payment payload>"
 # v1 clients can send X-PAYMENT instead
 
@@ -180,14 +180,14 @@ const MCP_CODE = `// claude_desktop_config.json, .cursor/mcp.json, etc.
 // Paid tools: MILYPAY_HOST=api + MILYPAY_PRIVATE_KEY=<base58>`;
 
 const CLI_CODE = `# Free, throttled demo host
-npx milypay abn 51824753556
+npx milypay abn 55695484756
 npx milypay cpi
 npx milypay nem vic
 npx milypay transit seq summary
 
 # Paid API: the CLI answers the 402 for you
 export MILYPAY_PRIVATE_KEY=<base58 solana secret>
-npx milypay --api abn 51824753556
+npx milypay --api abn 55695484756
 # -> JSON + $receipt.explorerUrl`;
 
 const SDK_CODE = `npm i milypay-sdk
@@ -196,21 +196,21 @@ import { Milypay } from "milypay-sdk";
 
 // Free demo host (rate-limited)
 const demo = new Milypay({ host: "demo" });
-await demo.business.abn("51824753556");
+await demo.business.abn("55695484756");
 
 // Paid API: signs the x402 payment with your wallet
 const au = new Milypay({
   host: "api",
   privateKey: process.env.MILYPAY_PRIVATE_KEY!,
 });
-const co = await au.company.acn("000014675");
+const co = await au.company.acn("695484756");
 // co.$receipt -> settlement signature + explorer link`;
 
 const HTTP_CODE = `# Free demo: /api prefix on the apex host
-curl https://milypay.xyz/api/au-business/abn/51824753556
+curl https://milypay.xyz/api/au-business/abn/55695484756
 
 # Paid: root paths on api.milypay.xyz (402 until paid)
-curl -i https://api.milypay.xyz/au-business/abn/51824753556
+curl -i https://api.milypay.xyz/au-business/abn/55695484756
 
 # Full machine-readable surface
 curl https://milypay.xyz/openapi.json`;
@@ -226,8 +226,8 @@ GET https://milypay.xyz/mcp                           # MCP setup`;
 
 const BAZAAR_CODE = `// Inside every decoded PAYMENT-REQUIRED challenge
 "resource": {
-  "url": "https://api.milypay.xyz/au-business/abn/51824753556",
-  "description": "ABN lookup for 51824753556",
+  "url": "https://api.milypay.xyz/au-business/abn/55695484756",
+  "description": "ABN lookup for 55695484756",
   "mimeType": "application/json",
   "serviceName": "Milypay",
   "tags": ["australia", "data", "solana", "agents", "x402"],

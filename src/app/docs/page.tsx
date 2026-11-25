@@ -43,15 +43,15 @@ const SECTIONS: Section[] = [
       {
         path: "GET /au-business/abn/{abn}",
         desc: "Entity name, status, type, ACN, GST, business names, and location for an 11-digit ABN.",
-        example: "curl https://api.milypay.xyz/au-business/abn/33051775556",
+        example: "curl https://api.milypay.xyz/au-business/abn/55695484756",
         response: `{
-  "abn": "33051775556",
+  "abn": "55695484756",
   "abnStatus": "Active",
-  "acn": "051775556",
-  "entityName": "TELSTRA CORPORATION LIMITED",
-  "entityType": "Australian Public Company",
-  "businessNames": ["YELLOW PAGES", "WHEREIS", "..."],
-  "gstRegistered": true,
+  "acn": "695484756",
+  "entityName": "MILYSEC PTY LTD",
+  "entityType": "Australian Private Company",
+  "businessNames": [],
+  "gstRegistered": false,
   "state": "VIC",
   "postcode": "3000"
 }`,
@@ -59,17 +59,17 @@ const SECTIONS: Section[] = [
       {
         path: "GET /au-business/acn/{acn}",
         desc: "Same entity record, resolved from a 9-digit ACN.",
-        example: "curl https://api.milypay.xyz/au-business/acn/051775556",
-        response: `{ "abn": "33051775556", "entityName": "TELSTRA CORPORATION LIMITED", "...": "..." }`,
+        example: "curl https://api.milypay.xyz/au-business/acn/695484756",
+        response: `{ "abn": "55695484756", "entityName": "MILYSEC PTY LTD", "...": "..." }`,
       },
       {
         path: "GET /au-business/search?name={name}",
         desc: "Matching ABNs for a business or entity name. Optional maxResults (default 10).",
-        example: 'curl "https://api.milypay.xyz/au-business/search?name=woolworths"',
+        example: 'curl "https://api.milypay.xyz/au-business/search?name=milysec"',
         response: `{
   "matches": [
-    { "abn": "88000014675", "name": "WOOLWORTHS", "nameType": "Business Name",
-      "abnStatus": "Active", "state": "NSW", "postcode": "2153", "score": 99 }
+    { "abn": "55695484756", "name": "MILYSEC PTY LTD", "nameType": "Entity Name",
+      "abnStatus": "Active", "state": "VIC", "postcode": "3000", "score": 99 }
   ]
 }`,
       },
@@ -85,26 +85,26 @@ const SECTIONS: Section[] = [
       {
         path: "GET /au-company/acn/{acn}",
         desc: "Company details for an ACN, including former names.",
-        example: "curl https://api.milypay.xyz/au-company/acn/000014675",
+        example: "curl https://api.milypay.xyz/au-company/acn/695484756",
         response: `{
-  "acn": "000014675",
-  "abn": "88000014675",
-  "name": "Woolworths Group Limited",
+  "acn": "695484756",
+  "abn": "55695484756",
+  "name": "Milysec Pty Ltd",
   "status": "Registered",
-  "type": "Australian public company",
+  "type": "Australian proprietary company",
   "class": "Limited by shares",
-  "registrationDate": "1924-09-22",
+  "registrationDate": "2026-02-19",
   "deregistrationDate": null,
-  "formerNames": ["Woolworths Ltd"]
+  "formerNames": []
 }`,
       },
       {
         path: "GET /au-company/search?name={name}",
         desc: "Companies matching a name, across current and former names (ASIC open data).",
-        example: 'curl "https://api.milypay.xyz/au-company/search?name=commonwealth bank"',
+        example: 'curl "https://api.milypay.xyz/au-company/search?name=milysec"',
         response: `{
   "matches": [
-    { "acn": "123123124", "name": "Commonwealth Bank Of Australia",
+    { "acn": "695484756", "name": "Milysec Pty Ltd",
       "status": "Registered", "formerName": false }
   ]
 }`,
@@ -122,9 +122,9 @@ const SECTIONS: Section[] = [
       {
         path: "GET /au-company-report?acn={acn}&type=current|historical",
         desc: "Order an ASIC company extract by ACN. Returns JSON metadata + pdfBase64. Live host always charged $12; website demos use sandbox.",
-        example: 'curl "https://api.milypay.xyz/au-company-report?acn=000014675&type=current"',
+        example: 'curl "https://api.milypay.xyz/au-company-report?acn=695484756&type=current"',
         response: `{
-  "acn": "000014675",
+  "acn": "695484756",
   "type": "current",
   "requestId": 30679,
   "status": "finished",
@@ -137,10 +137,10 @@ const SECTIONS: Section[] = [
       },
       {
         path: "POST /au-company-report",
-        desc: "Same as GET with JSON body { \"acn\": \"000014675\", \"type\": \"current\" }.",
+        desc: "Same as GET with JSON body { \"acn\": \"695484756\", \"type\": \"current\" }.",
         example:
-          `curl -X POST https://api.milypay.xyz/au-company-report -H 'content-type: application/json' -d '{"acn":"000014675","type":"current"}'`,
-        response: `{ "acn": "000014675", "status": "finished", "pdfBase64": "..." }`,
+          `curl -X POST https://api.milypay.xyz/au-company-report -H 'content-type: application/json' -d '{"acn":"695484756","type":"current"}'`,
+        response: `{ "acn": "695484756", "status": "finished", "pdfBase64": "..." }`,
       },
     ],
   },
@@ -463,7 +463,7 @@ const SECTIONS: Section[] = [
         path: "GET /au-phone?number={e164}",
         desc: "Line intel. AU 04… accepted. URL-encode + as %2B.",
         example: 'curl "https://api.milypay.xyz/au-phone?number=%2B61412345678"',
-        response: `{ "valid": true, "e164": "+61412345678", "countryCode": "AU", "lineType": "mobile", "carrierName": "Telstra…", "note": "Line intelligence only…" }`,
+        response: `{ "valid": true, "e164": "+61412345678", "countryCode": "AU", "lineType": "mobile", "carrierName": "Example Carrier", "note": "Line intelligence only…" }`,
       },
       {
         path: "GET /au-phone/{e164}",
@@ -581,10 +581,10 @@ export default function DocsPage() {
             </p>
             <CodeBlock
               code={`# Paid (agents): returns 402, then pay + retry
-curl https://api.milypay.xyz/au-business/abn/33051775556
+curl https://api.milypay.xyz/au-business/abn/55695484756
 
 # Free (try it): same data, no payment
-curl https://milypay.xyz/api/au-business/abn/33051775556`}
+curl https://milypay.xyz/api/au-business/abn/55695484756`}
             />
           </section>
 

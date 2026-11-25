@@ -35,7 +35,7 @@ const PAID_JSON = `{
   }
 }`;
 
-const CLI = `npx milypay abn 51824753556
+const CLI = `npx milypay abn 55695484756
 npx milypay nem
 npx milypay transit seq summary
 npx milypay cpi

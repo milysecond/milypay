@@ -23,7 +23,7 @@ jobs:
       - name: CLI smoke
         run: |
           node dist/index.js --version
-          node dist/index.js --demo --quiet abn 51824753556 | grep -q AUSTRALIAN
+          node dist/index.js --demo --quiet abn 55695484756 | grep -q MILYSEC
       - name: MCP smoke
         run: |
           python3 - <<'PY'
@@ -51,10 +51,10 @@ jobs:
           tools=read()
           names=[t["name"] for t in tools["result"]["tools"]]
           assert "lookup_abn" in names and len(names)>=10
-          send({"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"lookup_abn","arguments":{"abn":"51824753556"}}})
+          send({"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"lookup_abn","arguments":{"abn":"55695484756"}}})
           call=read(30)
           text=call["result"]["content"][0]["text"]
-          assert "51824753556" in text
+          assert "55695484756" in text
           proc.terminate()
           print("mcp ok", len(names), "tools")
           PY

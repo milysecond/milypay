@@ -19,19 +19,19 @@ npm i milypay-sdk
 ```ts
 import { Milypay } from "milypay-sdk";
 const au = new Milypay({ host: "demo" });
-await au.business.abn("51824753556");
+await au.business.abn("55695484756");
 ```
 
 ## CLI
 
 ```bash
 # free demo (rate-limited)
-npx milypay abn 51824753556
+npx milypay abn 55695484756
 npx milypay services
 
 # paid API
 export MILYPAY_PRIVATE_KEY=<base58-secret>
-npx milypay --api abn 51824753556
+npx milypay --api abn 55695484756
 
 # MCP (Claude / Cursor)
 npx milypay mcp
@@ -55,11 +55,11 @@ Package lives in [`cli/`](./cli).
 
 ```bash
 # Business identity by ABN
-curl https://api.milypay.xyz/au-business/abn/33051775556
+curl https://api.milypay.xyz/au-business/abn/55695484756
 
 # Business by ACN, or name search
-curl https://api.milypay.xyz/au-business/acn/051775556
-curl "https://api.milypay.xyz/au-business/search?name=woolworths"
+curl https://api.milypay.xyz/au-business/acn/695484756
+curl "https://api.milypay.xyz/au-business/search?name=milysec"
 
 # Address validation / search / geocoding
 curl "https://api.milypay.xyz/au-address/validate?q=1 bligh st sydney"

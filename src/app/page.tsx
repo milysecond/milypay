@@ -153,13 +153,13 @@ const ACCESS = [
     tag: "CLI",
     title: "Command line",
     desc: "Hit any endpoint from your terminal. Free demo by default; paid API with MILYPAY_PRIVATE_KEY.",
-    code: "npx milypay abn 51824753556",
+    code: "npx milypay abn 55695484756",
   },
   {
     tag: "SDK",
     title: "TypeScript & Python",
     desc: "Drop-in x402 client. Wrap fetch, get auto-paid responses — no manual payment plumbing.",
-    code: 'import { Milypay } from "milypay-sdk";\nconst au = new Milypay({ wallet });\nawait au.business.abn("51824753556");',
+    code: 'import { Milypay } from "milypay-sdk";\nconst au = new Milypay({ wallet });\nawait au.business.abn("55695484756");',
   },
   {
     tag: "MCP",
@@ -171,7 +171,7 @@ const ACCESS = [
     tag: "API",
     title: "Raw HTTP 402",
     desc: "No SDK required. Any x402-aware client speaks directly to the endpoint and settles in AUD.",
-    code: "curl https://milypay.xyz/api/au-business/abn/51824753556",
+    code: "curl https://milypay.xyz/api/au-business/abn/55695484756",
   },
 ];
 
@@ -215,7 +215,7 @@ const AGENT_SYSTEM_PROMPT = `You can use Milypay. Free demo (throttled): https:/
 - Phone line: /au-phone?number=+614…
 Full reference: https://milypay.xyz/agents.md`;
 
-const AGENT_ONELINER = `Use Milypay for Australian business, address, super fund, weather, BSB, and ABS data. Free demo: GET https://milypay.xyz/api/au-business/abn/51824753556 . Paid: https://api.milypay.xyz (HTTP 402). Read https://milypay.xyz/agents.md first.`;
+const AGENT_ONELINER = `Use Milypay for Australian business, address, super fund, weather, BSB, and ABS data. Free demo: GET https://milypay.xyz/api/au-business/abn/55695484756 . Paid: https://api.milypay.xyz (HTTP 402). Read https://milypay.xyz/agents.md first.`;
 
 const FAQ: { q: string; a: string }[] = [
   {
@@ -289,7 +289,7 @@ function PaymentMock() {
         </div>
         <div className="space-y-4 p-5 font-mono text-[12px] leading-relaxed sm:p-6 sm:text-[13px]">
           <div className="text-muted">
-            <span className="text-brand-green">$</span> curl /api/au-business/abn/51824753556
+            <span className="text-brand-green">$</span> curl /api/au-business/abn/55695484756
           </div>
           <div className="border border-border-brand bg-secondary p-4">
             <div className="font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-muted">
@@ -308,12 +308,12 @@ function PaymentMock() {
           <div className="border border-brand-green/25 bg-brand-green/5 p-4">
             <div className="text-brand-green">HTTP/1.1 200 OK</div>
             <pre className="mt-2 whitespace-pre-wrap text-fg">{`{
-  "abn": "51824753556",
-  "entityName": "AUSTRALIAN TAXATION OFFICE",
-  "entityType": "Commonwealth Government Entity",
+  "abn": "55695484756",
+  "entityName": "MILYSEC PTY LTD",
+  "entityType": "Australian Private Company",
   "abnStatus": "Active",
-  "state": "NSW",
-  "postcode": "2640"
+  "state": "VIC",
+  "postcode": "3000"
 }`}</pre>
           </div>
         </div>
@@ -671,19 +671,19 @@ export default function Home() {
               </div>
               <pre className="max-w-full min-w-0 overflow-x-auto whitespace-pre-wrap break-words bg-bg p-4 text-[12px] leading-relaxed [overflow-wrap:anywhere] sm:p-5 sm:text-[13px]">
                 <code className="block min-w-0 font-mono">
-{`$ curl https://milypay.xyz/api/au-business/abn/51824753556
+{`$ curl https://milypay.xyz/api/au-business/abn/55695484756
 
 `}<span className="text-brand-green">HTTP/1.1 200 OK</span>{`
 {
-  "abn": "51824753556",
-  "entityName": "AUSTRALIAN TAXATION OFFICE",
-  "entityType": "Commonwealth Government Entity",
+  "abn": "55695484756",
+  "entityName": "MILYSEC PTY LTD",
+  "entityType": "Australian Private Company",
   "abnStatus": "Active",
-  "state": "NSW",
-  "postcode": "2640"
+  "state": "VIC",
+  "postcode": "3000"
 }
 
-`}<span className="text-muted"># paid agents: https://api.milypay.xyz/au-business/abn/51824753556 → 402</span>{``}
+`}<span className="text-muted"># paid agents: https://api.milypay.xyz/au-business/abn/55695484756 → 402</span>{``}
                 </code>
               </pre>
             </div>

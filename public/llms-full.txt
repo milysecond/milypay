@@ -20,7 +20,7 @@ This is the long-form reference for language models and agents. For the short ve
 
 ## How payment works (x402)
 
-1. Request an endpoint, for example GET https://api.milypay.xyz/au-business/abn/51824753556
+1. Request an endpoint, for example GET https://api.milypay.xyz/au-business/abn/55695484756
 2. The first response is HTTP 402 Payment Required. The PAYMENT-REQUIRED header carries a base64 x402 challenge with the price, asset (AUDD), network (solana), and pay-to address.
 3. Approve the micropayment from an x402-aware wallet or client. The request is retried with a PAYMENT-SIGNATURE header, the facilitator verifies and settles in AUDD, and the data returns in the same round-trip.
 
@@ -32,37 +32,37 @@ No accounts, no keys. Any x402-aware client, the Milypay CLI, an SDK, or the Mil
 
 GET /au-business/abn/{abn} - price 0.002
   Australian business by ABN. Returns entity name, ABN status, type, ACN, GST registration, business names, location.
-  Example: GET https://api.milypay.xyz/au-business/abn/33051775556
+  Example: GET https://api.milypay.xyz/au-business/abn/55695484756
   Example response:
-  {"abn":"33051775556","abnStatus":"Active","abnStatusFrom":"1999-11-01","acn":"051775556","entityName":"TELSTRA CORPORATION LIMITED","entityType":"Australian Public Company","businessNames":["TELSTRA INFRACO","TELECOM AUSTRALIA","YELLOW PAGES"],"gstRegistered":true,"gstFrom":"2000-07-01"}
+  {"abn":"55695484756","abnStatus":"Active","abnStatusFrom":"2026-03-01","acn":"695484756","entityName":"MILYSEC PTY LTD","entityType":"Australian Private Company","businessNames":[],"gstRegistered":false,"gstFrom":null,"state":"VIC","postcode":"3000"}
 
 GET /au-business/acn/{acn} - price 0.002
   Same as above, resolved from an ACN.
-  Example: GET https://api.milypay.xyz/au-business/acn/004085616
+  Example: GET https://api.milypay.xyz/au-business/acn/695484756
 
 GET /au-business/search?name={name}&maxResults={n} - price 0.004
   ABN name search by business or entity name. Returns matching ABNs with status, state, postcode, score.
-  Example: GET https://api.milypay.xyz/au-business/search?name=woolworths
+  Example: GET https://api.milypay.xyz/au-business/search?name=milysec
 
 ### au-company - ASIC company register
 
 GET /au-company/acn/{acn} - price 0.002
   ASIC company by ACN. Returns name, ABN, status, statusCode, type, class, registration and deregistration dates, former names.
-  Example: GET https://api.milypay.xyz/au-company/acn/000014675
+  Example: GET https://api.milypay.xyz/au-company/acn/695484756
   Example response:
-  {"acn":"000014675","abn":"88000014675","name":"Woolworths Group Limited","status":"Registered","statusCode":"REGD","type":"Australian public company","class":"Limited by shares","registrationDate":"1924-09-22","deregistrationDate":null,"previousState":"NSW","formerNames":["Woolworths Ltd"]}
+  {"acn":"695484756","abn":"55695484756","name":"Milysec Pty Ltd","status":"Registered","statusCode":"REGD","type":"Australian proprietary company","class":"Limited by shares","registrationDate":"2026-02-19","deregistrationDate":null,"previousState":null,"formerNames":[]}
 
 GET /au-company/search?name={name}&limit={n} - price 0.004
   ASIC company name search across current and former names (open data).
-  Example: GET https://api.milypay.xyz/au-company/search?name=woolworths
+  Example: GET https://api.milypay.xyz/au-company/search?name=milysec
 
 ### au-company-report - Official ASIC company extract
 
 GET /au-company-report?acn={acn}&type=current|historical - price 12.00 (live). Returns pdfBase64. Demo host = sandbox free.
-POST /au-company-report - price 12.00 (JSON body: {"acn":"000014675"})
+POST /au-company-report - price 12.00 (JSON body: {"acn":"695484756"})
   Official ASIC company extract (directors, office, share capital, charges where available).
   Not available from free ASIC open data or ABR. Ordered via Business API DSP. Always paid.
-  Example: GET https://api.milypay.xyz/au-company-report?acn=000014675
+  Example: GET https://api.milypay.xyz/au-company-report?acn=695484756
 
 ### au-asic-extract - ASIC extracts via Acceleon (TEST MODE, UAT)
 
@@ -141,7 +141,7 @@ Milypay is AUD-stablecoin-agnostic. On Solana it accepts AUDD, AUDM, and dAUD fo
 
 ## Ways to integrate
 
-- CLI: npx milypay abn 51824753556
+- CLI: npx milypay abn 55695484756
 - SDK: a drop-in x402 client for TypeScript and Python that wraps fetch and handles the 402 retry and AUD settlement.
 - MCP: add the Milypay MCP server (`npx milypay mcp`) to Claude, ChatGPT, Cursor, or any Model Context Protocol client; agents discover, price, and call services as tools.
 - Raw HTTP 402: any x402-aware client speaks directly to the endpoint.

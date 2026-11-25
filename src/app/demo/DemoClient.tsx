@@ -29,16 +29,15 @@ interface NameMatch {
 }
 
 const MODES: { key: Mode; label: string; placeholder: string }[] = [
-  { key: "abn", label: "ABN", placeholder: "e.g. 33051775556" },
-  { key: "acn", label: "ACN", placeholder: "e.g. 051775556" },
-  { key: "name", label: "Company name", placeholder: "e.g. Telstra" },
+  { key: "abn", label: "ABN", placeholder: "e.g. 55695484756" },
+  { key: "acn", label: "ACN", placeholder: "e.g. 695484756" },
+  { key: "name", label: "Company name", placeholder: "e.g. Milysec" },
 ];
 
 const EXAMPLES: { label: string; mode: Mode; q: string }[] = [
-  { label: "Telstra", mode: "abn", q: "33051775556" },
-  { label: "Woolworths", mode: "abn", q: "88000014675" },
-  { label: "ATO", mode: "abn", q: "51824753556" },
-  { label: 'Search "qantas"', mode: "name", q: "qantas" },
+  { label: "Milysec ABN", mode: "abn", q: "55695484756" },
+  { label: "Milysec ACN", mode: "acn", q: "695484756" },
+  { label: 'Search "milysec"', mode: "name", q: "milysec" },
 ];
 
 function endpointFor(mode: Mode, q: string): string {
@@ -72,7 +71,7 @@ function Row({ label, value }: { label: string; value: string }) {
 
 export default function DemoClient() {
   const [mode, setMode] = useState<Mode>("abn");
-  const [query, setQuery] = useState("33051775556");
+  const [query, setQuery] = useState("55695484756");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [entity, setEntity] = useState<AbnRecord | null>(null);

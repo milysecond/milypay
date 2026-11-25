@@ -37,8 +37,8 @@ Milypay is the x402 service provider for the Australian market. AI agents get pa
 - Agents: https://milypay.xyz/agents.md
 - OpenAPI: https://milypay.xyz/openapi.json
 - x402: https://milypay.xyz/.well-known/x402
-- Demo API: \`curl https://milypay.xyz/api/au-business/abn/51824753556\`
-- CLI: \`npx milypay abn 51824753556\`
+- Demo API: \`curl https://milypay.xyz/api/au-business/abn/55695484756\`
+- CLI: \`npx milypay abn 55695484756\`
 - MCP: \`npx milypay mcp\`
 
 ## Site map
@@ -124,7 +124,7 @@ Every open protocol Milypay supports. HTML: https://milypay.xyz/protocols
 | Settlement assets | Live | Same price offered in AUDD, AUDM, dAUD (AUD) and USDC, USDT (USD) on Solana; wallet picks. |
 | MPP (Tempo) | Live, opt-in | \`?rail=mpp\` or \`X-Payment-Rail: mpp\` or \`Authorization: Payment\` -> \`WWW-Authenticate: Payment\` method=tempo intent=charge, pathUSD on eip155:4217. x402-on-Tempo not enabled. |
 | MCP | Live (stdio) | \`npx -y milypay mcp\` (MILYPAY_HOST=demo, or api + MILYPAY_PRIVATE_KEY) |
-| CLI | Live | \`npx milypay abn 51824753556\` · \`npx milypay --api ...\` |
+| CLI | Live | \`npx milypay abn 55695484756\` · \`npx milypay --api ...\` |
 | SDK | Live | \`npm i milypay-sdk\` |
 | HTTP + OpenAPI 3.1 | Live | https://milypay.xyz/openapi.json · demo https://milypay.xyz/api/* · paid https://api.milypay.xyz |
 | Discovery | Live | /agents.md · /llms.txt · /llms-full.txt · /.well-known/x402 · /.well-known/api-catalog |

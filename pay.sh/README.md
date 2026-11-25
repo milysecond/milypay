@@ -11,7 +11,7 @@ Milypay is **not yet** in the live pay-skills catalog (checked 2026-08-02).
 ```bash
 pay --sandbox gate api pay.sh/milypay.yaml
 # other terminal:
-pay --sandbox curl http://127.0.0.1:1402/au-business/abn/51824753556
+pay --sandbox curl http://127.0.0.1:1402/au-business/abn/55695484756
 ```
 
 ## Publish to catalog

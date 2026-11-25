@@ -364,7 +364,7 @@ export async function startMcpServer(): Promise<void> {
     {
       title: "Raw API call",
       description:
-        "GET an arbitrary Milypay path, e.g. /au-business/abn/51824753556. Prefer typed tools when possible.",
+        "GET an arbitrary Milypay path, e.g. /au-business/abn/55695484756. Prefer typed tools when possible.",
       inputSchema: {
         path: z
           .string()

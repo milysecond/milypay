@@ -21,7 +21,7 @@ const PRICE = "12.00";
  *   api.milypay.xyz           -> live keys, always paid via x402
  *
  * Prefer free gov sources for basic company identity (/au-company, /au-business).
- * Query: ?acn=000014675&type=current|historical
+ * Query: ?acn=695484756&type=current|historical
  */
 async function handle(req: Request, acn: string, extractType?: string) {
   const environment = bapiEnvFromRequest(req);

@@ -28,7 +28,7 @@ function PayInner() {
   const { connection } = useConnection();
   const [bal, setBal] = useState<{ sol: number; audd: number } | null>(null);
   const [status, setStatus] = useState<{ float: { usdc: number }; receiving: { audd: number } } | null>(null);
-  const [abn, setAbn] = useState("33051775556");
+  const [abn, setAbn] = useState("55695484756");
 
   useEffect(() => {
     fetch("/api/status")
@@ -134,7 +134,7 @@ function PayInner() {
           <input
             value={abn}
             onChange={(e) => setAbn(e.target.value)}
-            placeholder="e.g. 33051775556"
+            placeholder="e.g. 55695484756"
             className="flex-1 rounded-md border border-border-brand bg-card px-5 py-3 text-fg outline-none placeholder:text-muted/50 focus:border-brand-green"
           />
           <button

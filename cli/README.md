@@ -4,11 +4,11 @@ Terminal client for [Milypay](https://milypay.xyz) — Australian data over [x40
 
 ```bash
 # free demo host (rate-limited, no wallet)
-npx milypay abn 51824753556
+npx milypay abn 55695484756
 
 # paid API (AUDD/USDC/… on Solana)
 export MILYPAY_PRIVATE_KEY=<base58-secret>
-npx milypay --api abn 51824753556
+npx milypay --api abn 55695484756
 ```
 
 ## Install

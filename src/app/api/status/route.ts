@@ -115,8 +115,8 @@ export async function GET(req: Request) {
       soft(businessApiReadiness({ environment }), fallbackBapi, 6_000),
       deep
         ? Promise.all([
-            probe("/au-business/abn/51824753556", "au-business"),
-            probe("/au-company/acn/000014675", "au-company"),
+            probe("/au-business/abn/55695484756", "au-business"),
+            probe("/au-company/acn/695484756", "au-company"),
             probe("/au-address/geocode?q=1%20bligh%20st%20sydney", "au-address"),
             probe("/au-bsb/012-002", "au-bsb"),
             probe("/au-weather?q=sydney", "au-weather"),
