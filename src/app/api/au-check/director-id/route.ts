@@ -16,7 +16,7 @@ export async function GET(req: Request) {
       const data = await directorIdCheck(id);
       return NextResponse.json({ brand: "Milypay", source: "Checkify", notice: "Structural validity only.", data });
     } catch (e) {
-      return checkifyFail(e);
+      return checkifyFail(e, "Invalid Director ID: expected 15 digits, e.g. 036123456789010");
     }
   });
 }

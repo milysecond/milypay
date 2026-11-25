@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getData } from "@/lib/abs";
+import { getData, absErrorResponse } from "@/lib/abs";
 import { withX402 } from "@/lib/x402";
 
 export const dynamic = "force-dynamic";
@@ -18,6 +18,8 @@ export async function GET(
   const startPeriod = url.searchParams.get("startPeriod") || url.searchParams.get("start") || undefined;
   const endPeriod = url.searchParams.get("endPeriod") || url.searchParams.get("end") || undefined;
   const version = url.searchParams.get("version") || undefined;
+  const maxRaw = Number(url.searchParams.get("maxSeries") || url.searchParams.get("limit") || "");
+  const maxSeries = Number.isFinite(maxRaw) && maxRaw > 0 ? maxRaw : undefined;
 
   // Guard huge pulls: require key or startPeriod when key=all
   const resolvedKey = key || "all";
@@ -48,14 +50,13 @@ export async function GET(
           startPeriod,
           endPeriod,
           version,
+          maxSeries,
         });
         return NextResponse.json(result, {
           headers: { "Cache-Control": "public, max-age=1800" },
         });
       } catch (e) {
-        const msg = e instanceof Error ? e.message : "ABS data failed";
-        const status = msg.includes("Invalid") ? 400 : 502;
-        return NextResponse.json({ error: msg }, { status });
+        return absErrorResponse(e);
       }
     },
   );

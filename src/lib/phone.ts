@@ -26,6 +26,32 @@ export type PhoneLookupResult = {
   note: string;
 };
 
+export const PHONE_UNAVAILABLE = "Phone lookup temporarily unavailable";
+
+export class PhoneLookupError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.status = status;
+  }
+}
+
+/** Map any lookup failure to a clean client response body + status. Never leaks upstream text. */
+export function phoneErrorInfo(e: unknown): { status: number; error: string; code: string } {
+  if (e instanceof PhoneLookupError) {
+    return {
+      status: e.status,
+      error: e.message,
+      code: e.status === 404 ? "not_found" : e.status === 400 ? "bad_request" : "service_unavailable",
+    };
+  }
+  const msg = e instanceof Error ? e.message : "";
+  if (msg.startsWith("Phone must be") || msg === "Invalid phone number format") {
+    return { status: 400, error: msg, code: "bad_request" };
+  }
+  return { status: 503, error: PHONE_UNAVAILABLE, code: "service_unavailable" };
+}
+
 function basicAuth(sid: string, token: string): string {
   // Avoid patterns that get redacted mid-write in tooling
   const raw = [sid, token].join(":");
@@ -57,7 +83,8 @@ function credentials(): { sid: string; token: string } {
   const sid = process.env.TWILIO_ACCOUNT_SID?.trim();
   const token = process.env.TWILIO_AUTH_TOKEN?.trim();
   if (!sid || !token) {
-    throw new Error("Phone lookup not configured (missing Twilio credentials)");
+    console.error("phone lookup not configured");
+    throw new PhoneLookupError(PHONE_UNAVAILABLE, 503);
   }
   return { sid, token };
 }
@@ -83,15 +110,12 @@ export async function lookupPhone(input: string): Promise<PhoneLookupResult> {
   const body = (await res.json().catch(() => ({}))) as Record<string, unknown>;
 
   if (!res.ok) {
-    const msg =
-      (body as { message?: string }).message ||
-      (typeof body === "object" && body && "error_message" in body
-        ? String((body as { error_message?: string }).error_message)
-        : null) ||
-      `Twilio Lookup failed (${res.status})`;
-    const err = new Error(msg) as Error & { status?: number };
-    err.status = res.status === 404 ? 404 : res.status >= 400 && res.status < 500 ? 400 : 502;
-    throw err;
+    // Never echo upstream messages: Twilio errors can include the account SID.
+    if (res.status === 404) {
+      throw new PhoneLookupError("Phone number not found", 404);
+    }
+    console.error("twilio lookup failed", res.status);
+    throw new PhoneLookupError(PHONE_UNAVAILABLE, 503);
   }
 
   const lt = (body.line_type_intelligence || {}) as Record<string, unknown>;

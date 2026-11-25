@@ -5,6 +5,8 @@
  * No API key required.
  */
 
+import { apiError } from "@/lib/errors";
+
 const ABS_BASE = process.env.ABS_DATA_API_URL || "https://data.api.abs.gov.au/rest";
 const UA = "Milypay/1.0 (+https://milypay.xyz; ABS data reseller)";
 
@@ -134,6 +136,50 @@ export async function getDataflow(id: string): Promise<Record<string, unknown>> 
   };
 }
 
+type AbsDimValue = {
+  id: string;
+  name?: string;
+  names?: Record<string, string>;
+  start?: string;
+};
+type AbsDim = {
+  id: string;
+  name?: string;
+  names?: Record<string, string>;
+  keyPosition?: number;
+  values?: AbsDimValue[];
+};
+type AbsStructure = {
+  name?: string;
+  names?: Record<string, string>;
+  description?: string;
+  descriptions?: Record<string, string>;
+  dimensions?: { series?: AbsDim[]; observation?: AbsDim[] };
+};
+
+export class AbsError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.status = status;
+  }
+}
+
+/** Clean JSON error for ABS routes (never echoes upstream bodies). */
+export function absErrorResponse(e: unknown) {
+  const status = e instanceof AbsError ? e.status : 503;
+  const message = e instanceof AbsError ? e.message : "ABS Data API temporarily unavailable";
+  const code =
+    status === 400 ? "bad_request" : status === 404 ? "not_found" : "service_unavailable";
+  return apiError(status, code, message);
+}
+
+/** Upstream SDMX period ids sort chronologically as strings within one frequency (2024-Q1, 2024-01, 2024). */
+function comparePeriods(a: { period: string; start?: string }, b: { period: string; start?: string }) {
+  if (a.start && b.start) return a.start.localeCompare(b.start);
+  return a.period.localeCompare(b.period, "en", { numeric: true });
+}
+
 export type AbsDataQuery = {
   /** Dataflow id e.g. CPI */
   dataflow: string;
@@ -147,23 +193,26 @@ export type AbsDataQuery = {
 };
 
 /** Fetch and normalise a data query into series + observations. */
-export async function getData(q: AbsDataQuery): Promise<{
+export async function getData(q: AbsDataQuery & { maxSeries?: number }): Promise<{
   dataflow: string;
   key: string;
   name?: string;
   description?: string;
   series: AbsSeries[];
   seriesCount: number;
+  totalSeries: number;
+  truncated: boolean;
   attribution: string;
   query: AbsDataQuery;
 }> {
   const agency = (q.agency || "ABS").trim().toUpperCase();
   const flow = q.dataflow.trim().toUpperCase();
-  if (!/^[A-Z0-9_]+$/.test(flow)) throw new Error("Invalid dataflow id");
+  if (!/^[A-Z0-9_]+$/.test(flow)) throw new AbsError("Invalid dataflow id", 400);
   const key = (q.key || "all").trim() || "all";
   if (!/^[A-Za-z0-9_.*+\-]+$/.test(key) && key !== "all") {
-    throw new Error("Invalid series key");
+    throw new AbsError("Invalid series key", 400);
   }
+  const maxSeries = Math.min(Math.max(q.maxSeries ?? 50, 1), 200);
 
   const version = q.version ? `,${q.version}` : "";
   const params = new URLSearchParams({ format: "jsondata" });
@@ -171,75 +220,78 @@ export async function getData(q: AbsDataQuery): Promise<{
   if (q.endPeriod) params.set("endPeriod", q.endPeriod);
 
   const path = `/data/${agency},${flow}${version}/${encodeURIComponent(key)}?${params}`;
-  const res = await absFetch(path, "application/json");
-  if (!res.ok) {
-    const t = await res.text().catch(() => "");
-    throw new Error(`ABS data query failed (${res.status}): ${t.slice(0, 240)}`);
+  let res: Response;
+  try {
+    res = await absFetch(path, "application/json");
+  } catch {
+    throw new AbsError("ABS Data API temporarily unavailable", 503);
   }
-  const d = (await res.json()) as {
+  if (res.status === 404) throw new AbsError("No ABS data matches that query", 404);
+  if (res.status === 400) throw new AbsError("ABS rejected the query (check key / periods)", 400);
+  if (!res.ok) {
+    console.error("abs data failed", res.status);
+    throw new AbsError("ABS Data API temporarily unavailable", 503);
+  }
+  const text = await res.text();
+  let d: {
     data?: {
       dataSets?: {
         series?: Record<string, { observations?: Record<string, (number | null)[]> }>;
       }[];
-      structures?: {
-        name?: string;
-        names?: Record<string, string>;
-        description?: string;
-        descriptions?: Record<string, string>;
-        dimensions?: {
-          series?: {
-            id: string;
-            name?: string;
-            names?: Record<string, string>;
-            values?: { id: string; name?: string; names?: Record<string, string> }[];
-          }[];
-          observation?: {
-            id: string;
-            name?: string;
-            values?: { id: string; name?: string; names?: Record<string, string> }[];
-          }[];
-        };
-      }[];
+      // SDMX-JSON 1.0 uses `structure`; older ABS responses used `structures[]`.
+      structure?: AbsStructure;
+      structures?: AbsStructure[];
     };
   };
+  try {
+    d = text ? JSON.parse(text) : {};
+  } catch {
+    throw new AbsError("ABS Data API returned an unreadable response", 503);
+  }
 
-  const structure = d.data?.structures?.[0];
+  const structure = d.data?.structure || d.data?.structures?.[0];
   const name = structure?.name || structure?.names?.en;
   const description = structure?.description || structure?.descriptions?.en;
-  const seriesDims = structure?.dimensions?.series || [];
+  const seriesDims = [...(structure?.dimensions?.series || [])].sort(
+    (a, b) => (a.keyPosition ?? 0) - (b.keyPosition ?? 0),
+  );
   const obsDims = structure?.dimensions?.observation || [];
   const timeValues = obsDims.find((x) => x.id === "TIME_PERIOD" || x.id === "TIME")?.values || [];
 
   const ds = d.data?.dataSets?.[0];
-  const rawSeries = ds?.series || {};
+  const rawSeries = Object.entries(ds?.series || {});
+  const totalSeries = rawSeries.length;
   const series: AbsSeries[] = [];
 
-  for (const [skey, sbody] of Object.entries(rawSeries)) {
+  for (const [skey, sbody] of rawSeries.slice(0, maxSeries)) {
     const parts = skey.split(":");
     const dimensions: Record<string, { id: string; name?: string }> = {};
+    const keyIds: string[] = [];
     seriesDims.forEach((dim, i) => {
-      const idx = Number(parts[i]);
-      const val = dim.values?.[idx];
+      const val = dim.values?.[Number(parts[i])];
       if (val) {
-        dimensions[dim.id] = {
-          id: val.id,
-          name: val.name || val.names?.en,
-        };
+        dimensions[dim.id] = { id: val.id, name: val.name || val.names?.en };
+        keyIds.push(val.id);
       }
     });
 
-    const observations: AbsObservation[] = [];
-    const obs = sbody.observations || {};
-    for (const [oi, arr] of Object.entries(obs)) {
+    const obs: (AbsObservation & { start?: string })[] = [];
+    for (const [oi, arr] of Object.entries(sbody.observations || {})) {
       const t = timeValues[Number(oi)];
-      const period = t?.id || t?.name || oi;
-      const value = Array.isArray(arr) ? (arr[0] as number | null) : null;
-      observations.push({ period, value });
+      obs.push({
+        period: t?.id || t?.name || oi,
+        value: Array.isArray(arr) ? (arr[0] as number | null) : null,
+        start: t?.start,
+      });
     }
-    // sort by period string
-    observations.sort((a, b) => a.period.localeCompare(b.period));
+    obs.sort(comparePeriods);
+    const observations: AbsObservation[] = obs.map(({ period, value }) => ({ period, value }));
 
-    series.push({ key: skey, dimensions, observations });
+    series.push({
+      key: keyIds.length === seriesDims.length && keyIds.length ? keyIds.join(".") : skey,
+      dimensions,
+      observations,
+    });
   }
 
   return {
@@ -249,9 +301,11 @@ export async function getData(q: AbsDataQuery): Promise<{
     description,
     series,
     seriesCount: series.length,
+    totalSeries,
+    truncated: totalSeries > series.length,
     attribution:
       "Source: Australian Bureau of Statistics (ABS) Data API — data.api.abs.gov.au. Licensed under Creative Commons Attribution 4.0 International.",
-    query: q,
+    query: { dataflow: flow, key, startPeriod: q.startPeriod, endPeriod: q.endPeriod },
   };
 }
 
@@ -273,7 +327,7 @@ export async function getCpi(opts?: {
     endPeriod: opts?.endPeriod,
   });
 
-  const primary = data.series[0];
+  const primary = data.series.find((x) => x.key === key) || data.series[0];
   const obs = primary?.observations || [];
   const latest = obs.length ? obs[obs.length - 1] : null;
   const prev = obs.length > 1 ? obs[obs.length - 2] : null;

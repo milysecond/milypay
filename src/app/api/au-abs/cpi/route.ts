@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getCpi } from "@/lib/abs";
+import { getCpi, absErrorResponse } from "@/lib/abs";
 import { withX402 } from "@/lib/x402";
 
 export const dynamic = "force-dynamic";
@@ -21,10 +21,7 @@ export async function GET(req: Request) {
           headers: { "Cache-Control": "public, max-age=1800" },
         });
       } catch (e) {
-        return NextResponse.json(
-          { error: e instanceof Error ? e.message : "ABS CPI failed" },
-          { status: 502 },
-        );
+        return absErrorResponse(e);
       }
     },
   );

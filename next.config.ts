@@ -36,7 +36,16 @@ const nextConfig: NextConfig = {
     ];
   },
   async rewrites() {
-    return [
+    return {
+      // api.milypay.xyz/status must hit the JSON route, not the /status HTML page.
+      beforeFiles: [
+        {
+          source: "/status",
+          has: [{ type: "host", value: "api.milypay.xyz" }],
+          destination: "/api/status",
+        },
+      ],
+      afterFiles: [
       {
         source: "/.well-known/x402",
         destination: "/api/x402-manifest",
@@ -74,7 +83,9 @@ const nextConfig: NextConfig = {
         has: [{ type: "host", value: "api.milypay.xyz" }],
         destination: "/api/:path*",
       },
-    ];
+      ],
+      fallback: [],
+    };
   },
 };
 

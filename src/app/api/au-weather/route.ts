@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getWeather } from "@/lib/weather";
+import { getWeather, geocodeLocality, looksLikeLocality } from "@/lib/weather";
 import { geocodeAddress } from "@/lib/gnaf";
 import { withX402 } from "@/lib/x402";
 
@@ -21,13 +21,21 @@ export async function GET(req: Request) {
       let address: string | undefined;
 
       if (q && q.trim()) {
-        const geo = await geocodeAddress(q);
-        if (!geo.found || geo.lat == null || geo.lng == null) {
-          return NextResponse.json({ error: "Address not found" }, { status: 404 });
+        // Place names ("Sydney NSW") resolve to the locality, not a street called "Sydney".
+        const loc = looksLikeLocality(q) ? await geocodeLocality(q).catch(() => null) : null;
+        if (loc) {
+          lat = loc.lat;
+          lng = loc.lng;
+          address = loc.address;
+        } else {
+          const geo = await geocodeAddress(q);
+          if (!geo.found || geo.lat == null || geo.lng == null) {
+            return NextResponse.json({ error: "Address not found" }, { status: 404 });
+          }
+          lat = geo.lat;
+          lng = geo.lng;
+          address = geo.address;
         }
-        lat = geo.lat;
-        lng = geo.lng;
-        address = geo.address;
       } else if (latParam && lngParam) {
         lat = Number(latParam);
         lng = Number(lngParam);
@@ -44,9 +52,11 @@ export async function GET(req: Request) {
         { headers: { "Cache-Control": "public, max-age=1800", "x-data-source": ATTRIBUTION } },
       );
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "weather lookup failed";
-      const status = msg.includes("TURSO") ? 503 : 502;
-      return NextResponse.json({ error: msg }, { status });
+      console.error("weather failed", e instanceof Error ? e.message.slice(0, 80) : "error");
+      return NextResponse.json(
+        { error: "Weather temporarily unavailable", code: "service_unavailable", brand: "Milypay" },
+        { status: 503 },
+      );
     }
   });
 }

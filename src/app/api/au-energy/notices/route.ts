@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getNemNotices } from "@/lib/energy";
 import { withX402 } from "@/lib/x402";
+import { energyUnavailable } from "@/lib/upstream-health";
 
 export const dynamic = "force-dynamic";
 
@@ -21,8 +22,7 @@ export async function GET(req: Request) {
           headers: { "Cache-Control": "public, max-age=60" },
         });
       } catch (e) {
-        const msg = e instanceof Error ? e.message : "NEM notices failed";
-        return NextResponse.json({ error: msg }, { status: 502 });
+        return energyUnavailable(e);
       }
     },
   );

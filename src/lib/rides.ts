@@ -63,6 +63,16 @@ export function listRideProducts() {
   };
 }
 
+/** Lightweight health probe: can we mint a client-credentials token? */
+export async function uberHealthy(): Promise<boolean> {
+  try {
+    await getAccessToken();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function getAccessToken(): Promise<string> {
   if (!uberConfigured()) {
     throw Object.assign(new Error("Uber API not configured"), { code: "not_configured", status: 503 });
@@ -344,6 +354,20 @@ export function errorToResponse(e: unknown): { status: number; body: Record<stri
     upstream?: unknown;
   };
   const status = typeof err.status === "number" ? err.status : 500;
+  // Upstream / auth / config problems: clean 503, never echo Uber's error text.
+  if (status !== 400 && status !== 404) {
+    console.error("uber rides failed", err.code, err.upstreamStatus ?? status);
+    return {
+      status: 503,
+      body: {
+        error: "Ride estimates temporarily unavailable",
+        code: "service_unavailable",
+        brand: "Milypay",
+        mode: "quote_only",
+        docs: "https://milypay.xyz/agents.md",
+      },
+    };
+  }
   return {
     status,
     body: {
@@ -352,7 +376,6 @@ export function errorToResponse(e: unknown): { status: number; body: Record<stri
       brand: "Milypay",
       mode: "quote_only",
       configured: uberConfigured(),
-      upstreamStatus: err.upstreamStatus,
       docs: "https://milypay.xyz/agents.md",
       setup:
         err.code === "not_configured"

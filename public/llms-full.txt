@@ -245,4 +245,4 @@ Does **not** return caller name or person identity for anonymous x402 wallets.
 
 - OpenAPI: https://milypay.xyz/openapi.json
 - API catalog: https://milypay.xyz/.well-known/api-catalog
-- MCP: https://milypay.xyz/mcp
+- MCP: stdio only via `npx -y milypay mcp` (setup notes: https://milypay.xyz/mcp)

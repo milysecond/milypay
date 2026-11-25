@@ -104,3 +104,66 @@ export async function getWeather(lat: number, lng: number, days = 7): Promise<We
     })),
   };
 }
+
+const STATES: Record<string, string> = {
+  NSW: "New South Wales",
+  VIC: "Victoria",
+  QLD: "Queensland",
+  SA: "South Australia",
+  WA: "Western Australia",
+  TAS: "Tasmania",
+  NT: "Northern Territory",
+  ACT: "Australian Capital Territory",
+};
+
+/** True when the query looks like a place name (no street number), e.g. "Sydney NSW" or "Ballarat VIC 3350". */
+export function looksLikeLocality(q: string): boolean {
+  const withoutPostcode = q.replace(/\b\d{4}\s*$/, "").trim();
+  return withoutPostcode.length > 0 && !/\d/.test(withoutPostcode);
+}
+
+/**
+ * Locality geocode (Open-Meteo geocoding, GeoNames). Prefers populated places,
+ * exact name matches and the given state; highest population wins.
+ */
+export async function geocodeLocality(
+  q: string,
+): Promise<{ lat: number; lng: number; address: string } | null> {
+  let rest = q.replace(/,/g, " ").replace(/\b\d{4}\s*$/, "").trim();
+  let state: string | undefined;
+  const m = rest.match(/\b(NSW|VIC|QLD|SA|WA|TAS|NT|ACT)\b\s*$/i);
+  if (m) {
+    state = m[1].toUpperCase();
+    rest = rest.slice(0, m.index).trim();
+  }
+  if (!rest) return null;
+  const url = new URL("https://geocoding-api.open-meteo.com/v1/search");
+  url.searchParams.set("name", rest);
+  url.searchParams.set("count", "20");
+  url.searchParams.set("countryCode", "AU");
+  url.searchParams.set("language", "en");
+  const res = await fetch(url.toString(), { signal: AbortSignal.timeout(8_000) });
+  if (!res.ok) return null;
+  const d = (await res.json().catch(() => ({}))) as {
+    results?: {
+      name: string;
+      latitude: number;
+      longitude: number;
+      feature_code?: string;
+      admin1?: string;
+      population?: number;
+    }[];
+  };
+  const wantState = state ? STATES[state] : undefined;
+  const candidates = (d.results || [])
+    .filter((r) => (r.feature_code || "").startsWith("PPL"))
+    .filter((r) => !wantState || r.admin1 === wantState);
+  if (!candidates.length) return null;
+  const exact = candidates.filter((r) => r.name.toLowerCase() === rest.toLowerCase());
+  const pool = exact.length ? exact : candidates;
+  pool.sort((a, b) => (b.population || 0) - (a.population || 0));
+  const best = pool[0];
+  const abbr =
+    Object.entries(STATES).find(([, full]) => full === best.admin1)?.[0] || best.admin1 || "";
+  return { lat: best.latitude, lng: best.longitude, address: `${best.name} ${abbr}`.trim() };
+}

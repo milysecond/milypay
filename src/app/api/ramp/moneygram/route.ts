@@ -67,13 +67,16 @@ export async function POST(req: Request) {
       ],
     });
   } catch (e) {
+    console.error("moneygram session failed", e instanceof Error ? e.message.slice(0, 80) : "error");
     return NextResponse.json(
       {
         ok: false,
-        error: e instanceof Error ? e.message : "session_failed",
+        error: "MoneyGram funding temporarily unavailable",
+        code: "service_unavailable",
         brand: "Milypay",
+        docs: "https://milypay.xyz/agents.md",
       },
-      { status: 502 },
+      { status: 503 },
     );
   }
 }

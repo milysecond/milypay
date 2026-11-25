@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { lookupPhone } from "@/lib/phone";
+import { lookupPhone, phoneErrorInfo } from "@/lib/phone";
+import { apiError, type ApiErrorCode } from "@/lib/errors";
 import { withX402 } from "@/lib/x402";
 
 export const dynamic = "force-dynamic";
@@ -34,15 +35,8 @@ export async function GET(
           },
         });
       } catch (e) {
-        const msg = e instanceof Error ? e.message : "Phone lookup failed";
-        const status =
-          (e as { status?: number }).status ||
-          (msg.includes("not configured")
-            ? 503
-            : msg.includes("Invalid") || msg.includes("must be")
-              ? 400
-              : 502);
-        return NextResponse.json({ error: msg }, { status });
+        const info = phoneErrorInfo(e);
+        return apiError(info.status, info.code as ApiErrorCode, info.error);
       }
     },
   );

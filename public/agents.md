@@ -27,8 +27,10 @@ Call any endpoint from your terminal with the Milypay CLI.
 
 First-party Milypay MCP server. Agents get typed tools for every Australian data endpoint.
 
+Stdio only (there is no hosted HTTP/SSE MCP endpoint). Run it locally with npx:
+
 ```bash
-npx milypay mcp
+npx -y milypay mcp
 ```
 
 Claude / Cursor config:
@@ -211,6 +213,9 @@ curl -i -X POST https://api.milypay.xyz/au-asic-extract/purchase \
   -H 'content-type: application/json' -d '{"nni":"695484756","kind":"company","type":"current"}'
 ```
 
+CLI: `npx milypay asic search milysec` · `npx milypay asic company 695484756` · `npx milypay asic purchase 695484756 --type current` · `npx milypay asic status <id> --token <t>` · `npx milypay asic extract <id> --token <t> --out extract.pdf`
+MCP: `asic_extract_catalogue`, `asic_extract_search`, `asic_extract_company`, `asic_extract_business`, `asic_extract_purchase`, `asic_extract_status`, `asic_extract_download`
+
 The buyer token is the only way to read status/download. Payment is settled only if the upstream purchase succeeds.
 Production pricing will exceed Acceleon's A$12 (current) / A$23 (current + historical) cost.
 
@@ -222,6 +227,7 @@ Australian Bureau of Statistics via SDMX Data API (no upstream key).
 GET /au-abs/dataflows?q=CPI
 GET /au-abs/dataflow/CPI
 GET /au-abs/data/CPI?key=1.10001.10.50.Q&startPeriod=2020
+# key=all returns at most maxSeries series (default 50, max 200); check `truncated`
 GET /au-abs/cpi
 ```
 
@@ -352,7 +358,7 @@ Demo UI: https://milypay.xyz/fund
 | OpenAPI 3.1 | https://milypay.xyz/openapi.json |
 | API catalog (RFC 9727) | https://milypay.xyz/.well-known/api-catalog |
 | x402 manifest | https://milypay.xyz/.well-known/x402 |
-| MCP (stdio) | https://milypay.xyz/mcp · `npx milypay mcp` |
+| MCP | Stdio only: `npx -y milypay mcp` (setup notes: https://milypay.xyz/mcp) |
 
 ## Checkify extras (`/au-check`)
 
@@ -373,3 +379,4 @@ Australian extras via Checkify (x402). TFN and Director ID are **checksums only*
 | `GET /au-check/email?email=` | $0.01 | Email MX/deliverability |
 
 CLI: `npx milypay check postcode 2000`
+MCP: `check_catalogue`, `check_postcode`, `check_reverse`, `check_suburb`, `check_activity`, `check_company_name`, `check_business_name`, `check_sanctions`, `check_director_id`, `check_tfn`, `check_email`

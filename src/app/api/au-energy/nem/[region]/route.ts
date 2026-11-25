@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getNemRegion } from "@/lib/energy";
 import { withX402 } from "@/lib/x402";
+import { energyUnavailable } from "@/lib/upstream-health";
 
 export const dynamic = "force-dynamic";
 
@@ -19,9 +20,11 @@ export async function GET(req: Request, { params }: Ctx) {
           headers: { "Cache-Control": "public, max-age=30" },
         });
       } catch (e) {
-        const msg = e instanceof Error ? e.message : "NEM region failed";
-        const status = msg.includes("Unknown NEM region") ? 404 : 502;
-        return NextResponse.json({ error: msg }, { status });
+        const msg = e instanceof Error ? e.message : "";
+        if (msg.includes("Unknown NEM region")) {
+          return NextResponse.json({ error: msg, code: "not_found", brand: "Milypay" }, { status: 404 });
+        }
+        return energyUnavailable(e);
       }
     },
   );

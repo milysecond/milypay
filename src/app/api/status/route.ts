@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { bapiEnvFromRequest, businessApiReadiness } from "@/lib/businessapi";
 import { paymentRailsStatus } from "@/lib/x402";
+import { upstreamHealth, type UpstreamStatus } from "@/lib/upstream-health";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +26,11 @@ const SERVICES = [
   "au-abs",
   "au-transit",
   "au-energy",
-  "au-phone", "au-rides", "domains",
+  "au-phone",
+  "au-rides",
+  "au-check",
+  "au-asic-extract",
+  "domains",
   "markets",
 ] as const;
 
@@ -109,7 +114,7 @@ export async function GET(req: Request) {
       message: "readiness probe timed out or failed",
     };
 
-    const [floatUsdc, receivedAudd, bapi, probes] = await Promise.all([
+    const [floatUsdc, receivedAudd, bapi, probes, upstreams] = await Promise.all([
       soft(tokenBalance(PAYER, USDC), -1),
       payTo ? soft(tokenBalance(payTo, AUDD), -1) : Promise.resolve(0),
       soft(businessApiReadiness({ environment }), fallbackBapi, 6_000),
@@ -122,11 +127,20 @@ export async function GET(req: Request) {
             probe("/au-weather?q=sydney", "au-weather"),
           ])
         : Promise.resolve([] as Probe[]),
+      upstreamHealth().catch(() => [] as UpstreamStatus[]),
     ]);
 
     const allProbesOk = probes.length === 0 || probes.every((p) => p.ok);
+    const degradedServices = [
+      ...new Set([
+        ...upstreams.filter((u) => !u.ok).map((u) => u.service),
+        ...probes.filter((p) => !p.ok).map((p) => p.id),
+      ]),
+    ];
     const overall =
-      process.env.X402_ENABLED === "true" && allProbesOk ? "operational" : "degraded";
+      process.env.X402_ENABLED === "true" && allProbesOk && degradedServices.length === 0
+        ? "operational"
+        : "degraded";
 
     return NextResponse.json(
       {
@@ -134,6 +148,8 @@ export async function GET(req: Request) {
         status: overall,
         checkedAt: new Date().toISOString(),
         services: [...SERVICES],
+        degraded: degradedServices,
+        upstreams: upstreams.map((u) => ({ id: u.id, service: u.service, ok: u.ok, checkedAt: u.checkedAt })),
         pending: ["au-tracking"],
         x402: process.env.X402_ENABLED === "true",
         moneygram: { funding: true, session: "/ramp/moneygram/session", demo: "/fund" },
@@ -162,12 +178,12 @@ export async function GET(req: Request) {
         },
       },
     );
-  } catch (e) {
+  } catch {
     return NextResponse.json(
       {
         ok: false,
         status: "error",
-        error: e instanceof Error ? e.message : "status unavailable",
+        error: "status unavailable",
         code: "upstream_error",
         brand: "Milypay",
       },
