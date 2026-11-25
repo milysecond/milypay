@@ -9,7 +9,7 @@ export async function GET(req: Request) {
   const name = (url.searchParams.get("name") || url.searchParams.get("q") || "").trim();
   if (name.length < 2 || name.length > 120) {
     return NextResponse.json(
-      { error: "name query param required (2-120 chars). Search is by name only.", example: "/au-asic-extract/search?name=landcloud" },
+      { error: "name query param required (2-120 chars). Search is by name only.", example: "/au-asic-extract/search?name=milysec" },
       { status: 400 },
     );
   }

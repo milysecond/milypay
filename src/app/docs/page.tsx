@@ -155,11 +155,11 @@ const SECTIONS: Section[] = [
       {
         path: "GET /au-asic-extract/search?name={name}",
         desc: "Organisation name search (companies and business names). Search is by name only. Use NNINumber in later calls.",
-        example: 'curl "https://api.milypay.xyz/au-asic-extract/search?name=landcloud"',
+        example: 'curl "https://api.milypay.xyz/au-asic-extract/search?name=milysec"',
         response: `{
-  "query": "landcloud",
+  "query": "milysec",
   "companyResults": [
-    { "Name": "LANDCLOUD PTY LTD", "NNINumber": "670269093", "Status": "Registered" }
+    { "Name": "MILYSEC PTY LTD", "NNINumber": "695484756", "Status": "Registered" }
   ],
   "businessResults": [],
   "environment": "UAT",
@@ -169,13 +169,13 @@ const SECTIONS: Section[] = [
       {
         path: "GET /au-asic-extract/company/{nni}",
         desc: "Company details plus canPurchaseCurrent / canPurchaseHistorical. NNI is the ACN for companies. /business/{nni} for business names.",
-        example: 'curl "https://api.milypay.xyz/au-asic-extract/company/670269093"',
+        example: 'curl "https://api.milypay.xyz/au-asic-extract/company/695484756"',
         response: `{
   "kind": "company",
-  "nni": "670269093",
+  "nni": "695484756",
   "canPurchaseCurrent": true,
   "canPurchaseHistorical": true,
-  "details": { "Name": "LANDCLOUD PTY LTD", "Status": "Registered", "OrgNumberHeading": "ACN" },
+  "details": { "Name": "MILYSEC PTY LTD", "Status": "Registered", "OrgNumberHeading": "ACN" },
   "environment": "UAT"
 }`,
       },
@@ -183,28 +183,28 @@ const SECTIONS: Section[] = [
         path: "POST /au-asic-extract/purchase",
         desc: "Buy an extract (always x402-paid). Body { nni, kind: company|business, type: current|historical }. Returns the extract ID and a 30-day buyer token. Payment settles only if the upstream purchase succeeds.",
         example:
-          `curl -X POST https://api.milypay.xyz/au-asic-extract/purchase -H 'content-type: application/json' -d '{"nni":"670269093","kind":"company","type":"current"}'`,
+          `curl -X POST https://api.milypay.xyz/au-asic-extract/purchase -H 'content-type: application/json' -d '{"nni":"695484756","kind":"company","type":"current"}'`,
         response: `{
-  "extractId": "97128",
+  "extractId": "000000001",
   "token": "eyJ4IjoiOTcxMjgi...",
-  "statusUrl": "/au-asic-extract/status/97128?token=...",
-  "downloadUrl": "/au-asic-extract/extract/97128?token=...",
-  "pdfUrl": "/au-asic-extract/extract/97128?token=...&format=pdf",
+  "statusUrl": "/au-asic-extract/status/000000001?token=...",
+  "downloadUrl": "/au-asic-extract/extract/000000001?token=...",
+  "pdfUrl": "/au-asic-extract/extract/000000001?token=...&format=pdf",
   "environment": "UAT"
 }`,
       },
       {
         path: "GET /au-asic-extract/status/{extractId}?token={token}",
         desc: "Extract status (Complete, Pending, Error, Unknown). Free with the buyer token; poll every 5-10s.",
-        example: 'curl "https://api.milypay.xyz/au-asic-extract/status/97128?token=$TOKEN"',
-        response: `{ "extractId": "97128", "status": "Complete", "complete": true }`,
+        example: 'curl "https://api.milypay.xyz/au-asic-extract/status/000000001?token=$TOKEN"',
+        response: `{ "extractId": "000000001", "status": "Complete", "complete": true }`,
       },
       {
         path: "GET /au-asic-extract/extract/{extractId}?token={token}&pdf=1",
         desc: "Download the extract: data + fullData JSON, plus pdfBase64 with pdf=1. Use format=pdf to stream application/pdf. Token also accepted as X-Extract-Token.",
-        example: 'curl -o extract.pdf "https://api.milypay.xyz/au-asic-extract/extract/97128?token=$TOKEN&format=pdf"',
+        example: 'curl -o extract.pdf "https://api.milypay.xyz/au-asic-extract/extract/000000001?token=$TOKEN&format=pdf"',
         response: `{
-  "extractId": "97128",
+  "extractId": "000000001",
   "extractType": "CurrentCompany",
   "data": { "BusinessDetails": [ ... ] },
   "fullData": { "CompanyDetailsGroup": { ... }, "CompanyOfficers": [ ... ] },
