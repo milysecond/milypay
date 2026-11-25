@@ -49,9 +49,9 @@ const SECTIONS: Section[] = [
   "abnStatus": "Active",
   "acn": "695484756",
   "entityName": "MILYSEC PTY LTD",
-  "entityType": "Australian Public Company",
-  "businessNames": ["YELLOW PAGES", "WHEREIS", "..."],
-  "gstRegistered": true,
+  "entityType": "Australian Private Company",
+  "businessNames": [],
+  "gstRegistered": false,
   "state": "VIC",
   "postcode": "3000"
 }`,
@@ -65,11 +65,11 @@ const SECTIONS: Section[] = [
       {
         path: "GET /au-business/search?name={name}",
         desc: "Matching ABNs for a business or entity name. Optional maxResults (default 10).",
-        example: 'curl "https://api.milypay.xyz/au-business/search?name=Milysec"',
+        example: 'curl "https://api.milypay.xyz/au-business/search?name=milysec"',
         response: `{
   "matches": [
-    { "abn": "55695484756", "name": "Milysec", "nameType": "Business Name",
-      "abnStatus": "Active", "state": "NSW", "postcode": "2153", "score": 99 }
+    { "abn": "55695484756", "name": "MILYSEC PTY LTD", "nameType": "Entity Name",
+      "abnStatus": "Active", "state": "VIC", "postcode": "3000", "score": 99 }
   ]
 }`,
       },
@@ -89,13 +89,13 @@ const SECTIONS: Section[] = [
         response: `{
   "acn": "695484756",
   "abn": "55695484756",
-  "name": "Milysec Group Limited",
+  "name": "Milysec Pty Ltd",
   "status": "Registered",
-  "type": "Australian public company",
+  "type": "Australian proprietary company",
   "class": "Limited by shares",
-  "registrationDate": "1924-09-22",
+  "registrationDate": "2026-02-19",
   "deregistrationDate": null,
-  "formerNames": ["Milysec Ltd"]
+  "formerNames": []
 }`,
       },
       {
@@ -463,7 +463,7 @@ const SECTIONS: Section[] = [
         path: "GET /au-phone?number={e164}",
         desc: "Line intel. AU 04… accepted. URL-encode + as %2B.",
         example: 'curl "https://api.milypay.xyz/au-phone?number=%2B61412345678"',
-        response: `{ "valid": true, "e164": "+61412345678", "countryCode": "AU", "lineType": "mobile", "carrierName": "Milysec…", "note": "Line intelligence only…" }`,
+        response: `{ "valid": true, "e164": "+61412345678", "countryCode": "AU", "lineType": "mobile", "carrierName": "Example Carrier", "note": "Line intelligence only…" }`,
       },
       {
         path: "GET /au-phone/{e164}",

@@ -13,7 +13,7 @@ const props = {
   source: "ASIC open data (extract is official product, not free gov JSON)",
   sample: `{
   "acn": "695484756",
-  "name": "Milysec GROUP LIMITED",
+  "name": "MILYSEC PTY LTD",
   "status": "Registered"
 }`,
   related: [

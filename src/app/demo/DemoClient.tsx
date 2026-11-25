@@ -35,9 +35,8 @@ const MODES: { key: Mode; label: string; placeholder: string }[] = [
 ];
 
 const EXAMPLES: { label: string; mode: Mode; q: string }[] = [
-  { label: "Milysec", mode: "abn", q: "55695484756" },
-  { label: "Milysec", mode: "abn", q: "55695484756" },
-  { label: "ATO", mode: "abn", q: "55695484756" },
+  { label: "Milysec ABN", mode: "abn", q: "55695484756" },
+  { label: "Milysec ACN", mode: "acn", q: "695484756" },
   { label: 'Search "milysec"', mode: "name", q: "milysec" },
 ];
 

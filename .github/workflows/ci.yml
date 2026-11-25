@@ -23,7 +23,7 @@ jobs:
       - name: CLI smoke
         run: |
           node dist/index.js --version
-          node dist/index.js --demo --quiet abn 55695484756 | grep -q AUSTRALIAN
+          node dist/index.js --demo --quiet abn 55695484756 | grep -q MILYSEC
       - name: MCP smoke
         run: |
           python3 - <<'PY'

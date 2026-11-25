@@ -59,7 +59,7 @@ curl https://api.milypay.xyz/au-business/abn/55695484756
 
 # Business by ACN, or name search
 curl https://api.milypay.xyz/au-business/acn/695484756
-curl "https://api.milypay.xyz/au-business/search?name=Milysec"
+curl "https://api.milypay.xyz/au-business/search?name=milysec"
 
 # Address validation / search / geocoding
 curl "https://api.milypay.xyz/au-address/validate?q=1 bligh st sydney"

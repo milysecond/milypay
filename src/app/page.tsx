@@ -310,10 +310,10 @@ function PaymentMock() {
             <pre className="mt-2 whitespace-pre-wrap text-fg">{`{
   "abn": "55695484756",
   "entityName": "MILYSEC PTY LTD",
-  "entityType": "Commonwealth Government Entity",
+  "entityType": "Australian Private Company",
   "abnStatus": "Active",
-  "state": "NSW",
-  "postcode": "2640"
+  "state": "VIC",
+  "postcode": "3000"
 }`}</pre>
           </div>
         </div>
@@ -677,10 +677,10 @@ export default function Home() {
 {
   "abn": "55695484756",
   "entityName": "MILYSEC PTY LTD",
-  "entityType": "Commonwealth Government Entity",
+  "entityType": "Australian Private Company",
   "abnStatus": "Active",
-  "state": "NSW",
-  "postcode": "2640"
+  "state": "VIC",
+  "postcode": "3000"
 }
 
 `}<span className="text-muted"># paid agents: https://api.milypay.xyz/au-business/abn/55695484756 → 402</span>{``}

@@ -15,10 +15,10 @@ const props = {
   "abn": "55695484756",
   "abnStatus": "Active",
   "entityName": "MILYSEC PTY LTD",
-  "entityType": "Commonwealth Government Entity",
-  "gstRegistered": true,
-  "state": "NSW",
-  "postcode": "2640"
+  "entityType": "Australian Private Company",
+  "gstRegistered": false,
+  "state": "VIC",
+  "postcode": "3000"
 }`,
   related: [
     { href: "/asic-company-api", label: "ASIC company API" },
