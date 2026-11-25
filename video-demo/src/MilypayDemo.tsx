@@ -209,8 +209,8 @@ function TerminalDemo() {
     '  "abn": "55695484756",',
     '  "entityName": "MILYSEC PTY LTD",',
     '  "abnStatus": "Active",',
-    '  "entityType": "Commonwealth Government Entity",',
-    '  "gstRegistered": true',
+    '  "entityType": "Australian Private Company",',
+    '  "gstRegistered": false',
     '}',
   ];
   const linesVisible = Math.floor(
