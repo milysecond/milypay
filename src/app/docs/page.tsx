@@ -16,6 +16,7 @@ const NAV = [
   { id: "business", label: "Business identity" },
   { id: "company", label: "Company register" },
   { id: "company-report", label: "ASIC extract" },
+  { id: "asic-extract", label: "ASIC extract (Acceleon, test)" },
   { id: "address", label: "Address" },
   { id: "super", label: "Super funds" },
   { id: "weather", label: "Weather" },
@@ -140,6 +141,77 @@ const SECTIONS: Section[] = [
         example:
           `curl -X POST https://api.milypay.xyz/au-company-report -H 'content-type: application/json' -d '{"acn":"695484756","type":"current"}'`,
         response: `{ "acn": "695484756", "status": "finished", "pdfBase64": "..." }`,
+      },
+    ],
+  },
+  {
+    id: "asic-extract",
+    title: "ASIC extracts via Acceleon (test mode)",
+    namespace: "au-asic-extract",
+    source: "ASIC via Acceleon ASIC Web API (UAT test environment)",
+    blurb:
+      "TEST MODE on Acceleon UAT. Search and details reflect the ASIC register, but extract contents are dummy test data (e.g. SAMPLE ORGANISATION NAME). Flow: search by name, read details, buy an extract via x402 (returns an extract ID and a buyer token), poll status, then download JSON or PDF with the token. Test prices: $0.005 lookups, $0.10 current / $0.20 current+historical extracts. Production pricing will exceed Acceleon's A$12 / A$23 cost.",
+    endpoints: [
+      {
+        path: "GET /au-asic-extract/search?name={name}",
+        desc: "Organisation name search (companies and business names). Search is by name only. Use NNINumber in later calls.",
+        example: 'curl "https://api.milypay.xyz/au-asic-extract/search?name=example"',
+        response: `{
+  "query": "example",
+  "companyResults": [
+    { "Name": "EXAMPLE PTY LTD", "NNINumber": "000000000", "Status": "Registered" }
+  ],
+  "businessResults": [],
+  "environment": "UAT",
+  "testMode": true
+}`,
+      },
+      {
+        path: "GET /au-asic-extract/company/{nni}",
+        desc: "Company details plus canPurchaseCurrent / canPurchaseHistorical. NNI is the ACN for companies. /business/{nni} for business names.",
+        example: 'curl "https://api.milypay.xyz/au-asic-extract/company/000000000"',
+        response: `{
+  "kind": "company",
+  "nni": "000000000",
+  "canPurchaseCurrent": true,
+  "canPurchaseHistorical": true,
+  "details": { "Name": "EXAMPLE PTY LTD", "Status": "Registered", "OrgNumberHeading": "ACN" },
+  "environment": "UAT"
+}`,
+      },
+      {
+        path: "POST /au-asic-extract/purchase",
+        desc: "Buy an extract (always x402-paid). Body { nni, kind: company|business, type: current|historical }. Returns the extract ID and a 30-day buyer token. Payment settles only if the upstream purchase succeeds.",
+        example:
+          `curl -X POST https://api.milypay.xyz/au-asic-extract/purchase -H 'content-type: application/json' -d '{"nni":"000000000","kind":"company","type":"current"}'`,
+        response: `{
+  "extractId": "000000001",
+  "token": "eyJ4IjoiOTcxMjgi...",
+  "statusUrl": "/au-asic-extract/status/000000001?token=...",
+  "downloadUrl": "/au-asic-extract/extract/000000001?token=...",
+  "pdfUrl": "/au-asic-extract/extract/000000001?token=...&format=pdf",
+  "environment": "UAT"
+}`,
+      },
+      {
+        path: "GET /au-asic-extract/status/{extractId}?token={token}",
+        desc: "Extract status (Complete, Pending, Error, Unknown). Free with the buyer token; poll every 5-10s.",
+        example: 'curl "https://api.milypay.xyz/au-asic-extract/status/000000001?token=$TOKEN"',
+        response: `{ "extractId": "000000001", "status": "Complete", "complete": true }`,
+      },
+      {
+        path: "GET /au-asic-extract/extract/{extractId}?token={token}&pdf=1",
+        desc: "Download the extract: data + fullData JSON, plus pdfBase64 with pdf=1. Use format=pdf to stream application/pdf. Token also accepted as X-Extract-Token.",
+        example: 'curl -o extract.pdf "https://api.milypay.xyz/au-asic-extract/extract/000000001?token=$TOKEN&format=pdf"',
+        response: `{
+  "extractId": "000000001",
+  "extractType": "CurrentCompany",
+  "data": { "BusinessDetails": [ ... ] },
+  "fullData": { "CompanyDetailsGroup": { ... }, "CompanyOfficers": [ ... ] },
+  "pdfBase64": "JVBERi0xLjcK...",
+  "environment": "UAT",
+  "testMode": true
+}`,
       },
     ],
   },

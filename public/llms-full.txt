@@ -64,6 +64,20 @@ POST /au-company-report - price 12.00 (JSON body: {"acn":"695484756"})
   Not available from free ASIC open data or ABR. Ordered via Business API DSP. Always paid.
   Example: GET https://api.milypay.xyz/au-company-report?acn=695484756
 
+### au-asic-extract - ASIC extracts via Acceleon (TEST MODE, UAT)
+
+All responses carry environment: "UAT", testMode: true. Search/details hit the real register; extract contents are dummy UAT data ("SAMPLE ORGANISATION NAME").
+GET /au-asic-extract - free catalogue
+GET /au-asic-extract/search?name={name} - price 0.005. Name search only (not ABN/ACN). Returns companyResults[] / businessResults[] with NNINumber.
+GET /au-asic-extract/company/{nni} - price 0.005. Details + canPurchaseCurrent / canPurchaseHistorical. NNI = ACN for companies.
+GET /au-asic-extract/business/{nni} - price 0.005. Business name details.
+POST /au-asic-extract/purchase - price 0.10 (type=current) / 0.20 (type=historical), always paid. JSON body {"nni":"000000000","kind":"company","type":"current"}.
+  Returns {"extractId":"000000001","token":"...","statusUrl":"...","downloadUrl":"...","pdfUrl":"..."}. Payment settles only if the upstream purchase succeeds.
+GET /au-asic-extract/status/{extractId}?token= - free with buyer token. {"status":"Complete","complete":true}
+GET /au-asic-extract/extract/{extractId}?token=&pdf=1 - free with buyer token. JSON data + fullData (+ pdfBase64). &format=pdf returns application/pdf.
+  Token also accepted as X-Extract-Token header or Authorization: Bearer. Tokens last 30 days.
+  Production pricing (later) will exceed Acceleon's A$12 current / A$23 current+historical cost.
+
 ### au-address - Address (G-NAF, Geoscape, 16.9M addresses)
 
 GET /au-address/validate?q={address} - price 0.004
