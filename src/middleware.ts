@@ -12,7 +12,7 @@ const CORS: Record<string, string> = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers":
-    "Content-Type, Accept, PAYMENT-SIGNATURE, X-PAYMENT, payment-signature",
+    "Content-Type, Accept, Authorization, PAYMENT-SIGNATURE, X-PAYMENT, payment-signature, X-Extract-Token",
   "Access-Control-Expose-Headers":
     "PAYMENT-REQUIRED, PAYMENT-RESPONSE, X-PAYMENT-RESPONSE, payment-required, payment-response, x-payment-response",
   "Access-Control-Max-Age": "86400",

@@ -92,6 +92,7 @@ All services live under the `milysec/*` namespace on Pay.sh.
 | `GET /au-company/acn/{acn}` | ASIC company: status, type, class, registration dates, former names (open data) | $0.002 / call |
 | `GET /au-company/search?name=` | Companies matching a name (current + former names, open data) | $0.004 / call |
 | `GET /au-company-report?acn=` | Official ASIC extract (directors, office, share capital). Paid DSP only | $12 / extract |
+| `POST /au-asic-extract/purchase` | **Test mode (Acceleon UAT)**: buy ASIC extract, returns extractId + buyer token. Search/details $0.005 | $0.10 current / $0.20 historical |
 | `GET /au-address/validate?q=` | Canonical address, GNAF PID, geocode | $0.004 / call |
 | `GET /au-address/search?q=` | Ranked address matches (autocomplete) | $0.004 / call |
 | `GET /au-address/geocode?q=` | Latitude / longitude for an address | $0.004 / call |
@@ -187,6 +188,31 @@ npx milypay --api company-report 000014675
 
 Response includes `pdfBase64`, `pdfBytes`, `requestId`, `status`.
 MCP tool: `company_report`.
+
+### ASIC extracts via Acceleon (`/au-asic-extract`) — TEST MODE
+
+Backed by **Acceleon UAT**. Search and details reflect the ASIC register; extract contents are dummy test data
+(`SAMPLE ORGANISATION NAME`). Every response includes `"environment": "UAT"` and `"testMode": true`.
+
+| Endpoint | Price (test) | Notes |
+| --- | --- | --- |
+| `GET /au-asic-extract/search?name=` | $0.005 | Name search only. Use `NNINumber` (ACN for companies) |
+| `GET /au-asic-extract/company/{nni}` | $0.005 | Details + `canPurchaseCurrent` / `canPurchaseHistorical` |
+| `GET /au-asic-extract/business/{nni}` | $0.005 | Business name details |
+| `POST /au-asic-extract/purchase` | $0.10 current / $0.20 historical | Body `{"nni","kind":"company","type":"current"}`. Always paid. Returns `extractId` + `token` |
+| `GET /au-asic-extract/status/{id}?token=` | free (token) | Poll every 5-10s until `Complete` |
+| `GET /au-asic-extract/extract/{id}?token=&pdf=1` | free (token) | JSON + optional `pdfBase64`; `&format=pdf` streams the PDF |
+
+```bash
+curl "https://milypay.xyz/api/au-asic-extract/search?name=landcloud"
+curl "https://milypay.xyz/api/au-asic-extract/company/670269093"
+# paid purchase (x402) — sign the 402 challenge and retry with PAYMENT-SIGNATURE
+curl -i -X POST https://api.milypay.xyz/au-asic-extract/purchase \
+  -H 'content-type: application/json' -d '{"nni":"670269093","kind":"company","type":"current"}'
+```
+
+The buyer token is the only way to read status/download. Payment is settled only if the upstream purchase succeeds.
+Production pricing will exceed Acceleon's A$12 (current) / A$23 (current + historical) cost.
 
 ## ABS statistics
 
