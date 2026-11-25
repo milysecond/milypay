@@ -155,11 +155,11 @@ const SECTIONS: Section[] = [
       {
         path: "GET /au-asic-extract/search?name={name}",
         desc: "Organisation name search (companies and business names). Search is by name only. Use NNINumber in later calls.",
-        example: 'curl "https://api.milypay.xyz/au-asic-extract/search?name=example"',
+        example: 'curl "https://api.milypay.xyz/au-asic-extract/search?name=milysec"',
         response: `{
-  "query": "example",
+  "query": "milysec",
   "companyResults": [
-    { "Name": "EXAMPLE PTY LTD", "NNINumber": "000000000", "Status": "Registered" }
+    { "Name": "MILYSEC PTY LTD", "NNINumber": "695484756", "Status": "Registered" }
   ],
   "businessResults": [],
   "environment": "UAT",
@@ -169,13 +169,13 @@ const SECTIONS: Section[] = [
       {
         path: "GET /au-asic-extract/company/{nni}",
         desc: "Company details plus canPurchaseCurrent / canPurchaseHistorical. NNI is the ACN for companies. /business/{nni} for business names.",
-        example: 'curl "https://api.milypay.xyz/au-asic-extract/company/000000000"',
+        example: 'curl "https://api.milypay.xyz/au-asic-extract/company/695484756"',
         response: `{
   "kind": "company",
-  "nni": "000000000",
+  "nni": "695484756",
   "canPurchaseCurrent": true,
   "canPurchaseHistorical": true,
-  "details": { "Name": "EXAMPLE PTY LTD", "Status": "Registered", "OrgNumberHeading": "ACN" },
+  "details": { "Name": "MILYSEC PTY LTD", "Status": "Registered", "OrgNumberHeading": "ACN" },
   "environment": "UAT"
 }`,
       },
@@ -183,7 +183,7 @@ const SECTIONS: Section[] = [
         path: "POST /au-asic-extract/purchase",
         desc: "Buy an extract (always x402-paid). Body { nni, kind: company|business, type: current|historical }. Returns the extract ID and a 30-day buyer token. Payment settles only if the upstream purchase succeeds.",
         example:
-          `curl -X POST https://api.milypay.xyz/au-asic-extract/purchase -H 'content-type: application/json' -d '{"nni":"000000000","kind":"company","type":"current"}'`,
+          `curl -X POST https://api.milypay.xyz/au-asic-extract/purchase -H 'content-type: application/json' -d '{"nni":"695484756","kind":"company","type":"current"}'`,
         response: `{
   "extractId": "000000001",
   "token": "eyJ4IjoiOTcxMjgi...",

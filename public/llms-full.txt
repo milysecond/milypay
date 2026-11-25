@@ -71,7 +71,7 @@ GET /au-asic-extract - free catalogue
 GET /au-asic-extract/search?name={name} - price 0.005. Name search only (not ABN/ACN). Returns companyResults[] / businessResults[] with NNINumber.
 GET /au-asic-extract/company/{nni} - price 0.005. Details + canPurchaseCurrent / canPurchaseHistorical. NNI = ACN for companies.
 GET /au-asic-extract/business/{nni} - price 0.005. Business name details.
-POST /au-asic-extract/purchase - price 0.10 (type=current) / 0.20 (type=historical), always paid. JSON body {"nni":"000000000","kind":"company","type":"current"}.
+POST /au-asic-extract/purchase - price 0.10 (type=current) / 0.20 (type=historical), always paid. JSON body {"nni":"695484756","kind":"company","type":"current"}.
   Returns {"extractId":"000000001","token":"...","statusUrl":"...","downloadUrl":"...","pdfUrl":"..."}. Payment settles only if the upstream purchase succeeds.
 GET /au-asic-extract/status/{extractId}?token= - free with buyer token. {"status":"Complete","complete":true}
 GET /au-asic-extract/extract/{extractId}?token=&pdf=1 - free with buyer token. JSON data + fullData (+ pdfBase64). &format=pdf returns application/pdf.

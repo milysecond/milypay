@@ -204,11 +204,11 @@ Backed by **Acceleon UAT**. Search and details reflect the ASIC register; extrac
 | `GET /au-asic-extract/extract/{id}?token=&pdf=1` | free (token) | JSON + optional `pdfBase64`; `&format=pdf` streams the PDF |
 
 ```bash
-curl "https://milypay.xyz/api/au-asic-extract/search?name=example"
-curl "https://milypay.xyz/api/au-asic-extract/company/000000000"
+curl "https://milypay.xyz/api/au-asic-extract/search?name=milysec"
+curl "https://milypay.xyz/api/au-asic-extract/company/695484756"
 # paid purchase (x402) — sign the 402 challenge and retry with PAYMENT-SIGNATURE
 curl -i -X POST https://api.milypay.xyz/au-asic-extract/purchase \
-  -H 'content-type: application/json' -d '{"nni":"000000000","kind":"company","type":"current"}'
+  -H 'content-type: application/json' -d '{"nni":"695484756","kind":"company","type":"current"}'
 ```
 
 The buyer token is the only way to read status/download. Payment is settled only if the upstream purchase succeeds.
