@@ -125,7 +125,7 @@ export async function organisationDetails(kind: OrgKind, nni: string) {
   return r.json;
 }
 
-/** UAT replies with a bare number (e.g. 97128); docs say {"ExtractID": n}. Handle both. */
+/** UAT replies with a bare number (e.g. 000000001); docs say {"ExtractID": n}. Handle both. */
 export function parseExtractId(text: string, json: unknown): string | null {
   const bare = text.trim().replace(/^"|"$/g, "");
   if (/^\d{1,18}$/.test(bare)) return bare;

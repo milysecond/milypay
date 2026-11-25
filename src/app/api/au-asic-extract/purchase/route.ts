@@ -27,7 +27,7 @@ export async function POST(req: Request) {
   try {
     body = (await req.json()) as Body;
   } catch {
-    return NextResponse.json({ error: "JSON body required: {\"nni\":\"670269093\",\"kind\":\"company\",\"type\":\"current\"}" }, { status: 400 });
+    return NextResponse.json({ error: "JSON body required: {\"nni\":\"695484756\",\"kind\":\"company\",\"type\":\"current\"}" }, { status: 400 });
   }
   const nni = normalizeNni(String(body.nni || body.acn || ""));
   const kind: OrgKind = body.kind === "business" ? "business" : "company";
@@ -78,7 +78,7 @@ export async function GET() {
   return NextResponse.json(
     {
       error: "Use POST with JSON body",
-      example: { nni: "670269093", kind: "company", type: "current" },
+      example: { nni: "695484756", kind: "company", type: "current" },
       prices: { current: PRICES.purchaseCurrent, historical: PRICES.purchaseHistorical },
       docs: "https://milypay.xyz/docs#asic-extract",
     },
